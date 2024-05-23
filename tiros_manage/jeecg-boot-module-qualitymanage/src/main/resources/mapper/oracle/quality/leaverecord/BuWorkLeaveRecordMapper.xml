@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.leaverecord.mapper.BuWorkLeaveRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.leaverecord.bean.BuWorkLeaveRecord">
+        <id column="id" property="id"/>
+        <result column="record_code" property="recordCode"/>
+        <result column="record_name" property="recordName"/>
+        <result column="record_desc" property="recordDesc"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, record_code, record_name, record_desc, line_id, train_no, order_id, order_task_id, status,
+        create_time, create_by, update_time, update_by, company_id, workshop_id
+    </sql>
+    <update id="updateStatus">
+        update  bu_work_leave_record set status=2 where id=#{id, jdbcType=VARCHAR}
+    </update>
+
+    <!-- 分页查询开口项记录 -->
+    <select id="selectWorkLeaveRecordPage" resultType="org.jeecg.modules.quality.leaverecord.bean.BuWorkLeaveRecord">
+        SELECT
+        t1.*,
+        t2.order_name AS orderName,
+        t3.task_name AS orderTaskName,
+        t4.line_name AS lineName
+        FROM bu_work_leave_record t1
+        LEFT JOIN bu_work_order t2 ON t2.id = t1.order_id
+        LEFT JOIN bu_work_order_task t3 ON t3.id = t1.order_task_id
+        LEFT JOIN bu_mtr_line t4 ON t4.line_id=t1.line_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                (
+                t1.record_code LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t1.record_name LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t1.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.train_no=#{queryVO.trainNo}
+            </if>
+            <if test="queryVO.status != null">
+                and t1.status=#{queryVO.status}
+            </if>
+            <if test="queryVO.planId!=null and queryVO.planId!=''">
+                AND t2.plan_id=#{queryVO.planId}
+            </if>
+        </where>
+        ORDER BY t1.record_code DESC
+    </select>
+
+    <select id="selectListByCondition" resultType="org.jeecg.modules.quality.leaverecord.bean.BuWorkLeaveRecord">
+        SELECT
+        t1.*,
+        t2.order_name AS orderName,
+        t3.task_name AS orderTaskName,
+        t4.line_name AS lineName
+        FROM bu_work_leave_record t1
+        LEFT JOIN bu_work_order t2 ON t2.id = t1.order_id
+        LEFT JOIN bu_work_order_task t3 ON t3.id = t1.order_task_id
+        LEFT JOIN bu_mtr_line t4 ON t4.line_id=t1.line_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                (
+                t1.record_code LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t1.record_name LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t1.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.train_no=#{queryVO.trainNo}
+            </if>
+            <if test="queryVO.status != null">
+                and t1.status=#{queryVO.status}
+            </if>
+            <if test="queryVO.planId!=null and queryVO.planId!=''">
+                and t2.plan_id=#{queryVO.planId}
+            </if>
+        </where>
+        ORDER BY t1.record_code DESC
+    </select>
+
+</mapper>

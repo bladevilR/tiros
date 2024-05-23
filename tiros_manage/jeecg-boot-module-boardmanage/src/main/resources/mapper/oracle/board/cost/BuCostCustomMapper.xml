@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.cost.mapper.BuCostCustomMapper">
+
+    <select id="countGroupUser" resultType="java.lang.Integer">
+        select COUNT(distinct t.user_id)
+        from sys_user_depart t
+        inner join bu_mtr_workshop_group t1 on t1.id = t.dep_id
+        inner join bu_mtr_workshop t2 on t2.id = t1.workshop_id
+        inner join bu_mtr_depot_line t3 on t3.depot_id = t2.depot_id
+        inner join sys_user t4 on t4.id = t.user_id
+        where t4.del_flag=0 and t4.status=1
+        <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+            and t2.id = #{queryVO.workshopId}
+        </if>
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            and t2.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t3.line_id = #{queryVO.lineId}
+        </if>
+    </select>
+
+    <select id="sumFinishOrderTaskUseTime" resultType="java.lang.Integer">
+        select SUM(t.work_time)
+        from bu_repair_task_staff_arrange t
+        left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+        left join bu_work_order_task t2 on t2.id = t1.order_task_id
+        left join bu_work_order t3 on t3.id = t2.order_id
+        left join bu_repair_plan t4 on t4.id = t3.plan_id
+        left join bu_repair_program t5 on t5.id = t4.repair_program_id
+        where t2.task_status = 2
+        <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+            and t3.workshop_id = #{queryVO.workshopId}
+        </if>
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            and t4.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t3.workshop_id in (select id from bu_mtr_workshop where depot_id in (select depot_id from
+            bu_mtr_depot_line where line_id = #{queryVO.lineId}))
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t3.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.programType != null and queryVO.programType != 0">
+            AND t5.pro_type = #{queryVO.programType}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            and (
+            t2.task_finish &gt;= #{queryVO.startDate}
+            and
+            t2.task_finish &lt;= #{queryVO.endDate}
+            )
+        </if>
+    </select>
+
+    <select id="selectWorkshopTool5IdList" resultType="java.lang.String">
+        select t.id
+        from bu_material_tools t
+        where t.tool_type = 5
+        <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+            and t.workshop_id = #{queryVO.workshopId}
+        </if>
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            and t.workshop_id in (select id from bu_mtr_workshop where depot_id = #{queryVO.depotId})
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t.line_id = #{queryVO.lineId}
+        </if>
+    </select>
+
+    <select id="selectToolUserPlanList" resultType="org.jeecg.modules.board.cost.bean.BuToolPlan">
+        select * from bu_tool_plan where plan_type = 1 and
+        (
+        (start_time &gt;= #{startDate} and start_time &lt;= #{endDate})
+        or
+        (end_time &gt;= #{startDate} and end_time &lt;= #{endDate})
+        )
+        and tool_id in
+        <foreach collection="toolIdList" item="toolId" separator="," open="(" close=")">
+            #{toolId}
+        </foreach>
+    </select>
+
+    <select id="sumOutsourcePayAmount" resultType="java.math.BigDecimal">
+        select SUM(t.amount)
+        from bu_contract_pay t
+        left join bu_contract_info t1 on t1.id = t.contract_id
+        left join bu_repair_program t2 on t2.id = t1.repair_program_id
+        <where>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                and t1.line_id in (select line_id from bu_mtr_depot_line where depot_id = #{queryVO.depotId})
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t1.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.cur_train = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate != null">
+                and (
+                t.pay_date &gt;= #{queryVO.startDate}
+                and
+                t.pay_date &lt;= #{queryVO.endDate}
+                )
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                and t2.pro_type = #{queryVO.programType}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectContractPayListByYearAndCondition" resultType="org.jeecg.modules.board.cost.bean.BuContractPay">
+        SELECT
+        t.*,
+        t1.repair_program_id
+        from bu_contract_pay t
+        left join bu_contract_info t1 on t1.id = t.contract_id
+        left join bu_repair_program t2 on t2.id = t1.repair_program_id
+        <where>
+            AND  to_number(to_char(t.pay_date,'yyyy')) = #{year}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                and t1.line_id in (select line_id from bu_mtr_depot_line where depot_id = #{queryVO.depotId})
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t1.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.cur_train = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                and t2.pro_type = #{queryVO.programType}
+            </if>
+        </where>
+        ORDER BY t.pay_date DESC
+    </select>
+
+    <select id="sumOutsourceAsset" resultType="org.jeecg.modules.board.cost.bean.OutsourceAssetPrice">
+        select t.amount, NVL((t1.amount / t1.train_amount / t1.asset_amount) * t.amount, 0) as price
+        from (
+        select SUM(t.amount) as amount,t5.id
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t1.id = t.outin_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        left join bu_repair_plan t3 on t3.id = t2.plan_id
+        left join bu_repair_program t4 on t4.id = t3.repair_program_id
+        left Join bu_contract_info t5 on t5.id = t1.contract_id
+        where t1.bill_type = 0
+        <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+            and t2.workshop_id = #{queryVO.workshopId}
+        </if>
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            and t3.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t2.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t2.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.programType != null and queryVO.programType != 0">
+            AND t4.pro_type = #{queryVO.programType}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            and (
+            t1.transfer_date &gt;= #{queryVO.startDate}
+            and
+            t1.transfer_date &lt;= #{queryVO.endDate}
+            )
+        </if>
+        group by t5.id ) t  left Join bu_contract_info t1 on t1.id = t.id
+
+    </select>
+
+    <select id="selectAllRepairProgram" resultType="org.jeecg.modules.board.cost.bean.BuRepairProgram">
+        select *
+        from bu_repair_program
+    </select>
+    <select id="selectWorkshopSpeAssetIdList" resultType="java.lang.String">
+        select t.id
+        from bu_spec_assets t
+        <where>
+        <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+            and t.workshop_id = #{queryVO.workshopId}
+        </if>
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            and t.workshop_id in (select id from bu_mtr_workshop where depot_id = #{queryVO.depotId})
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t.line_id = #{queryVO.lineId}
+        </if>
+        </where>
+
+    </select>
+    <select id="selectSpeAssetUserPlanList" resultType="org.jeecg.modules.board.cost.bean.BuSpecAssetPlan">
+        select * from bu_spec_asset_plan where plan_type = 1 and
+        (
+        (start_time &gt;= #{startDate} and start_time &lt;= #{endDate})
+        or
+        (end_time &gt;= #{startDate} and end_time &lt;= #{endDate})
+        )
+        and spec_asset_id in
+        <foreach collection="speAssetIdList" item="speAssetId" separator="," open="(" close=")">
+            #{speAssetId}
+        </foreach>
+    </select>
+
+</mapper>

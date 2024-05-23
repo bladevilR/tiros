@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderTaskEquMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskEqu">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struc_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_task_id, asset_type_id, struct_detail_id, train_asset_id,
+        create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.orderId, jdbcType=VARCHAR},
+            #{item.orderTaskId, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.structDetailId, jdbcType=VARCHAR},
+            #{item.trainAssetId, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_work_order_task_equ
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskEqu">
+        select t.*,
+               t1.name          as assetTypeName,
+               t2.name          as structDetailName,
+               t3.name          as trainAssetName,
+               t1.code          as assetTypeCode,
+               t2.code          as structDetailCode,
+               t3.code          as trainAssetNo,
+               t3.location_code as locationCode
+        from bu_work_order_task_equ t
+                 left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                 left join bu_train_structure_detail t2 on t2.id = t.struct_detail_id
+                 left join bu_maximo_train_asset t3 on t3.id = t.train_asset_id
+        where t.order_id = #{orderId}
+        order by t1.code, t2.code, t3.code
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskEqu">
+        select t.*,
+               t1.name          as assetTypeName,
+               t2.name          as structDetailName,
+               t3.name          as trainAssetName,
+               t1.code          as assetTypeCode,
+               t2.code          as structDetailCode,
+               t3.code          as trainAssetNo,
+               t3.location_code as locationCode
+        from bu_work_order_task_equ t
+                 left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                 left join bu_train_structure_detail t2 on t2.id = t.struct_detail_id
+                 left join bu_maximo_train_asset t3 on t3.id = t.train_asset_id
+        where t.order_task_id = #{taskId}
+        order by t1.code, t2.code, t3.code
+    </select>
+
+</mapper>

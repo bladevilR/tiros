@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.appfunction.mapper.AppFunctionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.appfunction.bean.AppFunction">
+        <id column="id" property="id"/>
+        <result column="fun_code" property="funCode"/>
+        <result column="fun_name" property="funName"/>
+        <result column="fun_sort" property="funSort"/>
+        <result column="remark" property="remark"/>
+        <result column="icon" property="icon"/>
+        <result column="url" property="url"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, fun_code, fun_name, fun_sort, remark, icon, url
+    </sql>
+
+
+    <select id="selectListByUserId" resultType="org.jeecg.modules.basemanage.appfunction.bean.AppFunction">
+        select t.*
+        from app_function t
+        where t.id in (select function_id
+                       from app_role_function
+                       where role_id in (select role_id from sys_user_role where user_id = #{userId}))
+ order by fun_sort
+    </select>
+
+</mapper>

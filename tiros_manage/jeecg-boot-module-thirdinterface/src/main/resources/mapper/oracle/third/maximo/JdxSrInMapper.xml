@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxSrInMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxSrIn">
+        <result column="ACTUALFINISH" property="actualfinish" />
+        <result column="ACTUALSTART" property="actualstart" />
+        <result column="AFFECTEDDATE" property="affecteddate" />
+        <result column="ASSETNUM" property="assetnum" />
+        <result column="ASSETORGID" property="assetorgid" />
+        <result column="CHANGEBY" property="changeby" />
+        <result column="CHANGEDATE" property="changedate" />
+        <result column="SRCLASS" property="srclass" />
+        <result column="CREWID" property="crewid" />
+        <result column="C_ACTUAL" property="cActual" />
+        <result column="C_CAUSE" property="cCause" />
+        <result column="C_CONFIRMPERSON" property="cConfirmperson" />
+        <result column="C_FAILUREAFFECT" property="cFailureaffect" />
+        <result column="C_FAILURECLASS" property="cFailureclass" />
+        <result column="C_FAULTRANK" property="cFaultrank" />
+        <result column="C_FINDBY" property="cFindby" />
+        <result column="C_FRSG" property="cFrsg" />
+        <result column="C_LINENUM" property="cLinenum" />
+        <result column="C_LOCATION" property="cLocation" />
+        <result column="C_OCCSD" property="cOccsd" />
+        <result column="C_PERSONGROUP" property="cPersongroup" />
+        <result column="C_PRODUCTSD" property="cProductsd" />
+        <result column="C_REMEDY" property="cRemedy" />
+        <result column="C_STATION" property="cStation" />
+        <result column="C_TMPREPAIRETIME" property="cTmprepairetime" />
+        <result column="C_USEDMATERIAL" property="cUsedmaterial" />
+        <result column="C_VENDORSUPERVISOR" property="cVendorsupervisor" />
+        <result column="C_ZDGZ" property="cZdgz" />
+        <result column="C_ZHANFASD" property="cZhanfasd" />
+        <result column="DESCRIPTION" property="description" />
+        <result column="DESCRIPTION_LONGDESCRIPTION" property="descriptionLongdescription" />
+        <result column="DESCRIPTION_LONGDESCRIPTION2" property="descriptionLongdescription2" />
+        <result column="FAILURECODE" property="failurecode" />
+        <result column="LEAD" property="lead" />
+        <result column="LOCATION" property="location" />
+        <result column="PERSONGROUP" property="persongroup" />
+        <result column="PROBLEMCODE" property="problemcode" />
+        <result column="REPORTDATE" property="reportdate" />
+        <result column="REPORTEDBY" property="reportedby" />
+        <result column="REPORTEDPHONE" property="reportedphone" />
+        <result column="RESULTSTATUS" property="resultstatus" />
+        <result column="SITEID" property="siteid" />
+        <result column="STATUS" property="status" />
+        <result column="STATUSDATE" property="statusdate" />
+        <result column="SUPERVISOR" property="supervisor" />
+        <result column="TARGETSTART" property="targetstart" />
+        <result column="TICKETID" property="ticketid" />
+        <result column="TRANSID" property="transid" />
+        <result column="TRANSSEQ" property="transseq" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ACTUALFINISH, ACTUALSTART, AFFECTEDDATE, ASSETNUM, ASSETORGID, CHANGEBY, CHANGEDATE, SRCLASS, CREWID, C_ACTUAL, C_CAUSE, C_CONFIRMPERSON, C_FAILUREAFFECT, C_FAILURECLASS, C_FAULTRANK, C_FINDBY, C_FRSG, C_LINENUM, C_LOCATION, C_OCCSD, C_PERSONGROUP, C_PRODUCTSD, C_REMEDY, C_STATION, C_TMPREPAIRETIME, C_USEDMATERIAL, C_VENDORSUPERVISOR, C_ZDGZ, C_ZHANFASD, DESCRIPTION, DESCRIPTION_LONGDESCRIPTION, DESCRIPTION_LONGDESCRIPTION2, FAILURECODE, LEAD, LOCATION, PERSONGROUP, PROBLEMCODE, REPORTDATE, REPORTEDBY, REPORTEDPHONE, RESULTSTATUS, SITEID, STATUS, STATUSDATE, SUPERVISOR, TARGETSTART, TICKETID, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

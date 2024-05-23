@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuMaximoTrainAssetMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.traininfo.entity.BuMaximoTrainAsset">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="parent_code" property="parentCode"/>
+        <result column="wbs" property="wbs"/>
+        <result column="location_code" property="locationCode"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="maximo_status" property="maximoStatus"/>
+        <result column="maximo_asset_type" property="maximoAssetType"/>
+        <result column="maximo_specialty" property="maximoSpecialty"/>
+        <result column="maximo_org_id" property="maximoOrgId"/>
+        <result column="maximo_site_id" property="maximoSiteId"/>
+        <result column="maximo_dept" property="maximoDept"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, parent_code, wbs, location_code, line_id, train_no, status, remark, maximo_status, maximo_asset_type,
+        maximo_specialty, maximo_org_id, maximo_site_id, maximo_dept, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.code, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.parentCode, jdbcType=VARCHAR},
+            #{item.wbs, jdbcType=VARCHAR},
+            #{item.locationCode, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.trainNo, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.maximoStatus, jdbcType=VARCHAR},
+            #{item.maximoAssetType, jdbcType=VARCHAR},
+            #{item.maximoSpecialty, jdbcType=VARCHAR},
+            #{item.maximoOrgId, jdbcType=VARCHAR},
+            #{item.maximoSiteId, jdbcType=VARCHAR},
+            #{item.maximoDept, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_maximo_train_asset
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectChildrenByQueryVO" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuMaximoTrainAsset">
+        <if test="queryVO.searchText == null or queryVO.searchText == ''">
+            select
+            t.*,
+            decode((select count(1) from bu_maximo_train_asset where parent_code = t.code), 0, 0, 1) as hasChildren,
+            t1.line_name
+            from bu_maximo_train_asset t
+            left join bu_mtr_line t1 on t1.line_id = t.line_id
+            <where>
+                <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                    and t.line_id = #{queryVO.lineId}
+                </if>
+                <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                    and t.train_no = #{queryVO.trainNo}
+                </if>
+                <if test="queryVO.status != null">
+                    and t.status = #{queryVO.status}
+                </if>
+                <choose>
+                    <when test="queryVO.parentId != null and queryVO.parentId != ''">
+                        and t.parent_code = (select code from bu_maximo_train_asset where id = #{queryVO.parentId})
+                    </when>
+                    <otherwise>
+                        <choose>
+                            <when test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                                and t.code = (select id from bu_train_info where train_no = #{queryVO.trainNo})
+                            </when>
+                            <otherwise>
+                                and (t.parent_code is null or t.parent_code = '')
+                            </otherwise>
+                        </choose>
+                    </otherwise>
+                </choose>
+            </where>
+            order by t.code
+        </if>
+        <if test="queryVO.searchText != null and queryVO.searchText != ''">
+            select
+            t.*,
+            decode((select count(1) from bu_maximo_train_asset where parent_code = t.code), 0, 0, 1) as hasChildren,
+            t1.line_name
+            from bu_maximo_train_asset t
+            left join bu_mtr_line t1 on t1.line_id = t.line_id
+            where (
+            t.code like '%'||#{queryVO.searchText}||'%'
+            or
+            t.name like '%'||#{queryVO.searchText}||'%'
+            )
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.status != null">
+                and t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.parentId != null and queryVO.parentId != ''">
+                and t.wbs like
+                (select wbs from bu_maximo_train_asset where id = #{queryVO.parentId}) ||'%'
+                and t.id  <![CDATA[ != ]]> #{queryVO.parentId}
+            </if>
+            order by t.code
+        </if>
+    </select>
+
+    <select id="selectAssetById" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuMaximoTrainAsset">
+        select t.*,
+               decode((select count(1) from bu_maximo_train_asset where parent_code = t.code), 0, 0, 1) as hasChildren,
+               t1.line_name
+        from bu_maximo_train_asset t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+        where t.id = #{id}
+    </select>
+
+</mapper>

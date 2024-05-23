@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.system.mapper.SysUserRoleMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.system.entity.SysUserRole">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="roleId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, role_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.userId},
+            #{item.roleId}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="list">
+        insert into sys_user_role
+        (
+        <include refid="Base_Column_List"/>
+        )
+        value
+        <foreach collection="list" item="item" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteListByUserIdAndRoleId">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" separator=";">
+                delete from sys_user_role
+                where user_id = #{item.userId}
+                and role_id = #{item.roleId}
+            </foreach>
+        </if>
+    </delete>
+
+    <select id="getRoleByUserName" resultType="java.lang.String">
+        select role_code
+        from sys_role
+        where id in
+              (select role_id from sys_user_role where user_id = (select id from sys_user where username = #{username}))
+    </select>
+
+    <select id="getRoleIdByUserName" resultType="java.lang.String">
+        select id
+        from sys_role
+        where id in
+              (select role_id from sys_user_role where user_id = (select id from sys_user where username = #{username}))
+    </select>
+
+    <select id="selectUserNameListByRoleCode" resultType="java.lang.String">
+        select username
+        from sys_user
+        where id in (select user_id
+                     from sys_user_role
+                     where role_id = (select id from sys_role where role_code = #{roleCode}))
+    </select>
+
+    <select id="selectUserIdRoleNameMapListByUserIdList" resultType="java.util.Map">
+        select
+        t.user_id as userId,
+        t1.role_name as roleName
+        from sys_user_role t
+        left join sys_role t1 on t1.id = t.role_id
+        where t.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.user_id, t1.role_code
+    </select>
+
+</mapper>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.group.mapper.BuGroupBoardMapper">
+
+    <select id="selectGroupIdByUserId" resultType="java.lang.String">
+        select distinct t.dep_id
+        from sys_user_depart t
+                 left join sys_depart t1 on t1.id = t.dep_id
+        where t1.org_category = 4
+          and t.user_id = #{userId}
+    </select>
+
+    <select id="selectGroupName" resultType="java.lang.String">
+        select DEPART_NAME
+        from SYS_DEPART
+        where id = #{groupId}
+    </select>
+
+
+    <select id="selectOrderUserIdWorkTimeByGroupAndPlan" resultType="java.util.Map">
+        select
+        t.user_id as "userId",
+        t.work_time as "workTime"
+        from bu_repair_task_staff_arrange t
+        left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_status in (3, 4)
+        and t.user_id is not null and t.work_time is not null
+        and t1.group_id = #{groupId}
+        and t1.plan_id in
+        <foreach collection="planIdList" item="planId" open="(" separator="," close=")">
+            #{planId}
+        </foreach>
+    </select>
+
+    <select id="selectFaultReportUserIdByGroupAndPlan" resultType="java.lang.String">
+        select
+        t.report_user_id
+        from bu_fault_info t
+        where t.submit_status != 2
+        and t.report_user_id is not null
+        and t.report_group_id = #{groupId}
+        and t.plan_id in
+        <foreach collection="planIdList" item="planId" open="(" separator="," close=")">
+            #{planId}
+        </foreach>
+    </select>
+
+    <select id="selectGroupUserInfoList" resultType="java.util.Map">
+        select distinct t.user_id   as "userId",
+                        t1.work_no  as "workNo",
+                        t1.realname as "realname"
+        from sys_user_depart t
+                 left join sys_user t1 on t1.id = t.user_id
+        where t1.id is not null
+          and t1.del_flag != 1
+          and t1.status != 0
+          and t.dep_id = #{groupId}
+    </select>
+
+    <select id="selectMustMaterialListByLineAndProgramAndGroup" resultType="java.util.Map">
+        select material_type_id as "materialTypeId",
+               need_amount      as "needAmount"
+        from bu_material_must_list
+        where status = 1
+          and line_id = #{lineId}
+          and repair_program_id = #{programId}
+          and group_id = #{groupId}
+          and material_type_id not in (
+            select material_type_id
+            from bu_work_order_material
+            where ORDER_ID in (select id
+                               from bu_work_order
+                               where order_type not in (4, 5)
+                                 and work_status = 2
+                                 and plan_id = #{planId})
+        )
+    </select>
+
+    <select id="selectGroupStockAmount" resultType="java.util.Map">
+        select
+        material_type_id as "materialTypeId",
+        NVL(SUM(amount),0) as "amount"
+        from bu_material_group_stock
+        where group_id = #{groupId}
+        and material_type_id in
+        <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+            #{materialTypeId}
+        </foreach>
+        group by material_type_id
+    </select>
+
+    <select id="selectMaterialTypeListByMaterialTypeIdList"
+            resultType="org.jeecg.modules.board.group.bean.BuMaterialType">
+        select id,code,name from bu_material_type where id in
+        <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+            #{materialTypeId}
+        </foreach>
+    </select>
+
+    <select id="selectGroupToolCheckAlertList" resultType="java.util.Map">
+        select id              as "id",
+               code            as "code",
+               asset_code      as "assetCode",
+               name            as "name",
+               model           as "model",
+               next_check_time as "nextCheckTime"
+        from bu_material_tools
+        where group_id = #{groupId}
+          and next_check_time &lt;= #{date}
+    </select>
+
+    <select id="selectFaultReportGroupIdByPlan" resultType="java.lang.String">
+        select
+        t.report_group_id
+        from bu_fault_info t
+        where t.submit_status != 2
+        and t.report_group_id is not null
+        and t.plan_id in
+        <foreach collection="planIdList" item="planId" open="(" separator="," close=")">
+            #{planId}
+        </foreach>
+    </select>
+
+    <select id="selectOrderGroupIdStatusByPlan" resultType="java.util.Map">
+        select
+        t.group_id as "groupId",
+        t.order_status as "orderStatus"
+        from bu_work_order t
+        where t.order_status in (3, 4)
+        and t.group_id is not null
+        and t.plan_id in
+        <foreach collection="planIdList" item="planId" open="(" separator="," close=")">
+            #{planId}
+        </foreach>
+    </select>
+
+</mapper>

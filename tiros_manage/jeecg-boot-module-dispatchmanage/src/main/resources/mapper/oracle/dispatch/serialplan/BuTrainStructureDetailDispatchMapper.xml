@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuTrainStructureDetailDispatchMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuTrainStructureDetail">
+        <id column="id" property="id"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="code" property="code"/>
+        <result column="wbs" property="wbs"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="struct_type" property="structType"/>
+        <result column="material_id" property="materialId"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="turnover" property="turnover"/>
+        <result column="unit" property="unit"/>
+        <result column="place_id" property="placeId"/>
+        <result column="place_desc" property="placeDesc"/>
+        <result column="short_name" property="shortName"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="short_name" property="shortName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_struct_id, asset_type_id, code, wbs, name, parent_id, struct_type, material_id,
+        subjunctive, turnover, unit, place_id, place_desc, remark, status, create_time, create_by,
+        update_time, update_by, sort_no, short_name
+    </sql>
+
+</mapper>

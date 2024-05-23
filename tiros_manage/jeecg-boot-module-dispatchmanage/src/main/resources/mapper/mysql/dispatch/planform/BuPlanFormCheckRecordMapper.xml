@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormCheckRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="title" property="title"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_struct_id" property="assetStructId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="location" property="location"/>
+        <result column="period" property="period"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="form_index" property="formIndex"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuPlanFormCheckRecord_WithItem"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="title" property="title"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_struct_id" property="assetStructId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="location" property="location"/>
+        <result column="period" property="period"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="recordIds" property="recordIds"/>
+        <collection property="itemList" column="{id=id,recordIds=recordIds}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem"
+                    select="selectCheckRecordItemList"/>
+    </resultMap>
+    <select id="selectCheckRecordItemList" parameterType="map"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem">
+        select t.*,
+        t1.group_name as createGroupName
+        from bu_pl_check_record_item t
+        left join bu_mtr_workshop_group t1 on t1.id = t.create_group_id
+        where t.check_id = #{id}
+        <if test="recordIds!=null and recordIds!=''">
+            and find_in_set(t.check_detail_id,#{recordIds})
+        </if>
+    </select>
+
+    <resultMap id="ResultMap_BuPlanFormCheckRecord_WithItemRectify"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="title" property="title"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_struct_id" property="assetStructId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="location" property="location"/>
+        <result column="period" property="period"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="recordIds" property="recordIds"/>
+        <collection property="itemList" column="{id=id,recordIds=recordIds}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem"
+                    select="selectCheckRecordItemListWithRectify"/>
+    </resultMap>
+    <select id="selectCheckRecordItemListWithRectify" parameterType="map"
+            resultMap="ResultMap_BuPlanFormCheckRecordItem_WithRectify">
+        select t.*,
+        t1.group_name as createGroupName
+        from bu_pl_check_record_item t
+        left join bu_mtr_workshop_group t1 on t1.id = t.create_group_id
+        where t.check_id = #{id}
+        <if test="recordIds!=null and recordIds!=''">
+            and find_in_set(t.check_detail_id,#{recordIds})
+        </if>
+    </select>
+    <resultMap id="ResultMap_BuPlanFormCheckRecordItem_WithRectify"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem">
+        <id column="id" property="id"/>
+        <result column="check_id" property="checkId"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="check_level" property="checkLevel"/>
+        <result column="check_desc" property="checkDesc"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="work_time" property="workTime"/>
+        <result column="check_method" property="checkMethod"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_user_name" property="checkUserName"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <collection property="rectifyList" column="id"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordRectify"
+                    select="selectCheckRecordItemRectifyList"/>
+    </resultMap>
+    <select id="selectCheckRecordItemRectifyList"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordRectify">
+        select t.*
+        from bu_pl_check_record_rectify t
+        where t.check_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, plan_form_id, form_obj_id, title, train_no, asset_type_id, asset_struct_id,
+        asset_id, asset_name, asset_no, location, period, group_id, group_name, status, remark,
+        create_group_id, create_time, create_by, update_time, update_by, form_index
+    </sql>
+
+
+    <update id="updateStructAndTitleById">
+        update bu_pl_check_record
+        set asset_struct_id = #{structDetailId},
+            title           = #{title}
+        where id = #{id}
+    </update>
+
+    <select id="selectCheckRecordWithItemByTask2InstId" resultMap="ResultMap_BuPlanFormCheckRecord_WithItem">
+        <choose>
+            <when test="allItems!=null and allItems">
+                select t4.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                null as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_check_record t4 on t4.id=t.form_inst_id
+                left join bu_train_asset_type t1 on t1.id = t4.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t4.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t4.create_group_id
+                where t.id = #{task2InstId}
+            </when>
+            <otherwise>
+                select t4.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t.record_ids as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_check_record t4 on t4.id=t.form_inst_id
+                left join bu_train_asset_type t1 on t1.id = t4.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t4.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t4.create_group_id
+                where t.id = #{task2InstId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectCheckRecordWithItemRectifyByTask2InstId"
+            resultMap="ResultMap_BuPlanFormCheckRecord_WithItemRectify">
+        <choose>
+            <when test="allItems!=null and allItems">
+                select t4.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t.record_ids as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_check_record t4 on t4.id=t.form_inst_id
+                left join bu_train_asset_type t1 on t1.id = t4.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t4.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t4.create_group_id
+                where t.id = #{task2InstId}
+            </when>
+            <otherwise>
+                select t4.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t.record_ids as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_check_record t4 on t4.id=t.form_inst_id
+                left join bu_train_asset_type t1 on t1.id = t4.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t4.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t4.create_group_id
+                where t.id = #{task2InstId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectCheckRecordWithItemByInstId" resultMap="ResultMap_BuPlanFormCheckRecord_WithItem">
+        <choose>
+            <when test="allItems!=null and allItems">
+                select t.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t5.asset_name as assetName,
+                t5.asset_no as assetNo,
+                t6.group_name as groupName,
+                null as recordIds
+                from bu_pl_check_record t
+                left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t.create_group_id
+                left join bu_train_asset t5 on t5.id = t.asset_id
+                left join bu_mtr_workshop_group t6 on t6.id = t.group_id
+                where t.id = #{instId}
+            </when>
+            <otherwise>
+                select t.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t5.asset_name as assetName,
+                t5.asset_no as assetNo,
+                t6.group_name as groupName,
+                null as recordIds
+                from bu_pl_check_record t
+                left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t.create_group_id
+                left join bu_train_asset t5 on t5.id = t.asset_id
+                left join bu_mtr_workshop_group t6 on t6.id = t.group_id
+                where t.id = #{instId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectCheckRecordWithItemRectifyByInstId" resultMap="ResultMap_BuPlanFormCheckRecord_WithItemRectify">
+        <choose>
+            <when test="allItems!=null and allItems">
+                select t.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t5.asset_name as assetName,
+                t5.asset_no as assetNo,
+                t6.group_name as groupName,
+                null as recordIds
+                from bu_pl_check_record t
+                left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t.create_group_id
+                left join bu_train_asset t5 on t5.id = t.asset_id
+                left join bu_mtr_workshop_group t6 on t6.id = t.group_id
+                where t.id = #{instId}
+            </when>
+            <otherwise>
+                select t.*,
+                t1.name as assetTypeName,
+                t2.name as assetStructName,
+                t3.group_name as createGroupName,
+                t5.asset_name as assetName,
+                t5.asset_no as assetNo,
+                t6.group_name as groupName,
+                null as recordIds
+                from bu_pl_check_record t
+                left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+                left join bu_train_structure_detail t2 on t2.id = t.asset_struct_id
+                left join bu_mtr_workshop_group t3 on t3.id = t.create_group_id
+                left join bu_train_asset t5 on t5.id = t.asset_id
+                left join bu_mtr_workshop_group t6 on t6.id = t.group_id
+                where t.id = #{instId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectRecordIds" resultType="java.lang.String">
+        select t.record_ids
+        from bu_work_order_task_form_inst t
+        where t.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.cost.mapper.BuRptBoardSysMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.cost.bean.BuRptBoardSysMaterial">
+        <id column="id" property="id"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_period" property="repairPeriod"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="program_id" property="programId"/>
+        <result column="must_cost" property="mustCost"/>
+        <result column="random_cost" property="randomCost"/>
+        <result column="consume_cost" property="consumeCost"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, line_id, repair_period, train_id, train_no, repair_index, year, month,
+        sys_id, program_id, must_cost, random_cost, consume_cost, workshop_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.depotId},
+            #{item.lineId},
+            #{item.repairPeriod},
+            #{item.trainId},
+            #{item.trainNo},
+            #{item.repairIndex},
+            #{item.year},
+            #{item.month},
+            #{item.sysId},
+            #{item.programId},
+            #{item.mustCost},
+            #{item.randomCost},
+            #{item.consumeCost},
+            #{item.workshopId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_rpt_board_sys_material
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByCondition" resultType="org.jeecg.modules.report.cost.bean.BuRptBoardSysMaterial">
+        SELECT
+        t.*
+        FROM bu_rpt_board_sys_material t
+        <where>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <!--            <if test="queryVO.year != null">-->
+            <!--                AND t.year = #{queryVO.year}-->
+            <!--            </if>-->
+            <!--            <if test="queryVO.monthList != null and queryVO.monthList.size > 0">-->
+            <!--                AND t.month IN-->
+            <!--                <foreach collection="queryVO.monthList" item="month" index="index" separator="," open="(" close=")">-->
+            <!--                    #{month}-->
+            <!--                </foreach>-->
+            <!--            </if>-->
+            <choose>
+                <when test="queryVO.yearMonthList != null and queryVO.yearMonthList.size > 0">
+                    and (
+                    <foreach collection="queryVO.yearMonthList" item="yearMonth" separator=" or ">
+                        (t.year = #{yearMonth.year} and t.month = #{yearMonth.month})
+                    </foreach>
+                    )
+                </when>
+                <otherwise>
+                    and (t.year = -1 and t.month = -1)
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectTrainCarsNumberByLineIdAndTrainNo" resultType="java.lang.Integer">
+        select group_num from bu_train_info
+        where train_no = #{trainNo}
+        <if test="lineId != null and lineId != ''">
+            and line_id = #{lineId}
+        </if>
+    </select>
+
+</mapper>

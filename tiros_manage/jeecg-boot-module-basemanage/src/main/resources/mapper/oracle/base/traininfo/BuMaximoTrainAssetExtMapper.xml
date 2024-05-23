@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuMaximoTrainAssetExtMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.traininfo.entity.BuMaximoTrainAssetExt">
+        <id column="id" property="id"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="short_name" property="shortName"/>
+        <result column="carriage" property="carriage"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_category" property="assetCategory"/>
+        <result column="vendor" property="vendor"/>
+        <result column="company" property="company"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="muade_date" property="madeDate"/>
+        <result column="buy_date" property="buyDate"/>
+        <result column="install_date" property="installDate"/>
+        <result column="verify_date" property="verifyDate"/>
+        <result column="warranted_date" property="warrantedDate"/>
+        <result column="operate_date" property="operateDate"/>
+        <result column="age_year" property="ageYear"/>
+        <result column="brand" property="brand"/>
+        <result column="model" property="model"/>
+        <result column="bom_name" property="bomName"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="tag_code" property="tagCode"/>
+        <result column="belong_depart" property="belongDepart"/>
+        <result column="duty_group" property="dutyGroup"/>
+        <result column="duty_user" property="dutyUser"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="outsource_repair" property="outsourceRepair"/>
+        <result column="flaw_detection" property="flawDetection"/>
+        <result column="send_check" property="sendCheck"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, asset_id, short_name, carriage, system_id, asset_type_id, asset_category,
+        vendor, company, contract_no, contract_name, made_date, buy_date, install_date,
+        verify_date, warranted_date, operate_date, age_year, brand, model, bom_name,
+        asset_code, manuf_no, tag_code, belong_depart, duty_group, duty_user, subjunctive,
+        outsource_repair, flaw_detection, send_check
+    </sql>
+
+    <select id="selectListByAssetIdList" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuMaximoTrainAssetExt">
+        select t.*,
+        t1.name as systemName,
+        t2.name as assetTypeName,
+        NVL(t3.name,t.vendor) as vendorName,
+        NVL(t4.depart_name,t.belong_depart) as belongDepartName,
+        t5.group_name as dutyGroupName,
+        t6.realname as dutyUserName
+        from bu_maximo_train_asset_ext t
+        left join bu_train_asset_type t1 on t1.id = t.system_id
+        left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+        left join bu_base_supplier t3 on t3.id = t.vendor
+        left join sys_depart t4 on t4.id = t.belong_depart
+        left join bu_mtr_workshop_group t5 on t5.id = t.duty_group
+        left join sys_user t6 on t6.id = t.duty_user
+        where t.asset_id
+        <choose>
+            <when test="assetIdList != null and assetIdList.size > 0">
+                in
+                <foreach collection="assetIdList" item="assetId" open="(" separator="," close=")">
+                    #{assetId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

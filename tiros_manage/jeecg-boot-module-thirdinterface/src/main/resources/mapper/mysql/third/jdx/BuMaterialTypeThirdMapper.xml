@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialTypeThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialType">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="spec" property="spec"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="status" property="status"/>
+        <result column="kind" property="kind"/>
+        <result column="category" property="category"/>
+        <result column="category1" property="category1"/>
+        <result column="category2" property="category2"/>
+        <result column="category3" property="category3"/>
+        <result column="theshold" property="theshold"/>
+        <result column="subject" property="subject"/>
+        <result column="is_asset" property="isAsset"/>
+        <result column="from_head" property="fromHead"/>
+        <result column="is_consume" property="isConsume"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <!--        <result column="warehouse" property="warehouse"/>-->
+        <result column="extAttr" property="extAttr"/>
+        <result column="amount" property="amount"/>
+        <result column="category" property="category"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, spec, unit, price, status, kind, category, category1, category2, category3,
+        theshold, subject, is_asset, from_head, is_consume, remark, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.code},
+            #{item.name},
+            #{item.spec},
+            #{item.unit},
+            #{item.price},
+            #{item.status},
+            #{item.kind},
+            #{item.category},
+            #{item.category1},
+            #{item.category2},
+            #{item.category3},
+            #{item.theshold},
+            #{item.subject},
+            #{item.isAsset},
+            #{item.fromHead},
+            #{item.isConsume},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_type
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_material_type
+                set
+                price = #{item.price},
+                kind = #{item.kind},
+                category1 = #{item.category1}
+                where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListPrice">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_material_type
+                set
+                price = #{item.price}
+                where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectIdCodeListByCodeList" resultType="java.util.Map">
+        select id as id,
+        code as code
+        from bu_material_type
+        where code in
+        <foreach collection="codeList" item="code" separator="," open="(" close=")">
+            #{code}
+        </foreach>
+    </select>
+
+
+</mapper>

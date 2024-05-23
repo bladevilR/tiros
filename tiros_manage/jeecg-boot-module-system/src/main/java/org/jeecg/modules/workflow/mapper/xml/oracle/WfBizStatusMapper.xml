@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.workflow.mapper.WfBizStatusMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.common.workflow.bean.WfBizStatus">
+        <id column="business_key" property="businessKey"/>
+        <result column="solution_code" property="solutionCode"/>
+        <result column="process_definition_id" property="processDefinitionId"/>
+        <result column="process_instance_id" property="processInstanceId"/>
+        <result column="process_status" property="processStatus"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        business_key, solution_code, process_definition_id, process_instance_id, process_status
+    </sql>
+
+
+    <select id="selectDistinctProcessStatusListBySolutionCode" resultType="java.lang.String">
+        select distinct process_status
+        from wf_biz_status
+        where solution_code = #{solutionCode}
+    </select>
+
+</mapper>

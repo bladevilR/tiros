@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.finance.mapper.BuMaximoFinanceItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.finance.bean.BuMaximoFinanceItem">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="fc_code" property="fcCode"/>
+        <result column="parent_fc_code" property="parentFcCode"/>
+        <result column="wbs" property="wbs"/>
+        <result column="project_code" property="projectCode"/>
+        <result column="task_level" property="taskLevel"/>
+        <result column="fc_status" property="fcStatus"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="line_id" property="lineId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="maximo_org_id" property="maximoOrgId"/>
+        <result column="maximo_site_id" property="maximoSiteId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, code, name, fc_code, parent_fc_code, wbs, project_code, task_level, fc_status, start_date, end_date,
+        line_id, status, remark, maximo_org_id, maximo_site_id, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.type, jdbcType=VARCHAR},
+            #{item.code, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.fcCode, jdbcType=VARCHAR},
+            #{item.parentFcCode, jdbcType=VARCHAR},
+            #{item.wbs, jdbcType=VARCHAR},
+            #{item.projectCode, jdbcType=VARCHAR},
+            #{item.taskLevel, jdbcType=NUMERIC},
+            #{item.fcStatus, jdbcType=VARCHAR},
+            #{item.startDate, jdbcType=TIMESTAMP},
+            #{item.endDate, jdbcType=TIMESTAMP},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.maximoOrgId, jdbcType=VARCHAR},
+            #{item.maximoSiteId, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_maximo_finance_item
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+</mapper>

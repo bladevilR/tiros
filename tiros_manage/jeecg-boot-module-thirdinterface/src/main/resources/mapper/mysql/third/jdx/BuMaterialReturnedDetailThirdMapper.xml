@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialReturnedDetailThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialReturnedDetail">
+        <id column="id" property="id"/>
+        <result column="returned_id" property="returnedId"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="order_material_id" property="orderMaterialId"/>
+        <result column="return_amount" property="returnAmount"/>
+        <result column="location_wbs" property="locationWbs"/>
+        <result column="location_name" property="locationName"/>
+        <result column="ebs_wh_code" property="ebsWhCode"/>
+        <result column="ebs_wh_child_code" property="ebsWhChildCode"/>
+        <result column="trade_no" property="tradeNo"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, returned_id, work_order_id, material_type_id, order_material_id, return_amount,
+        location_wbs, location_name, ebs_wh_code, ebs_wh_child_code, trade_no
+    </sql>
+
+
+    <update id="updateReturnSyncTime">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_material_returned
+                set sync_time = #{item.syncTime}
+                where id = #{item.returnId}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateReturnSyncResult">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_material_returned
+                set
+                sync_result = #{item.syncResult},
+                sync_result_time = #{item.syncResultTime}
+                where id = #{item.returnId}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectReturnIdListByReturnDetailIdList" resultType="java.lang.String">
+        select distinct returned_id
+        from bu_material_returned_detail
+        where id
+        <choose>
+            <when test="returnDetailIdList != null and returnDetailIdList.size > 0">
+                in
+                <foreach collection="returnDetailIdList" item="returnDetailId" open="(" separator="," close=")">
+                    #{returnDetailId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListByReturnId" resultType="org.jeecg.modules.third.jdx.bean.BuMaterialReturnedDetail">
+        SELECT t.*,
+               t8.code                  as locationCode,
+               t5.category1,
+               t3.train_no,
+               t3.order_code,
+               t5.code                  as materialCode,
+               t5.name                  as materialName,
+               t5.spec                  as materialSpec,
+               IFNULL(t1.unit_price, 0) as materialUnitPrice,
+               t1.confirm_time,
+               t3.line_id,
+               t7.depot_id,
+               t4.id                    AS workshopId,
+               t4.name                  as workshopName,
+               t6.id                    AS trainid,
+               t7.repair_program_id     AS programId,
+               t3.fd_project,
+               t3.fd_task,
+               t3.fd_cost_type
+        FROM bu_material_returned_detail t
+                 left join bu_material_apply_detail t1 on t1.id = t.order_material_id
+                 left join bu_material_returned t2 on t2.id = t.returned_id
+                 LEFT JOIN bu_work_order t3 ON t3.id = t2.work_order_id
+                 LEFT JOIN bu_mtr_workshop t4 ON t4.id = t3.workshop_id
+                 LEFT JOIN bu_material_type t5 ON t5.id = t.material_type_id
+                 LEFT JOIN bu_train_info t6 on t6.train_no = t3.train_no
+                 LEFT JOIN bu_repair_plan t7 on t7.id = t3.plan_id
+                 LEFT JOIN bu_mtr_warehouse t8 on t8.wbs = t.location_wbs
+        where t.returned_id = #{returnId}
+    </select>
+
+    <select id="selectListByReturnIdList" resultType="org.jeecg.modules.third.jdx.bean.BuMaterialReturnedDetail">
+        select t.*,
+        t1.trans_id,
+        t1.trans_time,
+        t1.success_status,
+        t1.success_time,
+        t1.message
+        from bu_material_returned_detail t
+        left join bu_maximo_trans_data t1 on t1.obj_id = t.id
+        where t.returned_id
+        <choose>
+            <when test="returnIdList != null and returnIdList.size > 0">
+                in
+                <foreach collection="returnIdList" item="returnId" open="(" separator="," close=")">
+                    #{returnId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

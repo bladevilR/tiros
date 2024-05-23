@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.rectify.mapper.BuWorkRectifyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.rectify.bean.BuWorkRectify">
+        <id column="id" property="id"/>
+        <result column="rectify_no" property="rectifyNo"/>
+        <result column="title" property="title"/>
+        <result column="rectify_type" property="rectifyType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="duty_user_id" property="dutyUserId"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="status" property="status"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_子查询附件集合 -->
+    <resultMap id="BaseResultMap_Collection" type="org.jeecg.modules.quality.rectify.bean.BuWorkRectify">
+        <id column="id" property="id"/>
+        <result column="rectify_no" property="rectifyNo"/>
+        <result column="title" property="title"/>
+        <result column="rectify_type" property="rectifyType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="duty_user_id" property="dutyUserId"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="status" property="status"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="workstationName" property="workstationName"/>
+        <result column="orderTaskName" property="orderTaskName"/>
+        <collection property="annexList" column="id" ofType="org.jeecg.modules.quality.rectify.bean.BuWorkRectifyAnnex"
+                    select="selectAnnexList"/>
+    </resultMap>
+    <select id="selectAnnexList" resultType="org.jeecg.modules.quality.rectify.bean.BuWorkRectifyAnnex">
+        SELECT id,
+               rectify_id,
+               title,
+               address
+        FROM bu_work_rectify_annex
+        WHERE rectify_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, rectify_no, title, rectify_type, group_id, duty_user_id, send_date, status, workstation_id,
+        order_id, order_task_id, depot_id, line_id, remark, create_time, create_by, update_time, update_by,
+        company_id, workshop_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultMap="BaseResultMap_Collection">
+        SELECT
+        t1.*,
+        t2.group_name AS groupName,
+        t3.realname AS dutyUserName,
+        t4.name AS depotName,
+        t5.line_name AS lineName,
+        t6.order_name AS orderName,
+        t7.name AS workstationName,
+        t8.task_name AS orderTaskName
+        FROM bu_work_rectify t1
+        LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t1.group_id
+        LEFT JOIN sys_user t3 ON t3.id = t1.duty_user_id
+        LEFT JOIN bu_mtr_depot t4 ON t4.id = t1.depot_id
+        LEFT JOIN bu_mtr_line t5 ON t5.line_id = t1.line_id
+        LEFT JOIN bu_work_order t6 ON t6.id=t1.order_id
+        LEFT JOIN bu_mtr_workstation t7 ON t7.id=t1.workstation_id
+        LEFT JOIN bu_work_order_task t8 on t8.order_id=t1.order_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t1.rectify_no LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t1.title LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.status != null">
+              and  t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.sendDate != null">
+               and t1.send_date = #{queryVO.sendDate}
+            </if>
+            <if test="queryVO.rectifyType != null">
+               and t1.rectify_type = #{queryVO.rectifyType}
+            </if>
+        </where>
+        ORDER BY t1.send_date DESC
+    </select>
+
+    <select id="selectRectifyById" resultMap="BaseResultMap_Collection">
+        SELECT t1.*,
+               t2.group_name AS groupName,
+               t3.realname   AS dutyUserName,
+               t4.name       AS depotName,
+               t5.line_name  AS lineName,
+               t6.order_name AS orderName
+        FROM bu_work_rectify t1
+                 LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t1.group_id
+                 LEFT JOIN sys_user t3 ON t3.id = t1.duty_user_id
+                 LEFT JOIN bu_mtr_depot t4 ON t4.id = t1.depot_id
+                 LEFT JOIN bu_mtr_line t5 ON t5.line_id = t1.line_id
+                 LEFT JOIN bu_work_order t6 ON t6.id = t1.order_id
+        where t1.id = #{id}
+    </select>
+
+</mapper>

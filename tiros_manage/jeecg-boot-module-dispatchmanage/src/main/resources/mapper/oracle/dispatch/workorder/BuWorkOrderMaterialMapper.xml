@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="is_verify" property="isVerify"/>
+        <result column="op_type" property="opType"/>
+        <result column="is_gen_order" property="isGenOrder"/>
+        <result column="plan_amount" property="planAmount"/>
+        <result column="need_dispatchin" property="needDispatchin"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMap_WithActs" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="is_verify" property="isVerify"/>
+        <result column="op_type" property="opType"/>
+        <result column="is_gen_order" property="isGenOrder"/>
+        <result column="plan_amount" property="planAmount"/>
+        <result column="need_dispatchin" property="needDispatchin"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="name" property="name"/>
+        <result column="kind" property="kind"/>
+        <result column="code" property="code"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="spec" property="spec"/>
+        <result column="category2" property="category2"/>
+        <result column="systemName" property="systemName"/>
+        <result column="workstationNo" property="workstationNo"/>
+        <result column="workstationName" property="workstationName"/>
+        <collection property="materialActsList" column="id"
+                    ofType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs"
+                    select="selectMaterialActs"/>
+    </resultMap>
+    <select id="selectMaterialActs" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select *
+        from bu_work_order_material_acts
+        where order_material_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_task_id, material_type_id, amount, act_amount, remark, use_category,
+        is_verify, op_type, is_gen_order, plan_amount, need_dispatchin, system_id, workstation_id
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.orderId, jdbcType=VARCHAR},
+            #{item.orderTaskId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DOUBLE},
+            #{item.actAmount, jdbcType=DOUBLE},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.useCategory, jdbcType=INTEGER},
+            #{item.isVerify, jdbcType=INTEGER},
+            #{item.opType, jdbcType=INTEGER},
+            #{item.isGenOrder, jdbcType=INTEGER},
+            #{item.planAmount, jdbcType=DOUBLE},
+            #{item.needDispatchin, jdbcType=INTEGER},
+            #{item.systemId, jdbcType=VARCHAR},
+            #{item.workstationId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_work_order_material
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateListActAmount">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_work_order_material
+                set act_amount = #{item.actAmount, jdbcType=DOUBLE}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListSystemWorkstation">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_work_order_material
+                set system_id = #{item.systemId, jdbcType=VARCHAR},
+                workstation_id = #{item.workstationId, jdbcType=VARCHAR}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <delete id="deleteByOrderIdList">
+        delete
+        from bu_work_order_material
+        where order_id in
+        <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <select id="selectListByQueryVO" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.name,
+        t1.kind,
+        t1.unit,
+        t1.code,
+        t1.price,
+        t1.spec,
+        t1.category2,
+        NVL(t4.short_name,t4.name) as systemName,
+        t5.station_no as workstationNo,
+        t5.name as workstationName
+        from bu_work_order_material t
+        left join bu_material_type t1 on t1.id = t.material_type_id
+        left join bu_work_order t2 on t2.id = t.order_id
+        left join bu_work_order_task t3 on t3.id = t.order_task_id
+        left join bu_train_asset_type t4 on t4.id = t.system_id
+        left join bu_mtr_workstation t5 on t5.id = t.workstation_id
+        <where>
+            <if test="queryVO.orderId != null and queryVO.orderId != ''">
+                and t.order_id = #{queryVO.orderId}
+            </if>
+            <if test="queryVO.orderTaskId != null and queryVO.orderTaskId != ''">
+                and t.order_task_id = #{queryVO.orderTaskId}
+            </if>
+            <if test="queryVO.opTypes != null and queryVO.opTypes.size > 0">
+                and t.op_type in
+                <foreach collection="queryVO.opTypes" item="opType" separator="," open="(" close=")">
+                    #{opType}
+                </foreach>
+            </if>
+        </where>
+        order by t2.order_code desc, t3.task_no desc, t.op_type, t.use_category, t1.code
+    </select>
+
+    <select id="selectNotGenOrderListByOrderIdAndOpType"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.name,
+        t1.kind,
+        t1.unit,
+        t1.code,
+        t1.price,
+        t1.spec,
+        t1.category2
+        from bu_work_order_material t
+        left join bu_material_type t1 on t1.id = t.material_type_id
+        where t.is_gen_order = 0
+        and t.order_id = #{orderId}
+        <if test="opType != null">
+            and t.op_type = #{opType}
+        </if>
+        order by t.op_type, t.use_category, t1.code
+    </select>
+
+    <select id="selectListByOrderTaskId" resultMap="BaseResultMap_WithActs">
+        select t.*,
+               t1.name,
+               t1.kind,
+               t1.unit,
+               t1.code,
+               t1.price,
+               t1.spec,
+               t1.category2,
+               NVL(t2.short_name, t2.name) as systemName,
+               t3.station_no               as workstationNo,
+               t3.name                     as workstationName
+        from bu_work_order_material t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+                 left join bu_train_asset_type t2 on t2.id = t.system_id
+                 left join bu_mtr_workstation t3 on t3.id = t.workstation_id
+        where t.order_task_id = #{taskId}
+        order by t.op_type, t.use_category, t1.code
+    </select>
+
+    <select id="selectListByOrderIdList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.code,
+        t1.name,
+        t2.order_type,
+        t2.order_code,
+        t2.order_name,
+        t2.order_status
+        from bu_work_order_material t
+        left join bu_material_type t1 on t1.id = t.material_type_id
+        left join bu_work_order t2 on t2.id = t.order_id
+        where t.order_id
+        <choose>
+            <when test="orderIdList != null and orderIdList.size > 0">
+                in
+                <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+                    #{orderId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.op_type, t.use_category, t1.code
+    </select>
+
+    <select id="selectMustMaterialListByOrderId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+               t1.name,
+               t1.kind,
+               t1.unit,
+               t1.code,
+               t1.price,
+               t1.spec,
+               t1.category2
+        from bu_work_order_material t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+        where t.order_id = #{orderId}
+          and t.use_category = 1
+        order by t.op_type, t.use_category, t1.code
+    </select>
+
+    <select id="selectListOfSubmitOrCloseOrder"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.group_id
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        where t.amount > 0
+        and t1.order_type not in (4, 5)
+        and t1.order_status in (3, 4)
+        <if test="groupId != null and groupId != ''">
+            and t1.group_id = #{groupId}
+        </if>
+    </select>
+
+    <select id="selectSystemOrWorkstationInvalidList"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+               t1.group_id
+        from bu_work_order_material t
+                 left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_type not in (4, 5)
+          and t.amount > 0
+          and (t.system_id is null
+            or t.system_id = ''
+            or t.system_id = '-1'
+            or t.workstation_id is null
+            or t.workstation_id = ''
+            or t.workstation_id = '-1')
+          and t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectNotMaterialApplyOrderListByGroupIdAndOrderStatus"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.train_no,
+        t1.order_code,
+        t1.order_status
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_type not in (4, 5)
+        and t1.group_id = #{groupId}
+        and t1.order_status in
+        <foreach collection="orderStatusList" item="orderStatus" open="(" separator="," close=")">
+            #{orderStatus}
+        </foreach>
+    </select>
+
+    <select id="selectMaterialTypeIdCodeByCodeList" resultType="java.util.Map">
+        select id as "id", code as "code"
+        from bu_material_type
+        where code in
+        <foreach collection="codeList" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+</mapper>

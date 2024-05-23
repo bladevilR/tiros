@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialToolsThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialTools">
+        <id column="id" property="id"/>
+        <result column="tool_type" property="toolType"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="code" property="code"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="serial_no" property="serialNo"/>
+        <result column="name" property="name"/>
+        <result column="model" property="model"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="entrace_date" property="entraceDate"/>
+        <result column="lifetime" property="lifetime"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="entry_date" property="entryDate"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="status" property="status"/>
+        <result column="service_interval" property="serviceInterval"/>
+        <result column="last_check_time" property="lastCheckTime"/>
+        <result column="next_check_time" property="nextCheckTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_self_check" property="isSelfCheck"/>
+        <result column="last_self_check_time" property="lastSelfCheckTime"/>
+        <result column="price" property="price"/>
+        <result column="sync" property="sync"/>
+        <result column="is_electric" property="isElectric"/>
+        <result column="is_fixed_asset" property="isFixedAsset"/>
+        <result column="storage_location" property="storageLocation"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tool_type, material_type_id, code, asset_code, serial_no, name, model, supplier_id,
+        entrace_date, lifetime, leave_factory, expir_date, entry_date, line_id, workshop_id, group_id,
+        user_id, warehouse_id, status, service_interval, last_check_time, next_check_time, remark,
+        create_time, create_by, update_time, update_by, is_self_check, last_self_check_time, price, sync,
+        is_electric, is_fixed_asset, storage_location, company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.toolType},
+            #{item.materialTypeId},
+            #{item.code},
+            #{item.assetCode},
+            #{item.serialNo},
+            #{item.name},
+            #{item.model},
+            #{item.supplierId},
+            #{item.entraceDate},
+            #{item.lifetime},
+            #{item.leaveFactory},
+            #{item.expirDate},
+            #{item.entryDate},
+            #{item.lineId},
+            #{item.workshopId},
+            #{item.groupId},
+            #{item.userId},
+            #{item.warehouseId},
+            #{item.status},
+            #{item.serviceInterval},
+            #{item.lastCheckTime},
+            #{item.nextCheckTime},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.isSelfCheck},
+            #{item.lastSelfCheckTime},
+            #{item.price},
+            #{item.sync},
+            #{item.isElectric},
+            #{item.isFixedAsset},
+            #{item.storageLocation},
+            #{item.companyId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_tools
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="list">
+        <foreach collection="list" index="index" item="item" separator=";">
+            update bu_material_tools
+            <set>
+                tool_type = #{item.toolType},
+                material_type_id = #{item.materialTypeId},
+                code = #{item.code},
+                asset_code = #{item.assetCode},
+                serial_no = #{item.serialNo},
+                name = #{item.name},
+                model = #{item.model},
+                supplier_id = #{item.supplierId},
+                entrace_date = #{item.entraceDate},
+                lifetime = #{item.lifetime},
+                leave_factory = #{item.leaveFactory},
+                expir_date = #{item.expirDate},
+                entry_date = #{item.entryDate},
+                line_id = #{item.lineId},
+                workshop_id = #{item.workshopId},
+                group_id = #{item.groupId},
+                user_id = #{item.userId},
+                warehouse_id = #{item.warehouseId},
+                status = #{item.status},
+                service_interval = #{item.serviceInterval},
+                last_check_time = #{item.lastCheckTime},
+                next_check_time = #{item.nextCheckTime},
+                remark = #{item.remark},
+                create_time = #{item.createTime},
+                create_by = #{item.createBy},
+                update_time = #{item.updateTime},
+                update_by = #{item.updateBy},
+                is_self_check = #{item.isSelfCheck},
+                last_self_check_time = #{item.lastSelfCheckTime},
+                price = #{item.price},
+                sync = #{item.sync},
+                is_electric = #{item.isElectric},
+                is_fixed_asset = #{item.isFixedAsset},
+                storage_location = #{item.storageLocation},
+                company_id = #{item.companyId}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <select id="selectToolById" resultType="org.jeecg.modules.third.jdx.bean.BuMaterialTools">
+        SELECT t1.*,
+               t2.name       AS warehouseName,
+               t3.group_name AS groupName,
+               1             as amount,
+               t4.name       as supplierName,
+               t5.spec,
+               t5.unit,
+               t5.price,
+               t5.kind,
+               t5.category1,
+               t5.category2
+        FROM bu_material_tools t1
+                 LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+                 LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t1.group_id
+                 LEFT JOIN bu_base_supplier t4 ON t4.id = t1.supplier_id
+                 LEFT JOIN bu_material_type t5 ON t5.id = t1.material_type_id
+        where t1.id = #{id}
+    </select>
+
+    <select id="selectIdList" resultType="java.lang.String">
+        select id
+        from bu_material_tools
+    </select>
+
+</mapper>

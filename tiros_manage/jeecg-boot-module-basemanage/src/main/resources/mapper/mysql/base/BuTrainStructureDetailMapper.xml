@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuTrainStructureDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail">
+        <id column="id" property="id"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="code" property="code"/>
+        <result column="wbs" property="wbs"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="struct_type" property="structType"/>
+        <result column="material_id" property="materialId"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="turnover" property="turnover"/>
+        <result column="unit" property="unit"/>
+        <result column="place_id" property="placeId"/>
+        <result column="place_desc" property="placeDesc"/>
+        <result column="short_name" property="shortName"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="short_name" property="shortName"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuTrainStructureDetail_SimpleChildren"
+               type="org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail">
+        <id column="id" property="id"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="code" property="code"/>
+        <result column="wbs" property="wbs"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="struct_type" property="structType"/>
+        <result column="material_id" property="materialId"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="turnover" property="turnover"/>
+        <result column="unit" property="unit"/>
+        <result column="place_id" property="placeId"/>
+        <result column="place_desc" property="placeDesc"/>
+        <result column="short_name" property="shortName"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="short_name" property="shortName"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail"
+                    select="selectChildren"/>
+    </resultMap>
+    <select id="selectChildren" resultMap="ResultMap_BuTrainStructureDetail_SimpleChildren">
+        select *
+        from bu_train_structure_detail
+        where parent_id = #{id}
+        order by sort_no, wbs
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_struct_id, asset_type_id, code, wbs, name, parent_id, struct_type, material_id,
+        subjunctive, turnover, unit, place_id, place_desc, remark, status, create_time, create_by,
+        update_time, update_by, sort_no, short_name
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.trainStructId},
+            #{item.assetTypeId},
+            #{item.code},
+            #{item.wbs},
+            #{item.name},
+            #{item.parentId},
+            #{item.structType},
+            #{item.materialId},
+            #{item.subjunctive},
+            #{item.turnover},
+            #{item.unit},
+            #{item.placeId},
+            #{item.placeDesc},
+            #{item.remark},
+            #{item.status},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.sortNo},
+            #{item.shortName},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_structure_detail
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectListByStructId" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail">
+        select *
+        from bu_train_structure_detail
+        where train_struct_id = #{structId}
+        order by sort_no, wbs
+    </select>
+
+    <select id="selectListByBuTrainStructureDetailQueryVO"
+            resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail">
+        <if test="searchText == null or searchText == ''">
+            select
+            t.*,
+            decode((select count(1) from bu_train_structure_detail where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+            t2.place_code as placeCode,
+            t3.name as parentName,
+            t1.name as assetTypeName,
+            t4.train_type_id as trainTypeId
+            from bu_train_structure_detail t
+            left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+            left join bu_train_place t2 on t2.id = t.place_id
+            left join bu_train_structure_detail t3 on t3.id = t.parent_id
+            left join bu_train_structure t4 on t4.id = t.train_struct_id
+            <where>
+                <if test="trainStructId != null and trainStructId != ''">
+                    and t.train_struct_id = #{trainStructId}
+                </if>
+                <if test="status != null">
+                    and t.status = #{status}
+                </if>
+                <choose>
+                    <when test="id != null and id != ''">
+                        and t.parent_id = #{id}
+
+                    </when>
+                    <otherwise>
+                        and (t.parent_id is null or t.parent_id = '')
+                    </otherwise>
+                </choose>
+            </where>
+            order by t.sort_no, t.wbs
+        </if>
+        <if test="searchText != null and searchText != ''">
+            select
+            t.*,
+            decode((select count(1) from bu_train_structure_detail where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+            t2.place_code as placeCode,
+            t3.name as parentName,
+            t1.name as assetTypeName,
+            t4.train_type_id as trainTypeId
+            from bu_train_structure_detail t
+            left join bu_train_asset_type t1 on t1.id = t.asset_type_id
+            left join bu_train_place t2 on t2.id = t.place_id
+            left join bu_train_structure_detail t3 on t3.id = t.parent_id
+            left join bu_train_structure t4 on t4.id = t.train_struct_id
+            <where>
+                <if test="trainStructId != null and trainStructId != ''">
+                    and t.train_struct_id = #{trainStructId}
+                </if>
+                <if test="status != null">
+                    and t.status = #{status}
+                </if>
+                <if test="id != null and id != ''">
+                    and t.wbs like concat(
+                    (select wbs from bu_train_structure_detail where id=#{id}),'%')
+                    and t.id  <![CDATA[ != ]]> #{id}
+                </if>
+                and (
+                t.name like CONCAT('%',#{searchText},'%')
+                or
+                t.code like CONCAT('%',#{searchText},'%')
+                )
+            </where>
+            order by t.sort_no, t.wbs
+        </if>
+    </select>
+
+    <select id="selectCodeListByTrainStructId" resultType="java.lang.String">
+        select code
+        from bu_train_structure_detail
+        where train_struct_id = #{trainStructId}
+    </select>
+
+    <select id="selectBrotherMaxCodeByParentId" resultType="java.lang.String">
+        select max(code)
+        from bu_train_asset_type
+        where
+        <choose>
+            <when test="parentId != null and parentId != ''">
+                parent_id = #{parentId}
+            </when>
+            <otherwise>
+                parent_id is null or parent_id = ''
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

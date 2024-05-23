@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.MxinInterTransMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.MxinInterTrans">
+        <result column="ACTION" property="action" />
+        <result column="IFACENAME" property="ifacename" />
+        <result column="IMPORTMESSAGE" property="importmessage" />
+        <result column="EXTSYSNAME" property="extsysname" />
+        <result column="TRANSLANGUAGE" property="translanguage" />
+        <result column="TRANSID" property="transid" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ACTION, IFACENAME, IMPORTMESSAGE, EXTSYSNAME, TRANSLANGUAGE, TRANSID
+    </sql>
+
+    <select id="selectTransId" resultType="java.lang.Long">
+        select maxifacetransseq.nextval from dual
+    </select>
+
+</mapper>

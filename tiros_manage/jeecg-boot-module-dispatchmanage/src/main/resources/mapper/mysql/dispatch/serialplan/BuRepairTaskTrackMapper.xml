@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskTrackMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskTrack">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="track_id" property="trackId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, track_id
+    </sql>
+
+
+<!--    <select id="selectTimeFirstTaskTrack" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskTrack">-->
+<!--        select t.*-->
+<!--        from bu_repair_task_track t-->
+<!--        left join bu_repair_plan_task t1 on t1.id = t.task_id-->
+<!--        where t1.id in-->
+<!--        <foreach collection="planTaskIdList" item="planTaskId" separator="," open="(" close=")">-->
+<!--            #{planTaskId}-->
+<!--        </foreach>-->
+<!--        order by t1.start_time-->
+<!--        limit 1-->
+<!--    </select>-->
+
+    <update id="updateTrainTrack">
+        update bu_train_info
+        set track_id = #{trackId}
+        where train_no = #{trainNo}
+    </update>
+
+    <update id="clearTrainTrack">
+        update bu_train_info
+        set track_id = null
+        where train_no = #{trainNo}
+          and track_id = #{trackId}
+    </update>
+
+    <update id="clearTrainTrackList">
+        update bu_train_info
+        set track_id = null
+        where train_no = #{trainNo, jdbcType=VARCHAR}
+        and track_id in
+        <foreach collection="trackIdList" item="trackId" separator="," open="(" close=")">
+            #{trackId}
+        </foreach>
+    </update>
+
+</mapper>

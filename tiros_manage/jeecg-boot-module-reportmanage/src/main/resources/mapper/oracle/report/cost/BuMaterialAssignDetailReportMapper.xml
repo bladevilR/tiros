@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.cost.mapper.BuMaterialAssignDetailReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.cost.bean.BuMaterialAssignDetail">
+        <id column="id" property="id"/>
+        <result column="apply_detail_id" property="applyDetailId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="location_wbs" property="locationWbs"/>
+        <result column="location_name" property="locationName"/>
+        <result column="pallet_id" property="palletId"/>
+        <result column="amount" property="amount"/>
+        <result column="ebs_wh_code" property="ebsWhCode"/>
+        <result column="ebs_wh_child_code" property="ebsWhChildCode"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="price" property="price"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_detail_id, material_type_id, location_wbs, location_name, pallet_id, amount,
+        ebs_wh_code, ebs_wh_child_code, trade_no, price
+    </sql>
+
+    <select id="selectListByApplyDetailId" resultType="org.jeecg.modules.report.cost.bean.BuMaterialAssignDetail">
+        select t.*,
+               t1.name as palletName
+        from bu_material_assign_detail t
+                 left join bu_material_pallet t1 on t1.id = t.pallet_id
+                 left join bu_material_type t2 on t2.id = t.material_type_id
+        order by t2.code, t.location_wbs, t1.code
+    </select>
+
+    <select id="selectPageByReceiveQueryVO" resultType="org.jeecg.modules.report.cost.bean.BuMaterialAssignDetail">
+        select t.*,
+        t4.line_id,
+        t4.line_name,
+        t3.train_no,
+        t3.id as orderId,
+        t3.order_code,
+        t3.order_name,
+        t3.group_id,
+        t5.depart_name as groupName,
+        t6.code as materialTypeCode,
+        t6.name as materialTypeName,
+        t6.spec as materialTypeSpec,
+        t1.amount as applyAmount,
+        t1.receive as receiveAmount,
+        t7.name as palletName,
+        t8.realname as sendUserName,
+        t9.realname as confirmUserName,
+        t1.confirm_time,
+        t1.use_category as useCategory,
+        t2.sync_time,
+        t2.sync_result,
+        t2.sync_result_time
+        from bu_material_assign_detail t
+        left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+        left join bu_material_apply t2 on t2.id = t1.apply_id
+        left join bu_work_order t3 on t3.id = t2.work_order_id
+        left join bu_mtr_line t4 on t4.line_id = t3.line_id
+        left join sys_depart t5 on t5.id = t3.group_id
+        left join bu_material_type t6 on t6.id = t.material_type_id
+        left join bu_material_pallet t7 on t7.id = t.pallet_id
+        left join sys_user t8 on t8.id = t1.send_user
+        left join sys_user t9 on t9.id = t1.confirm_user
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t3.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                and t3.workshop_id = #{queryVO.workshopId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t3.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t3.group_id = #{queryVO.groupId}
+            </if>
+            <if test="queryVO.orderSearchText != null and queryVO.orderSearchText != ''">
+                and
+                (
+                t3.order_code like '%'||#{queryVO.orderSearchText}||'%'
+                or
+                t3.order_name like '%'||#{queryVO.orderSearchText}||'%'
+                )
+            </if>
+            <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">
+                and
+                (
+                t6.code like '%'||#{queryVO.materialSearchText}||'%'
+                or
+                t6.name like '%'||#{queryVO.materialSearchText}||'%'
+                )
+            </if>
+            <if test="queryVO.tradeNo != null and queryVO.tradeNo != ''">
+                and t.trade_no like '%'||#{queryVO.tradeNo}||'%'
+            </if>
+            <if test="queryVO.startDate != null">
+                and t1.confirm_time &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                and t1.confirm_time &lt;= #{queryVO.endDate}
+            </if>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and t3.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.syncResultSuccess != null and queryVO.syncResultSuccess == 1">
+                and t2.sync_result = '全部成功'
+            </if>
+            <if test="queryVO.syncResultSuccess != null and queryVO.syncResultSuccess == 0">
+                and (t2.sync_result != '全部成功' or t2.sync_result is null)
+            </if>
+        </where>
+        order by t3.order_code desc, t6.code, t.location_wbs, t7.code
+    </select>
+
+    <select id="selectListByReceiveQueryVO"
+            resultType="org.jeecg.modules.report.cost.bean.BuMaterialAssignDetail">
+        select t.*,
+        t4.line_id,
+        t4.line_name,
+        t3.train_no,
+        t3.id as orderId,
+        t3.order_code,
+        t3.order_name,
+        t3.group_id,
+        t5.depart_name as groupName,
+        t6.code as materialTypeCode,
+        t6.name as materialTypeName,
+        t6.spec as materialTypeSpec,
+        t1.amount as applyAmount,
+        t1.receive as receiveAmount,
+        t7.name as palletName,
+        t8.realname as sendUserName,
+        t9.realname as confirmUserName,
+        t1.confirm_time,
+        t1.use_category as useCategory,
+        t11.name as repairProName,
+        t2.sync_time,
+        t2.sync_result,
+        t2.sync_result_time
+        from bu_material_assign_detail t
+        left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+        left join bu_material_apply t2 on t2.id = t1.apply_id
+        left join bu_work_order t3 on t3.id = t2.work_order_id
+        left join bu_mtr_line t4 on t4.line_id = t3.line_id
+        left join sys_depart t5 on t5.id = t3.group_id
+        left join bu_material_type t6 on t6.id = t.material_type_id
+        left join bu_material_pallet t7 on t7.id = t.pallet_id
+        left join sys_user t8 on t8.id = t1.send_user
+        left join sys_user t9 on t9.id = t1.confirm_user
+        left join bu_repair_plan t10 on t10.id=t3.plan_id
+        left join bu_repair_program t11 on t11.id = t10.repair_program_id
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t3.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                and t3.workshop_id = #{queryVO.workshopId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t3.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t3.group_id = #{queryVO.groupId}
+            </if>
+            <if test="queryVO.orderSearchText != null and queryVO.orderSearchText != ''">
+                and
+                (
+                t3.order_code like '%'||#{queryVO.orderSearchText}||'%'
+                or
+                t3.order_name like '%'||#{queryVO.orderSearchText}||'%'
+                )
+            </if>
+            <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">
+                and
+                (
+                t6.code like '%'||#{queryVO.materialSearchText}||'%'
+                or
+                t6.name like '%'||#{queryVO.materialSearchText}||'%'
+                )
+            </if>
+            <if test="queryVO.tradeNo != null and queryVO.tradeNo != ''">
+                and t.trade_no like '%'||#{queryVO.tradeNo}||'%'
+            </if>
+            <if test="queryVO.startDate != null">
+                and t1.confirm_time &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                and t1.confirm_time &lt;= #{queryVO.endDate}
+            </if>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and t3.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.syncResultSuccess != null and queryVO.syncResultSuccess == 1">
+                and t2.sync_result = '全部成功'
+            </if>
+            <if test="queryVO.syncResultSuccess != null and queryVO.syncResultSuccess == 0">
+                and (t2.sync_result != '全部成功' or t2.sync_result is null)
+            </if>
+        </where>
+        order by t3.order_code desc, t6.code, t.location_wbs, t7.code
+    </select>
+
+</mapper>

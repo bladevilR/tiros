@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.tpplan.mapper.BuTpRepairPlanToolMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTool">
+        <result column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="tool_type_id" property="toolTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, tool_type_id, amount, remark
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.toolTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DOUBLE},
+            #{item.remark, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_tp_repair_plan_tool
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTool">
+        select t.*,
+               t2.task_name,
+               t2.work_group_id,
+               t3.group_name as workGroupName,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        from bu_tp_repair_plan_tool t
+                 left join bu_material_type t1 on t1.id = t.tool_type_id
+                 left join bu_tp_repair_plan_task t2 on t2.id = t.task_id
+                 left join bu_mtr_workshop_group t3 on t3.id = t2.work_group_id
+        where t2.plan_id = #{planId}
+        order by t2.work_group_id, t.tool_type_id
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTool">
+        select t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        from bu_tp_repair_plan_tool t
+                 left join bu_material_type t1 on t1.id = t.tool_type_id
+        where t.task_id = #{taskId}
+        order by t.tool_type_id
+    </select>
+
+</mapper>

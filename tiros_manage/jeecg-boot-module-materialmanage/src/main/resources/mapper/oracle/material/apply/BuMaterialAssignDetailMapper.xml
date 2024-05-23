@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.apply.mapper.BuMaterialAssignDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        <id column="id" property="id"/>
+        <result column="apply_detail_id" property="applyDetailId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="location_wbs" property="locationWbs"/>
+        <result column="location_name" property="locationName"/>
+        <result column="pallet_id" property="palletId"/>
+        <result column="amount" property="amount"/>
+        <result column="ebs_wh_code" property="ebsWhCode"/>
+        <result column="ebs_wh_child_code" property="ebsWhChildCode"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="price" property="price"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_detail_id, material_type_id, location_wbs, location_name, pallet_id, amount,
+        ebs_wh_code, ebs_wh_child_code, trade_no, price
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.applyDetailId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.locationWbs, jdbcType=VARCHAR},
+            #{item.locationName, jdbcType=VARCHAR},
+            #{item.palletId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=NUMERIC},
+            #{item.ebsWhCode, jdbcType=VARCHAR},
+            #{item.ebsWhChildCode, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.price, jdbcType=NUMERIC},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_assign_detail
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updatePriceBatch">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_assign_detail
+            set price = #{item.price, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateListEbsWhCode">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_assign_detail
+            set
+            ebs_wh_code = #{item.ebsWhCode, jdbcType=VARCHAR},
+            ebs_wh_child_code = #{item.ebsWhChildCode, jdbcType=VARCHAR}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectListByApplyDetailId" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+               t1.name as palletName
+        from bu_material_assign_detail t
+                 left join bu_material_pallet t1 on t1.id = t.pallet_id
+        where t.apply_detail_id = #{applyDetailId}
+        order by t.material_type_id, t.ebs_wh_code, t.ebs_wh_child_code, t.location_wbs
+    </select>
+
+    <select id="selectListByApplyDetailIdList"
+            resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+        t1.name as palletName
+        from bu_material_assign_detail t
+        left join bu_material_pallet t1 on t1.id = t.pallet_id
+        where t.apply_detail_id
+        <choose>
+            <when test="applyDetailIdList != null and applyDetailIdList.size > 0">
+                in
+                <foreach collection="applyDetailIdList" item="applyDetailId" separator="," open="(" close=")">
+                    #{applyDetailId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.material_type_id, t.ebs_wh_code, t.ebs_wh_child_code, t.location_wbs
+    </select>
+
+    <select id="selectListByIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+        t1.name as palletName,
+        t4.id as orderId,
+        t4.order_code
+        from bu_material_assign_detail t
+        left join bu_material_pallet t1 on t1.id = t.pallet_id
+        left join bu_material_apply_detail t2 on t2.id = t.apply_detail_id
+        left join bu_material_apply t3 on t3.id = t2.apply_id
+        left join bu_work_order t4 on t4.id = t3.work_order_id
+        where t.id
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                in
+                <foreach collection="idList" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.material_type_id, t.ebs_wh_code, t.ebs_wh_child_code, t.location_wbs
+    </select>
+
+    <select id="sumAmountByApplyDetailId" resultType="java.lang.Double">
+        select sum(NVL(t.amount, 0))
+        from bu_material_assign_detail t
+        where t.apply_detail_id = #{applyDetailId}
+    </select>
+
+    <select id="selectListForMaximoByIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        SELECT t.*,
+        t8.code as locationCode,
+        t8.sys_house_category as sysHouseCategory,
+        t1.use_category,
+        t3.train_no,
+        t3.order_code,
+        t5.code as materialCode,
+        t5.name as materialName,
+        t5.spec as materialSpec,
+        NVL(t1.unit_price, 0) as materialUnitPrice,
+        t1.confirm_time,
+        t3.line_id,
+        t7.depot_id,
+        t4.id AS workshopId,
+        t4.name as workshopName,
+        t6.id AS trainid,
+        t7.repair_program_id AS programId,
+        t3.fd_project,
+        t9.code as fdProjectCode,
+        t9.name as fdProjectName,
+        t3.fd_task,
+        t10.code as fdTaskCode,
+        t10.name as fdTaskName,
+        t3.fd_cost_type
+        FROM bu_material_assign_detail t
+        left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+        left join bu_material_apply t2 on t2.id = t1.apply_id
+        LEFT JOIN bu_work_order t3 ON t3.id = t2.work_order_id
+        LEFT JOIN bu_mtr_workshop t4 ON t4.id = t3.workshop_id
+        LEFT JOIN bu_material_type t5 ON t5.id = t.material_type_id
+        LEFT JOIN bu_train_info t6 on t6.train_no = t3.train_no
+        LEFT JOIN bu_repair_plan t7 on t7.id = t3.plan_id
+        LEFT JOIN bu_mtr_warehouse t8 on t8.wbs = t.location_wbs
+        LEFT JOIN bu_maximo_finance_item t9 on t9.id = t3.fd_project
+        LEFT JOIN bu_maximo_finance_item t10 on t10.id = t3.fd_task
+        where t.id
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectUnCommitOrderAssignDetailPalletIdList" resultType="java.lang.String">
+        select t.pallet_id
+        from bu_material_assign_detail t
+                 left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+                 left join bu_material_apply t2 on t2.id = t1.apply_id
+                 left join bu_work_order t3 on t3.id = t2.work_order_id
+        where t3.order_status not in (3, 4)
+    </select>
+    <select id="selectListByPalletId"
+            resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*, t1.NAME as materialName, t1.CODE as materialCode
+        from bu_material_assign_detail t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+        where t.PALLET_ID = #{id}
+    </select>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+               t1.apply_id
+        from bu_material_assign_detail t
+                 left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+                 left join bu_material_apply t2 on t2.id = t1.apply_id
+        where t2.work_order_id = #{orderId}
+    </select>
+
+    <select id="selectListByOrderIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+        t1.apply_id
+        from bu_material_assign_detail t
+        left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+        left join bu_material_apply t2 on t2.id = t1.apply_id
+        where t2.work_order_id in
+        <foreach collection="orderIdList" item="orderId" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </select>
+
+    <select id="selectListForGroupStockCount" resultType="org.jeecg.modules.material.apply.bean.BuMaterialAssignDetail">
+        select t.*,
+        t3.train_no,
+        t3.order_code as sourceOrderCode
+        from bu_material_assign_detail t
+        left join bu_material_apply_detail t1 on t1.id = t.apply_detail_id
+        left join bu_work_order_material t2 on t2.id = t1.order_material_id
+        left join bu_work_order t3 on t3.id = t2.order_id
+        where t1.status = 2
+        and t1.order_material_id
+        <choose>
+            <when test="orderMaterialIdList != null and orderMaterialIdList.size > 0">
+                in
+                <foreach collection="orderMaterialIdList" item="orderMaterialId" open="(" separator="," close=")">
+                    #{orderMaterialId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

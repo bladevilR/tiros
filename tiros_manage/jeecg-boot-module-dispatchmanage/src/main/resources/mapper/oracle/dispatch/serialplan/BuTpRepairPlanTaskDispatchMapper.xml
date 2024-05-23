@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuTpRepairPlanTaskDispatchMapper">
+
+    <select id="selectTpPlanTaskByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanTask">
+        SELECT t.*
+        FROM bu_tp_repair_plan_task t
+        WHERE t.plan_id = #{tpPlanId}
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as int)
+    </select>
+
+    <select id="selectTaskRepairPlanReguInfoByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanReguInfo">
+        SELECT t.*
+        FROM bu_tp_repair_plan_regu_info t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskBookStepByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanBookStep">
+        SELECT t.*
+        FROM bu_tp_repair_plan_book_step t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskSpecAssetByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanSpeEq">
+        SELECT t.*
+        FROM bu_tp_repair_plan_spe_eq t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.tp_task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskWorkstationsByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanWorkstation">
+        SELECT t.*
+        FROM bu_tp_repair_plan_workstation t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskMaterialsByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanMaterial">
+        SELECT t.*
+        FROM bu_tp_repair_plan_material t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskToolsByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanTool">
+        SELECT t.*
+        FROM bu_tp_repair_plan_tool t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskPersonsByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanPerson">
+        SELECT t.*
+        FROM bu_tp_repair_plan_person t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskMustReplacesByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanMustReplace">
+        SELECT t.*
+        FROM bu_tp_repair_plan_must_replace t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskTaskPresByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanTaskPre">
+        SELECT t.*
+        FROM bu_tp_repair_plan_task_pre t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskEquipmentByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanTaskEqu">
+        SELECT t.*
+        FROM bu_tp_repair_plan_task_equ t
+                 LEFT JOIN bu_tp_repair_plan_task t1 on t1.id = t.plan_task_id
+        WHERE t1.plan_id = #{tpPlanId}
+    </select>
+    <select id="selectTaskFormByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanTaskForms">
+        SELECT t.*
+        FROM bu_tp_repair_plan_task_forms t
+        WHERE t.plan_id = #{tpPlanId}
+    </select>
+
+    <select id="selectTpPlanByTpPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlan">
+        SELECT t.*
+        FROM bu_tp_repair_plan t
+        WHERE t.id = #{tpPlanId}
+    </select>
+
+    <select id="selectTpPlanFormsByTpPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlanForms">
+        select t.*
+        from bu_tp_repair_plan_forms t
+        where t.tp_plan_id = #{tpPlanId}
+    </select>
+
+</mapper>

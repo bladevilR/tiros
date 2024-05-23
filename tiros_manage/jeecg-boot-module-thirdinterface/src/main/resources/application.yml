@@ -1,0 +1,259 @@
+server:
+  port: 8090
+  tomcat:
+    max-swallow-size: -1
+  servlet:
+    context-path: /third
+  compression:
+    enabled: true
+    min-response-size: 1024
+    mime-types: application/javascript,application/json,application/xml,text/html,text/xml,text/plain,text/css,image/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+      cors:
+        allowed-origins: '*'
+        allowed-headers: '*'
+        allowed-methods: '*'
+        allow-credentials: true
+  endpoint:
+    health:
+      show-details: ALWAYS
+    logfile:
+      enabled: true
+
+spring:
+  application:
+    name: tiros_third_maximo
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  security:
+    user:
+      name: tiros
+      password: tiros_actuator
+  #  boot:
+  #    admin:
+  #      client:
+  #        url: http://localhost:9999
+  #        username: admin
+  #        password: admin
+  #        instance:
+  #          name: Maximo同步服务
+  #          service-url: http://localhost:${server.port}/tiros
+  #          metadata:
+  #            user.name: ${spring.security.user.name}
+  #            user.password: ${spring.security.user.password}
+  datasource:
+    druid:
+      stat-view-servlet:
+        enabled: true
+        loginUsername: admin
+        loginPassword: 123456
+        allow:
+      web-stat-filter:
+        enabled: true
+    hikari:
+      #最大超时时间
+      connection-timeout: 300000
+      #连接数
+      maximum-pool-size: 500
+      #池中连接的最大生存期
+      max-lifetime: 900000
+      #HikariCP尝试在池中维护的最小空闲连接数
+      minimum-idle: 20
+      #测试连接是否活跃的最长时间。此值必须小于 connectionTimeout
+      validation-timeout: 3000
+      #允许连接在池中处于空闲状态的最长时间
+      idle-timeout: 30000
+    dynamic:
+      druid: # 全局druid参数，绝大部分值和默认保持一致。(现已支持的参数如下,不清楚含义不要乱设置)
+        # 连接池的配置信息
+        # 初始化大小，最小，最大
+        initial-size: 5
+        min-idle: 5
+        maxActive: 1000
+        # 配置获取连接等待超时的时间
+        maxWait: 60000
+        # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+        timeBetweenEvictionRunsMillis: 60000
+        # 配置一个连接在池中最小生存的时间，单位是毫秒
+        minEvictableIdleTimeMillis: 300000
+        validationQuery: SELECT 1 FROM DUAL
+        testWhileIdle: true
+        testOnBorrow: false
+        testOnReturn: false
+        # 打开PSCache，并且指定每个连接上PSCache的大小
+        poolPreparedStatements: true
+        maxPoolPreparedStatementPerConnectionSize: 20
+        # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+        filters: stat,slf4j
+        # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+        connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      datasource:
+        # 多数据源配置--架大修
+        jdxdb:
+          #          # 轨道交通正式环境
+          #          url: jdbc:oracle:thin:@//10.97.4.6:1521/tiros
+          #          username: tiros
+          #          password: tiros#20240308
+          #          driver-class-name: oracle.jdbc.driver.OracleDriver
+          # 轨道交通测试环境
+          url: jdbc:oracle:thin:@//10.98.14.12:1521/tirostest
+          username: tiros_test
+          password: tirostest#123
+          driver-class-name: oracle.jdbc.driver.OracleDriver
+          #          # 公司开发环境（外网）
+          #          url: jdbc:oracle:thin:@//159.75.51.109:1521/orcl
+          #          username: tiros_dev
+          #          password: 123456
+          #          driver-class-name: oracle.jdbc.driver.OracleDriver
+          #          # 公司开发环境（内网）
+          #          url: jdbc:oracle:thin:@//192.168.31.10:1521/orcl
+          #          username: tiros_dev
+          #          password: 123456
+          #          driver-class-name: oracle.jdbc.driver.OracleDriver
+          #          # 本机开发环境
+          #          url: jdbc:oracle:thin:@//localhost:1521/tiros
+          #          username: tiros
+          #          password: 123456
+          #          driver-class-name: oracle.jdbc.driver.OracleDriver
+        # 多数据源配置--maximo设备检修
+        maximodb:
+          #测试环境地址
+          url: jdbc:oracle:thin:@10.97.10.192:1521:maxtest
+          username: jdx
+          password: mtr1!q2Q
+          driver-class-name: oracle.jdbc.driver.OracleDriver
+          #          #正式环境地址
+          #          url: jdbc:oracle:thin:@//htdora-scan.sz-mtr.com:1521/EAMPROD
+          #          username: jdx
+          #          password: s1Z!mTr5Hx
+          #          driver-class-name: oracle.jdbc.driver.OracleDriver
+        # 多数据源配置--车间电客车数据库故障总表
+        workshopdb:
+          #车间内网正式环境
+          url: jdbc:sqlserver://10.97.10.166:1433;database=电客车
+          username: nuolinew
+          password: nuoli123456
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  #redis 配置
+  redis:
+    database: 0
+    #host: 106.53.225.45
+    host: localhost
+    lettuce:
+      pool:
+        max-active: 8   #最大连接数据库连接数,设 0 为没有限制
+        max-idle: 8     #最大等待连接中的数量,设 0 为没有限制
+        max-wait: -1ms  #最大建立连接等待时间。如果超过此时间将接到异常。设为-1表示无限制。
+        min-idle: 0     #最小等待连接中的数量,设 0 为没有限制
+      shutdown-timeout: 100ms
+    password:
+    port: 6379
+#mybatis plus 设置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/oracle/**/*Mapper.xml
+  global-config:
+    # 关闭MP3.0自带的banner
+    banner: false
+    db-config:
+      #主键类型  0:"数据库ID自增",1:"该类型为未设置主键类型", 2:"用户输入ID",3:"全局唯一ID (数字类型唯一ID)", 4:"全局唯一ID UUID",5:"字符串全局唯一ID (idWorker 的字符串表示)";
+      id-type: UUID
+      # 默认数据库表下划线命名
+      table-underline: true
+  configuration:
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 返回类型为Map,显示null对应的字段
+    call-setters-on-nulls: true
+logging:
+  file: logs/${spring.application.name}.log
+  level:
+    root: info
+#enable swagger
+swagger:
+  enable: true
+#定时任务配置
+serviceTask:
+  #同步到maximo
+  transToMaximo:
+    all:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 60000
+      #不同步到maximo的数据类型：1新增工单 2关闭工单 3物料消耗 4物料退库 5新增故障 6人员工时 7修改工单
+      notTransToMaximoType: 1,2,3,4,5,6,7
+  #从maximo同步
+  transFromMaximo:
+    order:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 86400000
+    maximoWorkOrderId:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 60000
+    fault:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 86400000
+    change:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 86400000
+    materialStock:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 600000
+    materialStockPrice:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 600000
+    materialRewrite:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 600000
+    tool:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 600000
+    faultCode:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 86400000
+    finance:
+      #是否开启
+      enable: false
+      #运行周期
+      interval: 600000
+  #同步车间故障库
+  transFromWorkshopDb:
+    fault:
+      #是否开启
+      enable: true
+      #运行周期
+      interval: 604800000
+#业务相关配置
+tiros:
+  base:
+    # 存放架大修车间库房信息的上级节点
+    rootWarehouse: '2'
+    #默认库存组织
+    defaultSysHouseCategory: AJ1

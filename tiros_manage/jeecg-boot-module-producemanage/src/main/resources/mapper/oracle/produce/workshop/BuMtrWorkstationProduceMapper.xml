@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.workshop.mapper.BuMtrWorkstationProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.workshop.bean.BuMtrWorkstation">
+        <id column="id" property="id"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="station_no" property="stationNo"/>
+        <result column="name" property="name"/>
+        <result column="location" property="location"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, workshop_id, station_no, name, location, content, status, remark,
+        create_time, create_by, update_time, update_by, company_id, line_id
+    </sql>
+
+    <select id="selectListByWorkshopIdAndStationNo"
+            resultType="org.jeecg.modules.produce.workshop.bean.BuMtrWorkstation">
+        SELECT
+        t.id,
+        t.location,
+        t.station_no,
+        t.name
+        FROM bu_mtr_workstation t
+        WHERE t.workshop_id = #{workshopId}
+        <if test="stationNo != null and stationNo != ''">
+            AND t.station_no = #{stationNo}
+        </if>
+    </select>
+
+    <select id="selectWorkstationById" resultType="org.jeecg.modules.produce.workshop.bean.BuMtrWorkstation">
+        SELECT t.id,
+               t.location,
+               t.station_no,
+               t.name
+        FROM bu_mtr_workstation t
+        WHERE t.id = #{id}
+    </select>
+
+    <select id="selectWorkingOrderTaskListByWorkstationIdList"
+            resultType="org.jeecg.modules.produce.workshop.bean.bo.BuWorkOrderTaskBO">
+        SELECT t1.id AS orderId,
+        t1.group_id AS groupId,
+        t.id AS taskId,
+        t.task_content AS taskContent,
+        t.task_start AS taskStart,
+        t2.workstation_id
+        FROM bu_work_order_task t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        LEFT JOIN bu_work_order_task_workstation t2 on t2.order_task_id = t.id
+        WHERE t.task_status = 1
+        AND t.out_task = 0
+        AND t1.work_status = 1
+        AND t2.workstation_id
+        <choose>
+            <when test="workstationIdList != null and workstationIdList.size > 0">
+                in
+                <foreach collection="workstationIdList" item="workstationId" separator="," open="(" close=")">
+                    #{workstationId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t1.order_code, t.task_no
+    </select>
+
+    <select id="selectUnHandleFaultListByWorkstationIdList"
+            resultType="org.jeecg.modules.produce.fault.bean.BuFaultInfo">
+        SELECT t.id,
+        t.fault_desc
+        FROM bu_fault_info t
+        WHERE t.status = 0
+        AND t.work_station_id
+        <choose>
+            <when test="workstationIdList != null and workstationIdList.size > 0">
+                in
+                <foreach collection="workstationIdList" item="workstationId" separator="," open="(" close=")">
+                    #{workstationId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectGroupWorkstationNameMapList" resultType="java.util.Map">
+        select t1.group_name as "groupName",
+               t2.name       as "workstationName"
+        from bu_group_workstation t
+                 left join bu_mtr_workshop_group t1 on t1.id = t.group_id
+                 left join bu_mtr_workstation t2 on t2.id = t.workstation_id
+        where t1.group_name is not null
+          and t2.name is not null
+        order by t1.group_name, t2.name
+    </select>
+
+</mapper>

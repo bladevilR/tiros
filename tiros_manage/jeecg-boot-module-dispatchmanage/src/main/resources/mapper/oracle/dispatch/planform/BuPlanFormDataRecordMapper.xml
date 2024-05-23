@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormDataRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormDataRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="status" property="status"/>
+        <result column="write_date" property="writeDate"/>
+        <result column="write_user_id" property="writeUserId"/>
+        <result column="result" property="result"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="title" property="title"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuPlanFormDataRecord_WithValues"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormDataRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="status" property="status"/>
+        <result column="write_date" property="writeDate"/>
+        <result column="write_user_id" property="writeUserId"/>
+        <result column="result" property="result"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="title" property="title"/>
+        <result column="recordIds" property="recordIds"/>
+        <collection property="valuesList" column="{id=id,recordIds=recordIds}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormValues"
+                    select="selectDataRecordValuesList"/>
+    </resultMap>
+    <select id="selectDataRecordValuesList" parameterType="map"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormValues">
+        select t.*
+        from bu_pl_data_record_value t
+        where t.form_data_record_id = #{id}
+        <if test="recordIds != null and recordIds != ''">
+            and instr(#{recordIds}, t.id) > 0
+        </if>
+        order by t.update_time desc
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, plan_form_id, form_obj_id, form_index, train_no, asset_type_id, struct_detail_id, train_asset_id,
+        status, write_date, write_user_id, result, create_time, create_by, update_time, update_by,
+        check_result, check_date, check_user_id, title
+    </sql>
+
+
+    <update id="updateStructAndTitleById">
+        update bu_pl_data_record
+        set struct_detail_id = #{structDetailId, jdbcType=VARCHAR},
+            title            = #{title, jdbcType=VARCHAR}
+        where id = #{id, jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectDataRecordById" resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormDataRecord">
+        select t.*,
+               t1.name     as formObjName,
+               t2.realname as writeUserName,
+               t3.name     as assetTypeName,
+               t4.name     as structDetailName,
+               t5.name     as trainAssetName
+        from bu_pl_data_record t
+                 left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                 left join sys_user t2 on t2.id = t.write_user_id
+                 left join bu_train_asset_type t3 on t3.id = t.asset_type_id
+                 left join bu_train_structure_detail t4 on t4.id = t.struct_detail_id
+                 left join bu_maximo_train_asset t5 on t5.id = t.train_asset_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectDataRecordWithValuesById" resultMap="ResultMap_BuPlanFormDataRecord_WithValues">
+        select t.*,
+               t1.name       as formObjName,
+               t2.realname   as writeUserName,
+               t3.name       as assetTypeName,
+               t4.name       as structDetailName,
+               t5.name       as trainAssetName,
+               t6.record_ids as recordIds
+        from bu_pl_data_record t
+                 left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                 left join sys_user t2 on t2.id = t.write_user_id
+                 left join bu_train_asset_type t3 on t3.id = t.asset_type_id
+                 left join bu_train_structure_detail t4 on t4.id = t.struct_detail_id
+                 left join bu_maximo_train_asset t5 on t5.id = t.train_asset_id
+                 left join bu_work_order_task_form_inst t6 on t6.form_inst_id = t.id
+        where t.id = #{id}
+    </select>
+
+</mapper>

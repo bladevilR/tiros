@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.specasset.mapper.BuSpecAssetsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.specasset.bean.BuSpecAssets">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="status" property="status"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="model" property="model"/>
+        <result column="brand" property="brand"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="use_date" property="useDate"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="price" property="price"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="current_location" property="currentLocation"/>
+        <result column="duty_user_id" property="dutyUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, asset_code, status, line_id, workshop_id, manuf_no, material_type_id, material_code,
+        model, brand, leave_factory, use_date, expir_date, supplier_id, price, system_id, asset_type_id,
+        group_id, current_location, duty_user_id, create_time, create_by, update_time, update_by, company_id
+    </sql>
+
+
+    <select id="selectPageByQueryVO" resultType="org.jeecg.modules.material.specasset.bean.BuSpecAssets">
+        select t.*,
+        t1.line_name,
+        t2.name as workshopName,
+        t3.name as supplierName,
+        t4.depart_name as groupName,
+        t5.realname as dutyUserName
+        from bu_spec_assets t
+        left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_mtr_workshop t2 on t2.id = t.workshop_id
+        left join bu_base_supplier t3 on t3.id = t.supplier_id
+        left join sys_depart t4 on t4.id = t.group_id
+        left join sys_user t5 on t5.id = t.duty_user_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t.name LIKE  '%'||#{queryVO.searchText}||'%'
+                OR
+                t.asset_code LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.status != null">
+                AND t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                AND t.group_id = #{queryVO.groupId}
+            </if>
+            <if test="queryVO.materialTypeId != null and queryVO.materialTypeId != ''">
+                AND t.material_type_id = #{queryVO.materialTypeId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSpecAssetById" resultType="org.jeecg.modules.material.specasset.bean.BuSpecAssets">
+        select t.*,
+               t1.line_name,
+               t2.name        as workshopName,
+               t3.name        as supplierName,
+               t4.depart_name as groupName,
+               t5.realname    as dutyUserName
+        from bu_spec_assets t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_mtr_workshop t2 on t2.id = t.workshop_id
+                 left join bu_base_supplier t3 on t3.id = t.supplier_id
+                 left join sys_depart t4 on t4.id = t.group_id
+                 left join sys_user t5 on t5.id = t.duty_user_id
+        where t.id = #{id}
+    </select>
+
+</mapper>

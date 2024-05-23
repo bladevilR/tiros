@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.fault.mapper.BuFaultSolutionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.fault.bean.BuFaultSolution">
+        <id column="id" property="id"/>
+        <result column="solution_code" property="solutionCode"/>
+        <result column="solution_desc" property="solutionDesc"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_reason_id" property="faultReasonId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, solution_code, solution_desc, category_id, fault_code_id, fault_reason_id
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.fault.bean.BuFaultSolution">
+        select t.* from bu_fault_solution t
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and
+                (
+                t.solution_code like '%'||#{queryVO.searchText}||'%'
+                or
+                t.solution_desc like '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.categoryId != null and queryVO.categoryId != ''">
+                and t.category_id = #{queryVO.categoryId}
+            </if>
+            <if test="queryVO.faultCodeId != null and queryVO.faultCodeId != ''">
+                and t.fault_code_id = #{queryVO.faultCodeId}
+            </if>
+            <if test="queryVO.faultReasonId != null and queryVO.faultReasonId != ''">
+                and t.fault_reason_id = #{queryVO.faultReasonId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

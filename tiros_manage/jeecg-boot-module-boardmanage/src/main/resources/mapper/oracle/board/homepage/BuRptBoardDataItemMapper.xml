@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.homepage.mapper.BuRptBoardDataItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.homepage.bean.BuRptBoardDataItem">
+        <id column="item_code" property="itemCode"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="item_title" property="itemTitle"/>
+        <result column="item_value" property="itemValue"/>
+        <result column="item_desc" property="itemDesc"/>
+        <result column="item_sort" property="itemSort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        item_code, category_id, item_title, item_value, item_desc, item_sort
+    </sql>
+
+    <select id="selectListByCategoryId" resultType="org.jeecg.modules.board.homepage.bean.BuRptBoardDataItem">
+        SELECT t.*
+        FROM bu_rpt_board_data_item t
+        WHERE t.category_id = #{categoryId}
+        ORDER BY t.item_sort
+    </select>
+
+    <select id="selectColorDictItemListByDictCode" resultType="org.jeecg.modules.board.homepage.bean.bo.SysDictItemBO">
+        SELECT t.item_text,
+               t.item_value
+        FROM sys_dict_item t
+                 LEFT JOIN sys_dict t1 ON t1.id = t.dict_id
+        WHERE t1.dict_code = #{dictCode}
+    </select>
+
+    <select id="countAlertTypeAndValidNumber" resultType="java.util.Map">
+        select alert_type as "alertType",
+               count(id)  as "validNumber"
+        from bu_base_alert
+        where status = 0
+        group by alert_type
+    </select>
+
+    <select id="countRepairingPlanCurrentMonth" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_repair_plan t
+                 LEFT JOIN wf_biz_status t1 ON t1.business_key = t.id
+        WHERE (t.progress_status = 1 OR t.progress_status = 2 OR (t.progress_status = 0 AND t1.process_status = '已结束'))
+          AND (
+                to_char(t.start_date, 'yyyy-mm') &lt;= to_char(sysdate, 'yyyy-mm')
+                OR
+                to_char(t.finish_date, 'yyyy-mm') &gt;= to_char(sysdate, 'yyyy-mm')
+            )
+    </select>
+
+    <select id="countCurrentMonthOrderByStatus" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_work_order t
+        WHERE t.order_type not in (4, 5)
+          AND t.order_status = #{status}
+          AND (
+                to_char(t.start_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+                OR
+                to_char(t.finish_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+            )
+    </select>
+
+    <select id="countUnfinishedOrderCurrentMonth" resultType="java.lang.Integer">
+        <!-- 去掉 AND  t.work_status != 2 ，只要是下发了工单都算 -->
+        SELECT COUNT(t.id)
+        FROM bu_work_order t
+        WHERE t.order_type not in (4, 5)
+        AND t.order_status != 0
+        AND (
+        to_char(t.start_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+        OR
+        to_char(t.finish_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+        )
+    </select>
+
+    <select id="countUnfinishedOrderTaskCurrentMonth" resultType="java.lang.Integer">
+        <!--    去掉 AND  t.work_status != 2 ，只要是下发了工单都算, 任务状态不是3暂停的都算 -->
+        SELECT COUNT(t.id)
+        FROM bu_work_order_task t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        WHERE t.task_status != 3
+        AND t1.order_type not in (4, 5)
+        AND t1.order_status != 0
+        AND (
+        to_char(t1.start_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+        OR
+        to_char(t1.finish_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+        )
+    </select>
+
+    <select id="countUnfinishedOrderAllTaskCurrentMonth" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_work_order_task t
+                 LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        WHERE t1.work_status != 2
+          AND t1.order_status != 0
+          AND (
+                to_char(t1.start_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+                OR
+                to_char(t1.finish_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+            )
+    </select>
+
+    <select id="countMaterialCostCurrentMonth" resultType="org.jeecg.modules.board.cost.bean.BuWorkOrderMaterial">
+        select t.id,
+               t.amount,
+               t.act_amount,
+               t2.price                           as materialTypePrice,
+               (select SUM(a.act_amount)
+                from bu_work_order_material_acts a
+                where a.order_material_id = t.id) as consumeAmount,
+               (select SUM(a.act_amount * a.price)
+                from bu_work_order_material_acts a
+                where a.order_material_id = t.id) as consumeTotalPrice
+        from bu_work_order_material t
+                 left join bu_work_order t1 on t1.id = t.order_id
+                 left join bu_material_type t2 on t2.id = t.material_type_id
+        where t1.order_type not in (4, 5)
+          and t1.order_status in (3, 4)
+          and TO_CHAR(t1.start_time, 'yyyy-mm') = TO_CHAR(sysdate, 'yyyy-mm')
+    </select>
+
+    <select id="countFaultCurrentMonth" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_fault_info t
+        WHERE submit_status = 1
+          AND to_char(t.report_time, 'yyyy-mm') = to_char(sysdate, 'yyyy-mm')
+    </select>
+
+</mapper>

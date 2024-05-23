@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.tiros.third.maximo.mapper.BuMaximoTransDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.common.tiros.third.maximo.bean.BuMaximoTransData">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="obj_id" property="objId"/>
+        <result column="obj_json" property="objJson"/>
+        <result column="create_time" property="createTime"/>
+        <result column="trans_id" property="transId"/>
+        <result column="success_status" property="successStatus"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="message" property="message"/>
+        <result column="trans_time" property="transTime"/>
+        <result column="success_time" property="successTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, obj_id, obj_json, create_time, trans_id, success_status, handle_status,
+        message, trans_time, success_time
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.type},
+            #{item.objId},
+            #{item.objJson},
+            #{item.createTime},
+            #{item.transId},
+            #{item.successStatus},
+            #{item.handleStatus},
+            #{item.message},
+            #{item.transTime},
+            #{item.successTime},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_maximo_trans_data
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

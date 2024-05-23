@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.regu.mapper.BuRepairReguInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="repair_pro_id" property="repairProId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="version" property="version"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, repair_pro_id, line_id, train_type_id, workshop_id, version,
+        status, remark, create_time, create_by, update_time, update_by, company_id
+    </sql>
+
+
+    <select id="selectListByTrainTypeId" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo">
+        SELECT t.*,
+        t1.name AS repairProName,
+        t2.line_name AS lineName,
+        t3.name AS workshopName
+        FROM bu_repair_regu_info t
+        LEFT JOIN bu_repair_program t1 ON t1.id = t.repair_pro_id
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+        LEFT JOIN bu_mtr_workshop t3 ON t3.id = t.workshop_id
+        <if test="trainTypeId != null and trainTypeId != ''">
+            WHERE t.train_type_id = #{trainTypeId}
+        </if>
+        ORDER BY t.train_type_id, t.workshop_id, t.version
+    </select>
+
+    <select id="selectReguInfoById" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo">
+        SELECT t.*,
+               t1.name      AS repairProName,
+               t2.line_name AS lineName,
+               t3.name      AS workshopName
+        FROM bu_repair_regu_info t
+                 LEFT JOIN bu_repair_program t1 ON t1.id = t.repair_pro_id
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+                 LEFT JOIN bu_mtr_workshop t3 ON t3.id = t.workshop_id
+        WHERE t.id = #{id}
+    </select>
+
+</mapper>

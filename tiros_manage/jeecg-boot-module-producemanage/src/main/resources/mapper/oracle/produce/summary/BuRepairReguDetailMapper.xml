@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.summary.mapper.BuRepairReguDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.summary.bean.BuRepairReguDetail">
+        <id column="id" property="id"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="no" property="no"/>
+        <result column="title" property="title"/>
+        <result column="type" property="type"/>
+        <result column="safe_notice" property="safeNotice"/>
+        <result column="remark" property="remark"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="outsource" property="outsource"/>
+        <result column="important" property="important"/>
+        <result column="method" property="method"/>
+        <result column="quality_level" property="qualityLevel"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="requirement" property="requirement"/>
+        <result column="must_replace" property="mustReplace"/>
+        <result column="measure" property="measure"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="outsource2" property="outsource2"/>
+    </resultMap>
+
+    <select id="selectListByPlanId" resultMap="BaseResultMap">
+        select *
+        from bu_repair_regu_detail
+        where id in (
+            select regu_detail_id
+            from bu_repair_task_regu
+            where task_id in
+                  (select id from bu_repair_plan_task where plan_id = #{planId})
+        )
+    </select>
+    <select id="selectPlannedDays" resultType="integer">
+        select sum(t.plannedDays) from (
+        select sum(DURATION) plannedDays from bu_repair_plan_task where plan_id=#{planId}
+        and id in(
+        select task_id from bu_repair_task_regu
+        <where>regu_detail_id in
+            <foreach item="item" collection="reguDetailId" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </where>
+        ) group by WORK_GROUP_ID,DAY_INDEX
+        ) t
+
+    </select>
+
+    <select id="selectListAllByPlanId" resultMap="BaseResultMap">
+        select id,parent_id
+        from bu_repair_regu_detail
+        where regu_id = (select regu_id
+                         from bu_repair_regu_detail
+                         where id in (select t.*
+                                      from (select regu_detail_id
+                                            from bu_repair_task_regu
+                                            where task_id in
+                                                  (select id from bu_repair_plan_task where plan_id = #{planId})) t
+                                      where rownum = 1))
+
+
+    </select>
+
+</mapper>

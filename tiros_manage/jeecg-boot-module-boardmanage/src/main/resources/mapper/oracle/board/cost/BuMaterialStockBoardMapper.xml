@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.cost.mapper.BuMaterialStockBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.cost.bean.BuMaterialStock">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="price" property="price"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, warehouse_id, material_type_id, amount, price, entry_detail_id, trade_no, company_id, workshop_id, line_id
+    </sql>
+
+
+    <select id="selectListByMaterialTypeIdList" resultType="org.jeecg.modules.board.cost.bean.BuMaterialStock">
+        SELECT t.*,
+        t1.wbs AS warehouseWbs,
+        t1.name AS warehouseName,
+        t1.wh_level as warehouseLevel
+        FROM bu_material_stock t
+        LEFT JOIN bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+        where t.material_type_id
+        <choose>
+            <when test="materialTypeIdList != null and materialTypeIdList.size > 0">
+                in
+                <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+                    #{materialTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t1.wbs
+    </select>
+
+</mapper>

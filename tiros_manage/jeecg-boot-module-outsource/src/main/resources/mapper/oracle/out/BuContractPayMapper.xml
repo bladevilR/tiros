@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuContractPayMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuContractPay">
+        <id column="id" property="id"/>
+        <result column="contract_id" property="contractId"/>
+        <result column="pay_no" property="payNo"/>
+        <result column="pay_desc" property="payDesc"/>
+        <result column="amount" property="amount"/>
+        <result column="deal_man" property="dealMan"/>
+        <result column="deal_date" property="dealDate"/>
+        <result column="pay_date" property="payDate"/>
+        <result column="leftover" property="leftover"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="execute_tax_rate" property="executeTaxRate"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, contract_id, pay_no, pay_desc, amount, deal_man, deal_date, pay_date, leftover, remark,
+        create_time, create_by, update_time, update_by, executeTaxRate
+    </sql>
+
+    <update id="updateLeftover">
+        update bu_contract_pay
+        set leftover=leftover + #{subtract, jdbcType=NUMERIC}
+        where id = #{id, jdbcType=VARCHAR}
+    </update>
+    <update id="updateLeftQaMoney">
+        update bu_contract_pay
+        set left_qa_money=left_qa_money + #{subtract, jdbcType=NUMERIC}
+        where id = #{id, jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.outsource.bean.BuContractPay">
+        select t.* ,t1.contract_name as contractName,t1.contract_no as  contractNo,
+               t2.name as supplier,t3.line_name as lineName
+        from bu_contract_pay t
+           left join bu_contract_info t1 on t1.id = t.contract_id
+           left join bu_base_supplier t2 on t1.supplier_id =t2.id
+           left join bu_mtr_line t3 on t3.line_id =t1.line_id
+        <where>
+            <if test="pay.id!=null and pay.id!=''">
+                t.id=#{pay.id}
+            </if>
+            <if test="pay.contractId!=null and pay.contractId!=''">
+            and t.contract_id=#{pay.contractId}
+            </if>
+
+            <if test="pay.searchText!=null and pay.searchText!=''">
+                and t.pay_desc like '%'||#{pay.searchText}||'%'
+            </if>
+            <if test="pay.lineId!=null and pay.lineId!=''">
+                and t3.line_id =#{pay.lineId}
+            </if>
+            <if test="pay.supplierId!=null and pay.supplierId!=''">
+                and t1.supplier_id=#{pay.supplierId}
+            </if>
+            <if test="pay.startTime!=null and pay.endTime!=null">
+                and t.pay_date between #{pay.startTime} AND #{pay.endTime}
+            </if>
+        </where>
+        order by t.pay_no
+    </select>
+  <!--  select *
+    from bu_contract_pay
+    where contract_id = #{contractId} and ROWNUM=1
+    order by pay_no DESC-->
+    <select id="selectMaxNewPay" resultType="Integer">
+        select Max(PAY_NO)
+        FROM bu_contract_pay
+        WHERE contract_id = #{contractId}
+        group by CONTRACT_ID
+    </select>
+
+</mapper>

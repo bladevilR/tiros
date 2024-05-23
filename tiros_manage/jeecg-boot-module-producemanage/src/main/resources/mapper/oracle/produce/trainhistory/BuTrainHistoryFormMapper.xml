@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainHistoryFormMapper">
+
+
+    <select id="selectPageByCondition"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.vo.BuTrainHistoryFormRecordVO">
+        select temp.*
+        from (
+        <choose>
+            <when test="queryVO.formRecordType != null and queryVO.formRecordType == 1">
+                select
+                1 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, case t.work_record_type when 1 then t1.title when 2 then t4.name else '' end) as
+                formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                3 as formType,
+                t.work_record_type
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_base_form_template t4 on t4.id = t.form_obj_id
+                left join bu_repair_plan t5 on t5.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, case t.work_record_type when 1 then t1.title when 2 then t4.name else '' end)
+                        like
+                        '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t5.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+            </when>
+            <when test="queryVO.formRecordType != null and queryVO.formRecordType == 2">
+                select
+                2 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, t1.name) as formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                1 as formType,
+                0 as workRecordType
+                from bu_pl_data_record t
+                left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_repair_plan t4 on t4.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, t1.name) like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t4.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+            </when>
+            <when test="queryVO.formRecordType != null and queryVO.formRecordType == 3">
+                select
+                3 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, t1.title) as formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                4 as formType,
+                0 as workRecordType
+                from bu_pl_check_record t
+                left join bu_work_check t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_repair_plan t4 on t4.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, t1.title) like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t4.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+            </when>
+            <when test="queryVO.formRecordType != null and queryVO.formRecordType == 4">
+                select
+                4 as formRecordType,
+                t.id as formRecordId,
+                t.name as formRecordName,
+                t.work_order_id as orderId,
+                t2.order_code,
+                t2.order_name,
+                t2.start_time as orderTime,
+                t.savepath as orderAnnexPath,
+                '' as planFormId,
+                '' as formObjId,
+                0 as formType,
+                0 as workRecordType
+                from bu_work_order_annex t
+                left join bu_work_order_task t1 on t1.id = t.task_id
+                left join bu_work_order t2 on t2.id = t.work_order_id
+                left join bu_repair_plan t3 on t3.id = t2.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t2.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t1.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and t.name like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t3.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t2.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t2.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+            </when>
+            <otherwise>
+                (
+                select
+                1 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, case t.work_record_type when 1 then t1.title when 2 then t4.name else '' end) as
+                formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                3 as formType,
+                t.work_record_type
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_base_form_template t4 on t4.id = t.form_obj_id
+                left join bu_repair_plan t5 on t5.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, case t.work_record_type when 1 then t1.title when 2 then t4.name else '' end)
+                        like
+                        '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t5.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+                )
+                UNION ALL
+                (
+                select
+                2 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, t1.name) as formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                1 as formType,
+                0 as workRecordType
+                from bu_pl_data_record t
+                left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_repair_plan t4 on t4.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, t1.name) like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t4.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+                )
+                UNION ALL
+                (
+                select
+                3 as formRecordType,
+                t.id as formRecordId,
+                NVL(t.title, t1.title) as formRecordName,
+                t2.work_order_id as orderId,
+                t3.order_code,
+                t3.order_name,
+                t3.start_time as orderTime,
+                '' as orderAnnexPath,
+                t.plan_form_id,
+                t.form_obj_id,
+                4 as formType,
+                0 as workRecordType
+                from bu_pl_check_record t
+                left join bu_work_check t1 on t1.id = t.form_obj_id
+                left join bu_work_order_task_form_inst t2 on t2.form_inst_id = t.id
+                left join bu_work_order t3 on t3.id = t2.work_order_id
+                left join bu_repair_plan t4 on t4.id = t3.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t3.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t.asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and NVL(t.title, t1.title) like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t4.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t3.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t3.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+                )
+                UNION ALL
+                (
+                select
+                4 as formRecordType,
+                t.id as formRecordId,
+                t.name as formRecordName,
+                t.work_order_id as orderId,
+                t2.order_code,
+                t2.order_name,
+                t2.start_time as orderTime,
+                t.savepath as orderAnnexPath,
+                '' as planFormId,
+                '' as formObjId,
+                0 as formType,
+                0 as workRecordType
+                from bu_work_order_annex t
+                left join bu_work_order_task t1 on t1.id = t.task_id
+                left join bu_work_order t2 on t2.id = t.work_order_id
+                left join bu_repair_plan t3 on t3.id = t2.plan_id
+                <where>
+                    <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                        and t2.train_no = #{queryVO.trainNo}
+                    </if>
+                    <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                        and t1.train_asset_id in
+                        (
+                        select id from bu_maximo_train_asset
+                        where
+                        parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId}) ||'%'
+                        )
+                    </if>
+                    <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                        and t.name like '%'||#{queryVO.searchText}||'%'
+                    </if>
+                    <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                        and t3.repair_program_id = #{queryVO.repairProgramId}
+                    </if>
+                    <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                        and t2.group_id = #{queryVO.groupId}
+                    </if>
+                    <if test="queryVO.orderTime != null">
+                        and to_char(t2.start_time,'yyyy-mm-dd') = to_char(#{queryVO.orderTime},'yyyy-mm-dd')
+                    </if>
+                </where>
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        order by temp.order_code, temp.formRecordType, temp.formRecordName
+    </select>
+
+</mapper>

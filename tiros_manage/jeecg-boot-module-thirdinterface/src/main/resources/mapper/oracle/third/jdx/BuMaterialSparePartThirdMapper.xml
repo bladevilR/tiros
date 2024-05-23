@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialSparePartThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialSparePart">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="name" property="name"/>
+        <result column="model" property="model"/>
+        <result column="brand" property="brand"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="price" property="price"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="status" property="status"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="out_date" property="outDate"/>
+        <result column="out_order_no" property="outOrderNo"/>
+        <result column="current_location" property="currentLocation"/>
+        <result column="duty_user_id" property="dutyUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, material_code, asset_code, manuf_no, name, model, brand, leave_factory, expir_date,
+        supplier_id, price, system_id, asset_type_id, status, line_id, workshop_id, warehouse_id, group_id, out_date,
+        out_order_no, current_location, duty_user_id, create_time, create_by, update_time, update_by, company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.materialCode, jdbcType=VARCHAR},
+            #{item.assetCode, jdbcType=VARCHAR},
+            #{item.manufNo, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.model, jdbcType=VARCHAR},
+            #{item.brand, jdbcType=VARCHAR},
+            #{item.leaveFactory, jdbcType=DATE},
+            #{item.expirDate, jdbcType=DATE},
+            #{item.supplierId, jdbcType=VARCHAR},
+            #{item.price, jdbcType=NUMERIC},
+            #{item.systemId, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.warehouseId, jdbcType=VARCHAR},
+            #{item.groupId, jdbcType=VARCHAR},
+            #{item.outDate, jdbcType=DATE},
+            #{item.outOrderNo, jdbcType=VARCHAR},
+            #{item.currentLocation, jdbcType=VARCHAR},
+            #{item.dutyUserId, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_spare_part
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="list">
+        <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+            update bu_material_spare_part
+            <set>
+                material_type_id = #{item.materialTypeId, jdbcType=VARCHAR},
+                material_code = #{item.materialCode, jdbcType=VARCHAR},
+                asset_code = #{item.assetCode, jdbcType=VARCHAR},
+                name = #{item.name, jdbcType=VARCHAR},
+                model = #{item.model, jdbcType=VARCHAR},
+                leave_factory = #{item.leaveFactory, jdbcType=DATE},
+                line_id = #{item.lineId, jdbcType=VARCHAR},
+                workshop_id = #{item.workshopId, jdbcType=VARCHAR},
+                group_id = #{item.groupId, jdbcType=VARCHAR},
+                duty_user_id = #{item.dutyUserId, jdbcType=VARCHAR},
+                status = #{item.status, jdbcType=INTEGER}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <select id="selectIdList" resultType="java.lang.String">
+        select id
+        from bu_material_spare_part
+    </select>
+
+</mapper>

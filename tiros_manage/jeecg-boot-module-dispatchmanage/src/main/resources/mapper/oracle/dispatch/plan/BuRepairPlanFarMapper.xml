@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.plan.mapper.BuRepairPlanFarMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFar">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="start_year" property="startYear"/>
+        <result column="end_year" property="endYear"/>
+        <result column="middle_repair" property="middleRepair"/>
+        <result column="hight_repair" property="hightRepair"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_子查询远期规划详情 -->
+    <resultMap id="BaseResultMap_Detail" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFar">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="start_year" property="startYear"/>
+        <result column="end_year" property="endYear"/>
+        <result column="middle_repair" property="middleRepair"/>
+        <result column="hight_repair" property="hightRepair"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+        <collection property="detailList" column="id"
+                    ofType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFarDetail"
+                    select="selectPlanFarDetailList"/>
+    </resultMap>
+    <select id="selectPlanFarDetailList" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFarDetail">
+        SELECT t1.*,
+               t2.line_name AS lineName
+        FROM bu_repair_plan_far_detail t1
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+        WHERE t1.long_plan_id = #{id}
+        ORDER BY t1.middle_repair
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, depot_id, start_year, end_year, middle_repair, hight_repair, remark, status,
+        create_time, create_by, update_time, update_by, workshop_id, company_id, line_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultMap="BaseResultMap_Detail">
+        SELECT
+        t1.*,
+        t2.name AS depotName,
+        t4.name AS workshopName,
+        NVL(t3.process_status, '未发起') AS wfStatus,
+        t3.process_candidate
+        FROM bu_repair_plan_far t1
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+        LEFT JOIN wf_biz_status t3 ON t3.business_key = t1.id
+        LEFT JOIN bu_mtr_workshop t4 ON t4.id = t1.workshop_id
+        <where>
+            <if test="queryVO.title != null and queryVO.title != ''">
+                AND t1.title like '%'||#{queryVO.title}||'%'
+            </if>
+            <if test="queryVO.status != null">
+                <choose>
+                    <when test="queryVO.status == 0">
+                        AND
+                        (
+                        t3.process_status = '未发起'
+                        OR
+                        t3.process_status IS NULL
+                        )
+                    </when>
+                    <when test="queryVO.status == 2">
+                        AND t3.process_status = '已结束'
+                    </when>
+                    <when test="queryVO.status == 1">
+                        AND
+                        (
+                        t3.process_status != '未发起'
+                        AND
+                        t3.process_status != '已结束'
+                        AND
+                        t3.process_status IS NOT NULL
+                        )
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY t1.start_year DESC
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap_Detail">
+        SELECT t1.*,
+               t2.name                          AS depotName,
+               t4.name                          AS workshopName,
+               NVL(t3.process_status, '未发起') AS wfStatus,
+               t3.process_candidate
+        FROM bu_repair_plan_far t1
+                 LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+                 LEFT JOIN wf_biz_status t3 ON t3.business_key = t1.id
+                 LEFT JOIN bu_mtr_workshop t4 ON t4.id = t1.workshop_id
+        WHERE t1.id = #{id}
+    </select>
+
+    <select id="selectListByYearAndDepotId" resultMap="BaseResultMap_Detail">
+        SELECT
+        t1.*,
+        t2.name AS depotName,
+        t3.name AS workshopName
+        FROM bu_repair_plan_far t1
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+        LEFT JOIN bu_mtr_workshop t3 ON t3.id = t1.workshop_id
+        <where>
+            <if test="year != null">
+                AND #{year} BETWEEN t1.start_year AND t1.end_year
+            </if>
+            <if test="depotId != null and depotId != ''">
+                AND t1.depot_id = #{depotId}
+            </if>
+        </where>
+        ORDER BY t1.start_year DESC
+    </select>
+
+</mapper>

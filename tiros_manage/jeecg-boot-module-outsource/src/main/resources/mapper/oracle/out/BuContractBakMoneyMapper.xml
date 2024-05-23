@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuContractBakMoneyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuContractBakMoney">
+        <id column="id" property="id" />
+        <result column="contract_id" property="contractId" />
+        <result column="use_no" property="useNo" />
+        <result column="subject" property="subject" />
+        <result column="amount" property="amount" />
+        <result column="use_date" property="useDate" />
+        <result column="leftover" property="leftover" />
+        <result column="reason" property="reason" />
+        <result column="deal_man" property="dealMan" />
+        <result column="deal_date" property="dealDate" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, contract_id, use_no, subject, amount, use_date, leftover, reason, deal_man, deal_date, remark, create_time, create_by, update_time, update_by
+    </sql>
+    <update id="updateLeftover">
+      update  bu_contract_bak_money  set leftover=leftover+#{subtract, jdbcType=NUMERIC} where id=#{id, jdbcType=VARCHAR}
+    </update>
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.outsource.bean.BuContractBakMoney">
+
+   select  t.* from bu_contract_bak_money t
+        <where>
+            <if test="bakMoney.id!=null and bakMoney.id!=''">
+                t.id=#{bakMoney.id}
+            </if>
+            <if test="bakMoney.contractId!=null and bakMoney.contractId!=''">
+                and t.contract_id=#{bakMoney.contractId}
+            </if>
+            <if test="bakMoney.name!=null and bakMoney.name!=''">
+                and  t.subject like '%'||#{bakMoney.name}||'%'
+            </if>
+            <if test="bakMoney.startTime!=null and bakMoney.endTime!=null">
+                and t.use_date  between #{bakMoney.startTime} AND #{bakMoney.endTime}
+            </if>
+        </where>
+         order by t.use_no
+    </select>
+    <select id="selectMaxNewPay" resultType="org.jeecg.modules.outsource.bean.BuContractBakMoney">
+        select  * from bu_contract_bak_money where contract_id=#{contractId}  and ROWNUM=1 order by  use_no DESC
+    </select>
+
+</mapper>

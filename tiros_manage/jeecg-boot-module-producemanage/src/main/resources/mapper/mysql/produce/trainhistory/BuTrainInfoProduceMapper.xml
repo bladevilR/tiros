@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainInfoProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.trainhistory.bean.BuTrainInfo">
+        <id column="id" property="id"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="group_num" property="groupNum"/>
+        <result column="mileage" property="mileage"/>
+        <result column="status" property="status"/>
+        <result column="use_date" property="useDate"/>
+        <result column="warranty_date" property="warrantyDate"/>
+        <result column="track_id" property="trackId"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="made_date" property="madeDate"/>
+        <result column="buy_date" property="buyDate"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_gen_asset" property="isGenAsset"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_子查询附件集合 -->
+    <resultMap id="RectifyBaseResultMap_Collection" type="org.jeecg.modules.produce.trainhistory.bean.BuWorkRectify">
+        <id column="id" property="id"/>
+        <result column="rectify_no" property="rectifyNo"/>
+        <result column="title" property="title"/>
+        <result column="rectify_type" property="rectifyType"/>
+        <result column="group_id" property="groupId"/>
+        <result column="duty_user_id" property="dutyUserId"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="status" property="status"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="lineName" property="lineName"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="groupName" property="groupName"/>
+        <result column="dutyUserName" property="dutyUserName"/>
+        <result column="orderName" property="orderName"/>
+        <result column="depotName" property="depotName"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <collection property="annexList" column="id"
+                    ofType="org.jeecg.modules.produce.trainhistory.bean.BuWorkRectifyAnnex"
+                    select="selectAnnexList"/>
+    </resultMap>
+    <select id="selectAnnexList" resultType="org.jeecg.modules.produce.trainhistory.bean.BuWorkRectifyAnnex">
+        SELECT id,
+               rectify_id,
+               title,
+               address
+        FROM bu_work_rectify_annex
+        WHERE rectify_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_type_id, line_id, train_no, group_num, mileage, status, use_date, warranty_date,
+        track_id, train_struct_id, supplier_id, contract_no, contract_name, made_date, buy_date,
+        remark, create_time, create_by, update_time, update_by, is_gen_asset, company_id, workshop_id
+    </sql>
+
+
+    <!-- 根据车辆号查询车辆信息 -->
+    <select id="selectTrainInfoByTrainNo" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainInfo">
+        SELECT t.*,
+               t2.line_name AS lineName,
+               t1.name      AS trainTypeName,
+               t3.code      AS trackCode,
+               t3.name      AS trackName,
+               t4.name      AS supplierName
+        FROM bu_train_info t
+                 LEFT JOIN bu_train_type t1 ON t.train_type_id = t1.id
+                 LEFT JOIN bu_mtr_line t2 ON t.line_id = t2.line_id
+                 LEFT JOIN bu_mtr_track t3 ON t.track_id = t3.id
+                 LEFT JOIN bu_base_supplier t4 ON t.supplier_id = t4.id
+        WHERE t.train_no = #{trainNo}
+    </select>
+
+    <!-- 查询所有车辆信息 -->
+    <select id="selectAll" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainInfo">
+        SELECT t.*,
+               t2.line_name AS lineName,
+               t1.name      AS trainTypeName,
+               t3.code      AS trackCode,
+               t3.name      AS trackName,
+               t4.name      AS supplierName
+        FROM bu_train_info t
+                 LEFT JOIN bu_train_type t1 ON t.train_type_id = t1.id
+                 LEFT JOIN bu_mtr_line t2 ON t.line_id = t2.line_id
+                 LEFT JOIN bu_mtr_track t3 ON t.track_id = t3.id
+                 LEFT JOIN bu_base_supplier t4 ON t.supplier_id = t4.id
+        ORDER BY t.train_no
+    </select>
+
+    <select id="selectListHasTrack" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainInfo">
+        SELECT t.*,
+               t2.line_name AS lineName,
+               t1.name      AS trainTypeName,
+               t3.code      AS trackCode,
+               t3.name      AS trackName,
+               t4.name      AS supplierName
+        FROM bu_train_info t
+                 LEFT JOIN bu_train_type t1 ON t.train_type_id = t1.id
+                 LEFT JOIN bu_mtr_line t2 ON t.line_id = t2.line_id
+                 LEFT JOIN bu_mtr_track t3 ON t.track_id = t3.id
+                 LEFT JOIN bu_base_supplier t4 ON t.supplier_id = t4.id
+        where t.track_id is not null
+          and t.track_id != ''
+        ORDER BY t.train_no
+    </select>
+
+    <select id="selectTrainRepairPeriodListByTrainNo"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuBaseTrainRepairPeriod">
+        select t.*,
+               t1.name as repairProgramName
+        from bu_base_train_repair_period t
+                 left join bu_repair_program t1 on t1.id = t.repair_program
+        where t.train_no = #{trainNo}
+        order by t.start_time
+    </select>
+
+    <select id="pageLeaveRecord" resultType="org.jeecg.modules.produce.trainhistory.bean.BuWorkLeaveRecord">
+        SELECT
+        t1.*,
+        t2.order_name AS orderName,
+        t3.task_name AS orderTaskName,
+        t4.line_name AS lineName
+        FROM bu_work_leave_record t1
+        LEFT JOIN bu_work_order t2 ON t2.id = t1.order_id
+        LEFT JOIN bu_work_order_task t3 ON t3.id = t1.order_task_id
+        LEFT JOIN bu_mtr_line t4 ON t4.line_id = t1.line_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                (
+                t1.record_code LIKE concat('%',#{queryVO.searchText},'%')
+                OR
+                t1.record_name LIKE concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t1.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.train_no=#{queryVO.trainNo}
+            </if>
+            <if test="queryVO.status != null">
+                and t1.status=#{queryVO.status}
+            </if>
+        </where>
+        ORDER BY t1.record_code DESC
+    </select>
+
+    <select id="pageRectify" resultMap="RectifyBaseResultMap_Collection">
+        SELECT
+        t1.*,
+        t2.group_name AS groupName,
+        t3.realname AS dutyUserName,
+        t4.name AS depotName,
+        t5.line_name AS lineName,
+        t6.order_name AS orderName
+        FROM bu_work_rectify t1
+        LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t1.group_id
+        LEFT JOIN sys_user t3 ON t3.id = t1.duty_user_id
+        LEFT JOIN bu_mtr_depot t4 ON t4.id = t1.depot_id
+        LEFT JOIN bu_mtr_line t5 ON t5.line_id = t1.line_id
+        LEFT JOIN bu_work_order t6 ON t6.id = t1.order_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t1.rectify_no LIKE concat('%',#{queryVO.searchText},'%')
+                OR
+                t1.title LIKE concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.status != null">
+                and t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.sendDate != null">
+                and t1.send_date = #{queryVO.sendDate}
+            </if>
+            <if test="queryVO.rectifyType != null">
+                and t1.rectify_type = #{queryVO.rectifyType}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t1.train_no=#{queryVO.trainNo}
+            </if>
+        </where>
+        ORDER BY t1.send_date DESC
+    </select>
+
+    <select id="selectTrainStructIdByPlanId" resultType="java.lang.String">
+        select train_struct_id
+        from bu_train_info
+        where train_no = (select train_no from bu_repair_plan where id = #{planId})
+    </select>
+    <select id="selectChildrenByQueryVO" resultType="org.jeecg.modules.produce.trainhistory.bean.BuMaximoTrainAsset">
+        <if test="queryVO.searchText == null or queryVO.searchText == ''">
+            select
+            t.*,
+            decode((select count(1) from bu_maximo_train_asset where parent_code = t.code), 0, 'false', 'true') as hasChildren,
+            t1.line_name
+            from bu_maximo_train_asset t
+            left join bu_mtr_line t1 on t1.line_id = t.line_id
+            <where>
+                <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                    and t.line_id = #{queryVO.lineId}
+                </if>
+                <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                    and t.train_no = #{queryVO.trainNo}
+                </if>
+                <if test="queryVO.status != null">
+                    and t.status = #{queryVO.status}
+                </if>
+                <choose>
+                    <when test="queryVO.parentId != null and queryVO.parentId != ''">
+                        and t.parent_code = (select code from bu_maximo_train_asset where id = #{queryVO.parentId})
+                    </when>
+                    <otherwise>
+                        <choose>
+                            <when test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                                and t.code = (select id from bu_train_info where train_no = #{queryVO.trainNo})
+                            </when>
+                            <otherwise>
+                                and (t.parent_code is null or t.parent_code = '')
+                            </otherwise>
+                        </choose>
+                    </otherwise>
+                </choose>
+            </where>
+            order by t.code
+        </if>
+        <if test="queryVO.searchText != null and queryVO.searchText != ''">
+            select
+            t.*,
+            decode((select count(1) from bu_maximo_train_asset where parent_code = t.code), 0, 'false', 'true') as hasChildren,
+            t1.line_name
+            from bu_maximo_train_asset t
+            left join bu_mtr_line t1 on t1.line_id = t.line_id
+            where (
+            t.code like concat('%',#{queryVO.searchText},'%')
+            or
+            t.name like concat('%',#{queryVO.searchText},'%')
+            )
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.status != null">
+                and t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.parentId != null and queryVO.parentId != ''">
+                and t.wbs like
+                concat((select wbs from bu_maximo_train_asset where id = #{queryVO.parentId}),'%')
+                and t.id  <![CDATA[ != ]]> #{queryVO.parentId}
+            </if>
+            order by t.code
+        </if>
+    </select>
+    <select id="selectMaximoLocationList" resultType="org.jeecg.modules.produce.trainhistory.bean.BuMaximoLocation">
+        select * from bu_maximo_location
+        <where>
+            <if test="codeList!=null">
+                code in
+                <foreach collection="codeList" item="code" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="selectListByAssetIdList" resultType="org.jeecg.modules.produce.trainhistory.bean.BuMaximoTrainAssetExt">
+        select t.*,
+        t1.name as systemName,
+        t2.name as assetTypeName,
+        NVL(t3.name,t.vendor) as vendorName,
+        NVL(t4.depart_name,t.belong_depart) as belongDepartName,
+        t5.group_name as dutyGroupName,
+        t6.realname as dutyUserName
+        from bu_maximo_train_asset_ext t
+        left join bu_train_asset_type t1 on t1.id = t.system_id
+        left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+        left join bu_base_supplier t3 on t3.id = t.vendor
+        left join sys_depart t4 on t4.id = t.belong_depart
+        left join bu_mtr_workshop_group t5 on t5.id = t.duty_group
+        left join sys_user t6 on t6.id = t.duty_user
+        where t.asset_id
+        <choose>
+            <when test="assetIdList != null and assetIdList.size > 0">
+                in
+                <foreach collection="assetIdList" item="assetId" open="(" separator="," close=")">
+                    #{assetId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

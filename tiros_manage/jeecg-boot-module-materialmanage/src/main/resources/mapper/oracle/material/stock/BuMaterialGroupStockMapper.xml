@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.stock.mapper.BuMaterialGroupStockMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.stock.bean.BuMaterialGroupStock">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="price" property="price"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="apply_detail_id" property="applyDetailId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="assign_detail_id" property="assignDetailId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, warehouse_id, material_type_id, amount, price, apply_id, apply_detail_id, group_id,
+        assign_detail_id, trade_no, system_id, workstation_id, use_category, train_no, company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.warehouseId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DECIMAL},
+            #{item.price, jdbcType=DECIMAL},
+            #{item.applyId, jdbcType=VARCHAR},
+            #{item.applyDetailId, jdbcType=VARCHAR},
+            #{item.groupId, jdbcType=VARCHAR},
+            #{item.assignDetailId, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.systemId, jdbcType=VARCHAR},
+            #{item.workstationId, jdbcType=VARCHAR},
+            #{item.useCategory, jdbcType=INTEGER},
+            #{item.trainNo, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_group_stock
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updateList">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_group_stock
+                set
+                amount = #{item.amount, jdbcType=NUMERIC},
+                price = #{item.price, jdbcType=NUMERIC},
+                apply_id = #{item.applyId, jdbcType=VARCHAR},
+                apply_detail_id = #{item.applyDetailId, jdbcType=VARCHAR},
+                assign_detail_id = #{item.assignDetailId, jdbcType=VARCHAR},
+                trade_no = #{item.tradeNo, jdbcType=VARCHAR},
+                train_no = #{item.trainNo, jdbcType=VARCHAR}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListAmount">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_group_stock
+                set
+                amount = #{item.amount, jdbcType=NUMERIC}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectPageByQueryVO" resultType="org.jeecg.modules.material.stock.bean.BuMaterialGroupStock">
+        SELECT
+        t.*,
+        t3.depart_name as groupName,
+        t1.code AS materialTypeCode,
+        t1.name AS materialTypeName,
+        t1.price AS materialTypePrice,
+        t2.wbs AS warehouseWbs,
+        t2.name AS warehouseName,
+        t1.category1 AS materialType,
+        t1.category2 AS materialAttr,
+        t1.unit AS unit,
+        t1.spec AS spec,
+        t4.name as systemName,
+        t5.name as workstationName,
+        t6.can_replace
+        FROM bu_material_group_stock t
+        LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+        LEFT JOIN bu_mtr_warehouse t2 on t2.id = t.warehouse_id
+        left join sys_depart t3 on t3.id = t.group_id
+        left join bu_train_asset_type t4 on t4.id = t.system_id
+        left join bu_mtr_workstation t5 on t5.id = t.workstation_id
+        left join bu_material_type_replace t6 on t6.id = t.material_type_id
+        where t.amount != 0
+        <!--        <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+        <!--            and-->
+        <!--            (-->
+        <!--            t1.code like '%'||#{queryVO.searchText}||'%'-->
+        <!--            or-->
+        <!--            t1.name like '%'||#{queryVO.searchText}||'%'-->
+        <!--            )-->
+        <!--        </if>-->
+        <if test="queryVO.searchMaterialTypeIdList != null and queryVO.searchMaterialTypeIdList.size > 0">
+            and t.material_type_id in
+            <foreach collection="queryVO.searchMaterialTypeIdList" item="materialTypeId" open="(" separator=","
+                     close=")">
+                #{materialTypeId}
+            </foreach>
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.materialType != null">
+            AND t1.category1 = #{queryVO.materialType}
+        </if>
+        <if test="queryVO.materialAttr != null and queryVO.materialAttr != ''">
+            AND t1.category2 = #{queryVO.materialAttr}
+        </if>
+        order by t.group_id, t.train_no, t.material_type_id, t.trade_no, t2.code, t.amount
+    </select>
+
+    <select id="selectListByGroupAndMaterialType"
+            resultType="org.jeecg.modules.material.stock.bean.BuMaterialGroupStock">
+        SELECT t.*,
+               t3.depart_name as groupName,
+               t1.code        AS materialTypeCode,
+               t1.name        AS materialTypeName,
+               t1.price       AS materialTypePrice,
+               t2.wbs         AS warehouseWbs,
+               t2.name        AS warehouseName,
+               t1.category1   AS materialType,
+               t1.category2   AS materialAttr,
+               t1.unit        AS unit,
+               t1.spec        AS spec,
+               t4.name        as systemName,
+               t5.name        as workstationName,
+               t6.can_replace
+        FROM bu_material_group_stock t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+                 LEFT JOIN bu_mtr_warehouse t2 on t2.id = t.warehouse_id
+                 left join sys_depart t3 on t3.id = t.group_id
+                 left join bu_train_asset_type t4 on t4.id = t.system_id
+                 left join bu_mtr_workstation t5 on t5.id = t.workstation_id
+                 left join bu_material_type_replace t6 on t6.id = t.material_type_id
+        where t.group_id = #{groupId}
+          and t.material_type_id = #{materialTypeId}
+        order by t.group_id, t.material_type_id, t.trade_no, t2.code, t.amount
+    </select>
+
+    <select id="selectCompanyWorkshopLineByGroupId" resultType="java.util.Map">
+        select t.workshop_id as "workshopId",
+               t1.company_id as "companyId",
+               t1.line_id    as "lineId"
+        from bu_mtr_workshop_group t
+                 left join bu_mtr_line t1 on t1.workshop_id = t.workshop_id
+        where t.id = #{groupId}
+    </select>
+
+</mapper>

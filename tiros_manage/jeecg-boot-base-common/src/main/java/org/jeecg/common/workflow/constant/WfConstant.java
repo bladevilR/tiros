@@ -1,0 +1,24 @@
+package org.jeecg.common.workflow.constant;
+
+/**
+ * <p>
+ * 流程常量
+ * </p>
+ *
+ * @author zhaiyantao
+ * @since 2021-05-02
+ */
+public interface WfConstant {
+
+    String SOLUTION_CODE_PLAN = "TRAINPLAN_APPROVED";
+    String SOLUTION_CODE_PLAN_far = "WF_LONG_PLAN";
+    String SOLUTION_CODE_PLAN_year = "WF_YEAR_PLAN";
+    String SOLUTION_CODE_RECEIVE_TRAIN = "WF_RECEIVE_TRAIN";
+    String SOLUTION_CODE_TRANSFER_TRAIN = "WF_TRANSFER_TRAIN";
+    String SOLUTION_CODE_ORDER = "WF_WORK_ORDER";
+    String SOLUTION_CODE_ORDER_MATERIAL_APPLY = "WF_MATERIAL_APPLY";
+    String SOLUTION_CODE_ORDER_WORKSHOP_CONSUME = "WF_WORKSHOP_CONSUME";
+    String SOLUTION_CODE_OUT_SUPERVISE = "WF_OUT_SUPERVISE";
+    String SOLUTION_CODE_FAULT = "WF_FAULT_HANDLE";
+
+}

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuBaseSupplierMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuBaseSupplier">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="short_name" property="shortName"/>
+        <result column="biz_type" property="bizType"/>
+        <result column="category" property="category"/>
+        <result column="obj_type_id" property="objTypeId"/>
+        <result column="contact_name" property="contactName"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="address" property="address"/>
+        <result column="email" property="email"/>
+        <result column="appraise" property="appraise"/>
+        <result column="status" property="status"/>
+        <result column="remarks" property="remarks"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, short_name, biz_type, category, obj_type_id, contact_name, contact_phone, address, email, appraise,
+        status, remarks, line_id, repair_program_id, company_id, workshop_id
+    </sql>
+    <select id="selectAssetTypeName" resultType="java.lang.String">
+        select name
+        from bu_train_asset_type
+        where id = #{objTypeId}
+    </select>
+
+    <select id="selectVendorTreeChild" resultType="org.jeecg.modules.outsource.bean.VendorTree">
+
+        <!-- select t.id, concat(t1.line_name, t2.name, t.contract_name) as name
+         from bu_contract_info t
+                  left join bu_mtr_line t1 on t.line_id = t1.line_id
+                  left join bu_train_asset_type t2 on t.asset_type_id = t2.id
+         where t.asset_type_id in (select id from bu_train_asset_type where parent_id = #{id})
+            or t.asset_type_id = #{id}  -->
+
+
+
+        select
+               (t2.line_name|| t.asset_name|| t3.contract_name) as name,
+                t.id
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t.outin_id = t1.id
+                 left join bu_mtr_line t2 on t1.line_id = t2.line_id
+                 left join bu_contract_info t3 on t1.contract_id = t3.id
+               where t.asset_type_id in
+                     (select id from bu_train_asset_type where wbs like
+                         (select wbs from bu_train_asset_type where id=#{id})||'%')
+
+    </select>
+
+    <select id="vendorTree" resultType="org.jeecg.modules.outsource.bean.VendorTree">
+        select id, name
+        from bu_train_asset_type
+        where train_type_id = #{trainTypeId}
+          and struct_type = 1
+    </select>
+    <!-- select t.* ,
+        CASE t.category
+        WHEN 1 THEN
+        t3.train_no
+        WHEN 2 THEN
+        t1.name
+        ELSE
+        t2.name
+        END objTypeName,
+        t4.line_name as lineName,
+         t5.name as repairProgramName
+        from bu_base_supplier t
+        left join bu_train_asset_type t1 on t1.id = t.obj_type_id
+        left join bu_material_type t2 on t2.id= t.obj_type_id
+        left join bu_train_info t3 on t3.id=t.obj_type_id
+        left join bu_mtr_line t4 on t4.line_id=t.line_id
+        left join bu_repair_program t5 on t5.id=t.repair_program_id-->
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.outsource.bean.BuBaseSupplier">
+        select t.* ,
+         t1.name as objTypeName,
+         t2.line_name as lineName,
+         t3.name as repairProgramName
+        from bu_base_supplier t
+        left join bu_train_asset_type t1 on t1.id = t.obj_type_id
+        left join bu_mtr_line t2 on t2.line_id=t.line_id
+        left join bu_repair_program t3 on t3.id=t.repair_program_id
+        <where>
+            <if test="queryVO.status!=null">
+                t.status=#{queryVO.status}
+            </if>
+            <if test="queryVO.category!=null">
+                and t.category=#{queryVO.category}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(queryVO.name)">
+                and t.name like '%'||#{queryVO.name}||'%'
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(queryVO.id)">
+                and t.id=#{queryVO.id}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(queryVO.lineId)">
+                and t.line_id=#{queryVO.lineId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(queryVO.repairProgramId)">
+                and t.repair_program_id=#{queryVO.repairProgramId}
+            </if>
+            <if test="@org.apache.commons.lang3.StringUtils@isNotBlank(queryVO.objTypeId)">
+                and t1.wbs like
+                ( select wbs from bu_train_asset_type where id=#{queryVO.objTypeId})||'%'
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuOutsourceSuperviseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuOutsourceSupervise">
+        <id column="id" property="id"/>
+        <result column="task_content" property="taskContent"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="dispatch_group_id" property="dispatchGroupId"/>
+        <result column="dispatch_user_id" property="dispatchUserId"/>
+        <result column="user_phone" property="userPhone"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_phone" property="supplierPhone"/>
+        <result column="supplier_address" property="supplierAddress"/>
+        <result column="dispatch_date" property="dispatchDate"/>
+        <result column="return_date" property="returnDate"/>
+        <result column="outin_detail_id" property="outinDetailId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_content, train_no, asset_type_id, dispatch_group_id, dispatch_user_id, user_phone,
+        supplier_id, supplier_phone, supplier_address, dispatch_date, return_date, outin_detail_id,
+        create_time, create_by, update_time, update_by, work_order_id, order_task_id
+    </sql>
+
+    <select id="selectSupervisePage" resultType="org.jeecg.modules.outsource.bean.BuOutsourceSupervise">
+        select t.* ,
+        t8.line_name as lineName ,
+        t1.group_name as dispatchGroupName,
+        t2.realname as dispatchUserName,
+        t3.name as supplierName,
+        t4.contract_no as contractNo,
+        t5.name as assetTypeName,
+        t6.process_status as status,
+        t10.order_name as workOrderName,
+        t11.task_name as orderTaskName,
+        IFNULL(t9.process_status, '未发起') AS wfStatus,
+        t9.process_candidate
+        from bu_outsource_supervise t
+        left join bu_mtr_workshop_group t1 on t.dispatch_group_id = t1.id
+        left join sys_user t2 on t.dispatch_user_id = t2.id
+        left join bu_base_supplier t3 on t.supplier_id = t3.id
+        left join bu_contract_info t4 on t.contract_id = t4.id
+        left join bu_train_asset_type t5 on t.asset_type_id = t5.id
+        left join wf_biz_status t6 on t.id = t6.business_key
+        left join bu_train_info t7 on t7.train_no = t.train_no
+        left join bu_mtr_line t8 on t8.line_id = t7.line_id
+        left join wf_biz_status t9 on t9.business_key = t.id
+        left join bu_work_order t10 on t10.id = t.work_order_id
+        left join bu_work_order_task t11 on t11.id = t.order_task_id
+        <where>
+            <if test="supervise.name != null and supervise.name != ''">
+                and t.task_content like concat('%',#{supervise.name},'%')
+            </if>
+            <if test="supervise.lineId != null and supervise.lineId != ''">
+                and t.train_no in
+                (select train_no from bu_train_info where line_id = #{supervise.lineId})
+            </if>
+            <!-- 0:草稿；1：审批，2：已审批 -->
+            <if test="supervise.status != null">
+                  <if test="supervise.status==0" >
+                   and t.id not in (select business_key from wf_biz_status )
+                  </if>
+                <if test="supervise.status==1" >
+                    and t6.process_status != '已结束'
+                </if>
+                <if test="supervise.status==2" >
+                    and t6.process_status = '已结束'
+                </if>
+            </if>
+        </where>
+        order by t.dispatch_date desc, t.train_no
+    </select>
+
+    <select id="selectSuperviseById" resultType="org.jeecg.modules.outsource.bean.BuOutsourceSupervise">
+        select t.*,
+               t8.line_name                     as lineName,
+               t1.group_name                    as dispatchGroupName,
+               t2.realname                      as dispatchUserName,
+               t3.name                          as supplierName,
+               t4.contract_no                   as contractNo,
+               t5.name                          as assetTypeName,
+               t6.process_status                as status,
+               t10.order_name                   as workOrderName,
+               t11.task_name                    as orderTaskName,
+               IFNULL(t9.process_status, '未发起') AS wfStatus,
+               t9.process_candidate
+        from bu_outsource_supervise t
+                 left join bu_mtr_workshop_group t1 on t.dispatch_group_id = t1.id
+                 left join sys_user t2 on t.dispatch_user_id = t2.id
+                 left join bu_base_supplier t3 on t.supplier_id = t3.id
+                 left join bu_contract_info t4 on t.contract_id = t4.id
+                 left join bu_train_asset_type t5 on t.asset_type_id = t5.id
+                 left join wf_biz_status t6 on t.id = t6.business_key
+                 left join bu_train_info t7 on t7.train_no = t.train_no
+                 left join bu_mtr_line t8 on t8.line_id = t7.line_id
+                 left join wf_biz_status t9 on t9.business_key = t.id
+                 left join bu_work_order t10 on t10.id = t.work_order_id
+                 left join bu_work_order_task t11 on t11.id = t.order_task_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectOneByOrderIdAndOrderTaskId" resultType="org.jeecg.modules.outsource.bean.BuOutsourceSupervise">
+        select t.*,
+               t8.line_name                     as lineName,
+               t1.group_name                    as dispatchGroupName,
+               t2.realname                      as dispatchUserName,
+               t3.name                          as supplierName,
+               t4.contract_no                   as contractNo,
+               t5.name                          as assetTypeName,
+               t6.process_status                as status,
+               t10.order_name                   as workOrderName,
+               t11.task_name                    as orderTaskName,
+               IFNULL(t9.process_status, '未发起') AS wfStatus,
+               t9.process_candidate
+        from bu_outsource_supervise t
+                 left join bu_mtr_workshop_group t1 on t.dispatch_group_id = t1.id
+                 left join sys_user t2 on t.dispatch_user_id = t2.id
+                 left join bu_base_supplier t3 on t.supplier_id = t3.id
+                 left join bu_contract_info t4 on t.contract_id = t4.id
+                 left join bu_train_asset_type t5 on t.asset_type_id = t5.id
+                 left join wf_biz_status t6 on t.id = t6.business_key
+                 left join bu_train_info t7 on t7.train_no = t.train_no
+                 left join bu_mtr_line t8 on t8.line_id = t7.line_id
+                 left join wf_biz_status t9 on t9.business_key = t.id
+                 left join bu_work_order t10 on t10.id = t.work_order_id
+                 left join bu_work_order_task t11 on t11.id = t.order_task_id
+        where t.work_order_id = #{orderId}
+          and t.order_task_id = #{orderTaskId}
+        order by t.dispatch_date desc, t.train_no
+    </select>
+
+</mapper>

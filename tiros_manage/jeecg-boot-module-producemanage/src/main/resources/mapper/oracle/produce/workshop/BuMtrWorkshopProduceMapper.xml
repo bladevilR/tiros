@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.workshop.mapper.BuMtrWorkshopProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.workshop.bean.BuMtrWorkshop">
+        <id column="id" property="id" />
+        <result column="depot_id" property="depotId" />
+        <result column="name" property="name" />
+        <result column="code" property="code" />
+        <result column="work_type" property="workType" />
+        <result column="ability" property="ability" />
+        <result column="graph_address" property="graphAddress" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, name, code, work_type, ability, graph_address, remark, create_time, create_by, update_time, update_by
+    </sql>
+
+</mapper>

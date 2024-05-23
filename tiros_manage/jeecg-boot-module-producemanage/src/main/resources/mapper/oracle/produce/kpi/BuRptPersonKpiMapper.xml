@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.kpi.mapper.BuRptPersonKpiMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.kpi.bean.BuRptPersonKpi">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="work_no" property="workNo"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="rpt_date" property="rptDate"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="total_time" property="totalTime"/>
+        <result column="repair_time" property="repairTime"/>
+        <result column="fault_time" property="faultTime"/>
+        <result column="total_happen" property="totalHappen"/>
+        <result column="fault_amount" property="faultAmount"/>
+        <result column="handle_amount" property="handleAmount"/>
+        <result column="plan_id" property="planId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, user_name, work_no, depot_id, workshop_id, line_id, group_id, group_name,
+        rpt_date, year, month, total_time, repair_time, fault_time, total_happen, fault_amount,
+        handle_amount, plan_id, company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.userId, jdbcType=VARCHAR},
+            #{item.userName, jdbcType=VARCHAR},
+            #{item.workNo, jdbcType=VARCHAR},
+            #{item.depotId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.groupId, jdbcType=VARCHAR},
+            #{item.groupName, jdbcType=VARCHAR},
+            #{item.rptDate, jdbcType=DATE},
+            #{item.year, jdbcType=INTEGER},
+            #{item.month, jdbcType=INTEGER},
+            #{item.totalTime, jdbcType=INTEGER},
+            #{item.repairTime, jdbcType=INTEGER},
+            #{item.faultTime, jdbcType=INTEGER},
+            #{item.totalHappen, jdbcType=INTEGER},
+            #{item.faultAmount, jdbcType=INTEGER},
+            #{item.handleAmount, jdbcType=INTEGER},
+            #{item.planId, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_rpt_person_kpi
+            (
+            <include refid="Base_Column_List"/>
+            )
+           <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <delete id="deleteAll">
+        delete
+        from bu_rpt_person_kpi;
+    </delete>
+
+    <select id="selectUserListByUserIdList" resultType="org.jeecg.modules.produce.kpi.bean.bo.SysUserBO">
+        select id,realname,work_no from sys_user where id in
+        <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+            #{userId}
+        </foreach>
+    </select>
+
+    <select id="selectAllUser" resultType="org.jeecg.modules.produce.kpi.bean.bo.SysUserBO">
+        select id, realname, work_no
+        from sys_user
+    </select>
+
+    <select id="selectDepotListByGroupIdList" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id,name from bu_mtr_depot where id in
+        <foreach collection="depotIdList" item="depotId" separator="," open="(" close=")">
+            #{depotId}
+        </foreach>
+    </select>
+
+    <select id="selectWorkshopListByGroupIdList" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id,name,depot_id as upperId from bu_mtr_workshop where id in
+        <foreach collection="workshopIdList" item="workshopId" separator="," open="(" close=")">
+            #{workshopId}
+        </foreach>
+    </select>
+
+    <select id="selectGroupListByGroupIdList" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id,group_name as name,workshop_id as upperId from bu_mtr_workshop_group where id in
+        <foreach collection="groupIdList" item="groupId" separator="," open="(" close=")">
+            #{groupId}
+        </foreach>
+    </select>
+
+    <select id="selectLineListByGroupIdList" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select line_id as id, line_name as name from bu_mtr_line where line_id in
+        <foreach collection="lineIdList" item="lineId" separator="," open="(" close=")">
+            #{lineId}
+        </foreach>
+    </select>
+
+</mapper>

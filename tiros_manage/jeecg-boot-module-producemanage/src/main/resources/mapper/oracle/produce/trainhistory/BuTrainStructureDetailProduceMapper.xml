@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainStructureDetailProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.trainhistory.bean.BuTrainStructureDetail">
+        <id column="id" property="id" />
+        <result column="train_struct_id" property="trainStructId" />
+        <result column="asset_type_id" property="assetTypeId" />
+        <result column="code" property="code" />
+        <result column="wbs" property="wbs" />
+        <result column="name" property="name" />
+        <result column="parent_id" property="parentId" />
+        <result column="struct_type" property="structType" />
+        <result column="material_id" property="materialId" />
+        <result column="subjunctive" property="subjunctive" />
+        <result column="turnover" property="turnover" />
+        <result column="unit" property="unit" />
+        <result column="place_id" property="placeId" />
+        <result column="place_desc" property="placeDesc" />
+        <result column="remark" property="remark" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="sort_no" property="sortNo" />
+        <result column="short_name" property="shortName" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_struct_id, asset_type_id, code, wbs, name, parent_id, struct_type, material_id,
+        subjunctive, turnover, unit, place_id, place_desc, remark, status, create_time, create_by,
+        update_time, update_by, sort_no, short_name
+    </sql>
+
+
+    <select id="selectListForTreeByStructId"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.vo.BuTrainStructureDetailTreeVO">
+        SELECT t.id,
+               t.name,
+               t.parent_id
+        FROM bu_train_structure_detail t
+        WHERE t.train_struct_id = #{structId}
+        ORDER BY t.wbs, t.sort_no
+    </select>
+
+    <select id="selectSimpleListByStructId"
+            resultType="org.jeecg.modules.produce.plan.bean.bo.BuTrainStructureDetailBO">
+        select t.id,
+               t.name,
+               t.wbs,
+               t.parent_id,
+               t.struct_type,
+               t.sort_no,
+               t.asset_type_id
+        from bu_train_structure_detail t
+        where t.train_struct_id = #{structId}
+    </select>
+
+    <select id="selectStructureDetailById"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainStructureDetail">
+        SELECT t.*,
+               t1.name       AS parentName,
+               t2.place_name AS placeName
+        FROM bu_train_structure_detail t
+                 LEFT JOIN bu_train_structure_detail t1 ON t1.id = t.parent_id
+                 LEFT JOIN bu_train_place t2 ON t2.id = t1.place_id
+        WHERE t.id = #{id}
+    </select>
+
+    <select id="selectChildIdListByWbs" resultType="java.lang.String">
+        select t.id
+        from bu_train_structure_detail t
+        where t.wbs like #{wbs}|| '%'
+    </select>
+
+</mapper>

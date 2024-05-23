@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderBookStepMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderBookStep">
+        <id column="id" property="id" />
+        <result column="work_order_id" property="workOrderId" />
+        <result column="task_id" property="taskId" />
+        <result column="tech_book_id" property="techBookId" />
+        <result column="book_detail_id" property="bookDetailId" />
+        <result column="book_step_no" property="bookStepNo" />
+        <result column="boot_step_title" property="bootStepTitle" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, work_order_id, task_id, tech_book_id, book_detail_id, book_step_no, boot_step_title
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.workOrderId},
+            #{item.taskId},
+            #{item.techBookId},
+            #{item.bookDetailId},
+            #{item.bookStepNo},
+            #{item.bootStepTitle},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_work_order_book_step
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

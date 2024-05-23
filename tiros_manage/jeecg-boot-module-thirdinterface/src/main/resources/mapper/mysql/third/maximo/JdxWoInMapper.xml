@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxWoInMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxWoIn">
+        <result column="ACTFINISH" property="actfinish"/>
+        <result column="ACTSTART" property="actstart"/>
+        <result column="ASSETNUM" property="assetnum"/>
+        <result column="CHANGEBY" property="changeby"/>
+        <result column="CHANGEDATE" property="changedate"/>
+        <result column="CREWID" property="crewid"/>
+        <result column="C_BIGCLASS" property="cBigclass"/>
+        <result column="C_LINECODE" property="cLinecode"/>
+        <result column="C_N_DJCLASS" property="cNDjclass"/>
+        <result column="C_N_ZQCLASS" property="cNZqclass"/>
+        <result column="C_SPECIALTY" property="cSpecialty"/>
+        <result column="C_STATION" property="cStation"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="ESTDUR" property="estdur"/>
+        <result column="FCPROJECTID" property="fcprojectid"/>
+        <result column="FCTASKID" property="fctaskid"/>
+        <result column="LEAD" property="lead"/>
+        <result column="LOCATION" property="location"/>
+        <result column="PARENT" property="parent"/>
+        <result column="PERSONGROUP" property="persongroup"/>
+        <result column="REPORTDATE" property="reportdate"/>
+        <result column="REPORTEDBY" property="reportedby"/>
+        <result column="SITEID" property="siteid"/>
+        <result column="STATUS" property="status"/>
+        <result column="STATUSDATE" property="statusdate"/>
+        <result column="SUPERVISOR" property="supervisor"/>
+        <result column="TARGCOMPDATE" property="targcompdate"/>
+        <result column="TARGSTARTDATE" property="targstartdate"/>
+        <result column="WONUM" property="wonum"/>
+        <result column="WORKTYPE" property="worktype"/>
+        <result column="TRANSID" property="transid"/>
+        <result column="TRANSSEQ" property="transseq"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ACTFINISH, ACTSTART, ASSETNUM, CHANGEBY, CHANGEDATE, CREWID, C_BIGCLASS, C_LINECODE, C_N_DJCLASS, C_N_ZQCLASS, C_SPECIALTY, C_STATION, DESCRIPTION, ESTDUR, FCPROJECTID, FCTASKID, LEAD, LOCATION, PARENT, PERSONGROUP, REPORTDATE, REPORTEDBY, SITEID, STATUS, STATUSDATE, SUPERVISOR, TARGCOMPDATE, TARGSTARTDATE, WONUM, WORKTYPE, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

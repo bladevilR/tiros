@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormCheckRecordItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem">
+        <id column="id" property="id"/>
+        <result column="check_id" property="checkId"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="check_level" property="checkLevel"/>
+        <result column="check_desc" property="checkDesc"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="work_time" property="workTime"/>
+        <result column="check_method" property="checkMethod"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_user_name" property="checkUserName"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuPlanFormCheckRecordItem_WithRectify"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem">
+        <id column="id" property="id"/>
+        <result column="check_id" property="checkId"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="check_level" property="checkLevel"/>
+        <result column="check_desc" property="checkDesc"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="work_time" property="workTime"/>
+        <result column="check_method" property="checkMethod"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_user_name" property="checkUserName"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <collection property="rectifyList" column="id"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordRectify"
+                    select="selectCheckRecordItemRectifyList"/>
+    </resultMap>
+    <select id="selectCheckRecordItemRectifyList"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordRectify">
+        select t.*
+        from bu_pl_check_record_rectify t
+        where t.check_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, check_id, sort_no, title, content, check_level, check_desc, check_result, work_time,
+        check_method, check_user_id, check_user_name, check_time, create_group_id, create_time,
+        create_by, update_time, update_by,check_detail_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.checkId, jdbcType=VARCHAR},
+            #{item.sortNo, jdbcType=INTEGER},
+            #{item.title, jdbcType=VARCHAR},
+            #{item.content, jdbcType=VARCHAR},
+            #{item.checkLevel, jdbcType=INTEGER},
+            #{item.checkDesc, jdbcType=VARCHAR},
+            #{item.checkResult, jdbcType=INTEGER},
+            #{item.workTime, jdbcType=DATE},
+            #{item.checkMethod, jdbcType=INTEGER},
+            #{item.checkUserId, jdbcType=VARCHAR},
+            #{item.checkUserName, jdbcType=VARCHAR},
+            #{item.checkTime, jdbcType=DATE},
+            #{item.createGroupId, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.checkDetailId, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_pl_check_record_item
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListWithRectifyByCheckRecordId" resultMap="ResultMap_BuPlanFormCheckRecordItem_WithRectify">
+       select t.*,
+               t1.group_name as createGroupName
+        from bu_pl_check_record_item t
+                 left join bu_mtr_workshop_group t1 on t1.id = t.create_group_id
+        where t.check_id = #{checkRecordId}
+         <if test="recordIds!=null and recordIds!=''">
+             and  instr(#{recordIds},t.check_detail_id)>0
+         </if>
+    </select>
+
+    <select id="selectListByCheckRecordId"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordItem">
+       select t.*,
+               t1.group_name as createGroupName
+        from bu_pl_check_record_item t
+                 left join bu_mtr_workshop_group t1 on t1.id = t.create_group_id
+        where t.check_id = #{checkRecordId}
+        <if test="recordIds!=null and recordIds!=''">
+            and  instr(#{recordIds},t.check_detail_id)>0
+        </if>
+    </select>
+
+</mapper>

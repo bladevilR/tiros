@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.measurealert.mapper.BuPlanFormValuesGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.measurealert.bean.BuPlanFormValues">
+        <id column="id" property="id"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_data_record_id" property="formDataRecordId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="measure_threshold_id" property="measureThresholdId"/>
+        <result column="alert_value" property="alertValue"/>
+        <result column="alert_happen" property="alertHappen"/>
+        <result column="alert_message" property="alertMessage"/>
+        <result column="status" property="status"/>
+        <result column="fixed_value" property="fixedValue"/>
+        <result column="group_id" property="groupId"/>
+        <result column="alert_time" property="alertTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="fix_desc" property="fixDesc"/>
+        <result column="order_id" property="orderId"/>
+        <result column="link_domain" property="linkDomain"/>
+        <result column="threshold_value" property="thresholdValue"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuWorkMeasureRecord_WorkstationNames"
+               type="org.jeecg.modules.group.measurealert.bean.BuPlanFormValues">
+        <id column="id" property="id"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_data_record_id" property="formDataRecordId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="measure_threshold_id" property="measureThresholdId"/>
+        <result column="alert_value" property="alertValue"/>
+        <result column="alert_happen" property="alertHappen"/>
+        <result column="alert_message" property="alertMessage"/>
+        <result column="status" property="status"/>
+        <result column="fixed_value" property="fixedValue"/>
+        <result column="group_id" property="groupId"/>
+        <result column="alert_time" property="alertTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="fix_desc" property="fixDesc"/>
+        <result column="order_id" property="orderId"/>
+        <result column="link_domain" property="linkDomain"/>
+        <result column="threshold_value" property="thresholdValue"/>
+        <collection property="workstationNameList" column="order_task_id"
+                    ofType="java.lang.String" select="selectWorkstationNameList"/>
+    </resultMap>
+    <select id="selectWorkstationNameList" resultType="java.lang.String">
+        SELECT t.name
+        FROM bu_mtr_workstation t
+                 LEFT JOIN bu_work_order_task_workstation t1 ON t1.workstation_id = t.id
+        WHERE t1.order_task_id = #{order_task_id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_form_id, form_data_record_id, form_obj_id, measure_threshold_id, alert_value, alert_happen,
+        alert_message, status, fixed_value, group_id, alert_time, create_time, create_by, update_time, update_by,
+        order_task_id, fix_desc, order_id, link_domain, threshold_value
+    </sql>
+
+    <select id="selectPageByCondition" resultMap="ResultMap_BuWorkMeasureRecord_WorkstationNames">
+        SELECT
+        t.*,
+        t1.name AS formObjName,
+        t2.group_name AS groupName,
+        t3.task_name,
+        t4.operator as thresholdOperator,
+        t4.threshold2 as thresholdValue2,
+        t4.operator2 as thresholdOperator2
+        FROM bu_pl_data_record_value t
+        LEFT JOIN bu_base_form_template t1 ON t1.id = t.form_obj_id
+        LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t.group_id
+        LEFT JOIN bu_work_order_task t3 ON t3.id = t.order_task_id
+        LEFT JOIN bu_work_measure_item t4 ON t4.id = t.measure_threshold_id
+        <where>
+            AND t.alert_happen = 1
+            <if test="queryVO.alertDescribe != null and queryVO.alertDescribe != ''">
+                AND t.alert_message LIKE '%'||#{queryVO.alertDescribe}||'%'
+            </if>
+            <if test="queryVO.status != null">
+                AND t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.alertTime != null">
+                AND to_char(t.alert_time,'yyyy-mm-dd') = to_char(#{queryVO.alertTime},'yyyy-mm-dd')
+            </if>
+            <if test="queryVO.workstationId != null and queryVO.workstationId != ''">
+                AND t.order_task_id IN (SELECT order_task_id FROM bu_work_order_task_workstation WHERE workstation_id =
+                #{queryVO.workstationId})
+            </if>
+        </where>
+        ORDER BY t.alert_time DESC, t.alert_message
+    </select>
+
+    <select id="selectMeasureItem" resultType="org.jeecg.modules.group.measurealert.bean.BuWorkMeasureItem">
+        select t.*
+        from bu_work_measure_item t
+        where t.id = #{measureItemId}
+    </select>
+
+</mapper>

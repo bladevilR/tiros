@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.turnovernew.mapper.BuMaterialTurnoverNewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.turnovernew.bean.BuMaterialTurnoverNew">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="name" property="name"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="tax_price" property="taxPrice"/>
+        <result column="use_amount" property="useAmount"/>
+        <result column="use_amount_price" property="useAmountPrice"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="out_order_code" property="outOrderCode"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="use_time" property="useTime"/>
+        <result column="system_id" property="systemId"/>
+        <result column="first_use_plan_id" property="firstUsePlanId"/>
+        <result column="program_id" property="programId"/>
+        <result column="service_year" property="serviceYear"/>
+        <result column="service_year_remark" property="serviceYearRemark"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, name, unit, price, tax_rate, tax_price, use_amount, use_amount_price,
+        order_code, out_order_code, warehouse_code, warehouse_id, use_time, system_id, first_use_plan_id,
+        program_id, service_year, service_year_remark, remark, create_time, create_by, update_time, update_by,
+        line_id, workshop_id, company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.materialTypeId},
+            #{item.name},
+            #{item.unit},
+            #{item.price},
+            #{item.taxRate},
+            #{item.taxPrice},
+            #{item.useAmount},
+            #{item.useAmountPrice},
+            #{item.orderCode},
+            #{item.outOrderCode},
+            #{item.warehouseCode},
+            #{item.warehouseId},
+            #{item.useTime},
+            #{item.systemId},
+            #{item.firstUsePlanId},
+            #{item.programId},
+            #{item.serviceYear},
+            #{item.serviceYearRemark},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.lineId},
+            #{item.workshopId},
+            #{item.companyId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_turnover
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.material.turnovernew.bean.BuMaterialTurnoverNew">
+        select t.*,
+        t1.name as systemName,
+        t1.short_name as systemShortName,
+        t2.plan_name as firstUsePlanName,
+        t3.name as programName,
+        t4.line_name,
+        t5.name as workshopName,
+        t6.name as companyName
+        from bu_material_turnover t
+        left join bu_train_asset_type t1 on t1.id = t.system_id
+        left join bu_repair_plan t2 on t2.id = t.first_use_plan_id
+        left join bu_repair_program t3 on t3.id = t.program_id
+        left join bu_mtr_line t4 on t4.line_id = t.line_id
+        left join bu_mtr_workshop t5 on t5.id = t.workshop_id
+        left join bu_mtr_company t6 on t6.id = t.company_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND (
+                t.name LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                t.material_type_id LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+        </where>
+        order by t.material_type_id, t.use_time desc
+    </select>
+
+    <select id="selectTurnoverById" resultType="org.jeecg.modules.material.turnovernew.bean.BuMaterialTurnoverNew">
+        select t.*,
+               t1.name       as systemName,
+               t1.short_name as systemShortName,
+               t2.plan_name  as firstUsePlanName,
+               t3.name       as programName,
+               t4.line_name,
+               t5.name       as workshopName,
+               t6.name       as companyName
+        from bu_material_turnover t
+                 left join bu_train_asset_type t1 on t1.id = t.system_id
+                 left join bu_repair_plan t2 on t2.id = t.first_use_plan_id
+                 left join bu_repair_program t3 on t3.id = t.program_id
+                 left join bu_mtr_line t4 on t4.line_id = t.line_id
+                 left join bu_mtr_workshop t5 on t5.id = t.workshop_id
+                 left join bu_mtr_company t6 on t6.id = t.company_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectSystemShortNameIdMapList" resultType="java.util.Map">
+        select id as id,
+        short_name as shortName
+        from bu_train_asset_type
+        where short_name in
+        <foreach collection="systemShortNameList" item="systemShortName" open="(" separator="," close=")">
+            #{systemShortName}
+        </foreach>
+    </select>
+
+    <select id="selectPlanNameIdMapList" resultType="java.util.Map">
+        select id as id,
+        plan_name as planName,
+        repair_program_id as programId
+        from bu_repair_plan
+        where plan_name in
+        <foreach collection="planNameList" item="planName" open="(" separator="," close=")">
+            #{planName}
+        </foreach>
+    </select>
+
+</mapper>

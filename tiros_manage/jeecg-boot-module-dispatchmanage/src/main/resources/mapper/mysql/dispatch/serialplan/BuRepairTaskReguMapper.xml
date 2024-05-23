@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskReguMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        <id column="id" property="id" />
+        <result column="task_id" property="taskId" />
+        <result column="regu_id" property="reguId" />
+        <result column="regu_detail_id" property="reguDetailId" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, regu_id, regu_detail_id, remark
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.taskId},
+            #{item.reguId},
+            #{item.reguDetailId},
+            #{item.remark},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_task_regu
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectDistinctListByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        select distinct t.regu_detail_id,
+                        t.regu_id,
+                        t.remark,
+                        t2.no,
+                        t2.title,
+                        t2.type,
+                        t2.safe_notice,
+                        t2.outsource,
+                        t2.important,
+                        t2.method,
+                        t2.quality_level,
+                        t2.asset_type_id,
+                        t2.work_time,
+                        t2.requirement,
+                        t2.must_replace,
+                        t2.measure,
+                        t3.name AS assetTypeName
+        from bu_repair_task_regu t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_repair_regu_detail t2 on t2.id = t.regu_detail_id
+                 left join bu_train_asset_type t3 on t3.id = t2.asset_type_id
+        where t1.plan_id = #{planId}
+        order by t.regu_id, t2.no
+    </select>
+
+    <select id="selectListForGenerateOrderByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        select t.*
+        from bu_repair_task_regu t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+        where t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        select t.regu_detail_id,
+               t.regu_id,
+               t.remark,
+               t2.no,
+               t2.title,
+               t2.type,
+               t2.safe_notice,
+               t2.outsource,
+               t2.important,
+               t2.method,
+               t2.quality_level,
+               t2.asset_type_id,
+               t2.work_time,
+               t2.requirement,
+               t2.must_replace,
+               t2.measure,
+               t3.name AS assetTypeName
+        from bu_repair_task_regu t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_repair_regu_detail t2 on t2.id = t.regu_detail_id
+                 left join bu_train_asset_type t3 on t3.id = t2.asset_type_id
+        where t.task_id = #{taskId}
+        order by t.regu_id, t2.no
+    </select>
+
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.turnoverchange.mapper.BuWorkTurnoverChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.turnoverchange.bean.BuWorkTurnoverChange">
+        <id column="id" property="id"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="down_turnover_id" property="downTurnoverId"/>
+        <result column="up_turnover_id" property="upTurnoverId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="change_type" property="changeType"/>
+        <result column="phase" property="phase"/>
+        <result column="reason" property="reason"/>
+        <result column="reason_desc" property="reasonDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, line_id, train_no, order_id, down_turnover_id, up_turnover_id, group_id, user_id,
+        change_type, phase, reason, reason_desc, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 根据条件分页查询周转件更换 -->
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.group.turnoverchange.bean.BuWorkTurnoverChange">
+        SELECT
+        t1.*,
+        t2.name AS downTurnoverName,
+        t6.line_name AS lineName,
+        t2.manuf_no AS downTurnoverManufNo,
+        t3.placeName AS downTurnoverPlaceName,
+        t4.manuf_no AS upTurnoverManufNo,
+        t5.placeName AS upTurnoverPlaceName,
+        t7.realname AS userName
+        FROM bu_work_turnover_change t1
+        LEFT JOIN bu_material_spare_part t2 ON t2.id = t1.down_turnover_id
+        LEFT JOIN (SELECT assetType.id AS assetTypeId,place.place_name AS placeName FROM bu_train_asset_type assetType
+        LEFT JOIN bu_train_place place ON place.id = assetType.place_id) t3 ON t3.assetTypeId = t2.asset_type_id
+        LEFT JOIN bu_material_spare_part t4 ON t4.id = t1.up_turnover_id
+        LEFT JOIN (SELECT assetType.id AS assetTypeId,place.place_name AS placeName FROM bu_train_asset_type assetType
+        LEFT JOIN bu_train_place place ON place.id = assetType.place_id) t5 ON t5.assetTypeId = t4.asset_type_id
+        LEFT JOIN bu_mtr_line t6 ON t6.line_id = t1.line_id
+        LEFT JOIN sys_user t7 ON t7.id = t1.user_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t2.name LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                t2.manuf_no LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t1.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.systemId != null and queryVO.systemId != ''">
+                AND t2.asset_type_id in (
+                select id from bu_train_asset_type
+                where wbs like concat((select wbs from bu_train_asset_type where id = #{queryVO.systemId}),'%')
+                )
+            </if>
+            <if test="queryVO.changeDate != null">
+                AND t1.create_time = #{queryVO.changeDate}
+            </if>
+        </where>
+        ORDER BY t1.create_time
+    </select>
+
+    <!-- 根据id查询周转件更换记录详情 -->
+    <select id="selectById" resultType="org.jeecg.modules.group.turnoverchange.bean.BuWorkTurnoverChange">
+        SELECT t1.*,
+               t2.name      AS downTurnoverName,
+               t6.line_name AS lineName,
+               t2.manuf_no  AS downTurnoverManufNo,
+               t3.placeName AS downTurnoverPlaceName,
+               t4.manuf_no  AS upTurnoverManufNo,
+               t5.placeName AS upTurnoverPlaceName,
+               t7.realname  AS userName
+        FROM bu_work_turnover_change t1
+                 LEFT JOIN bu_material_spare_part t2 ON t2.id = t1.down_turnover_id
+                 LEFT JOIN (SELECT assetType.id AS assetTypeId, place.place_name AS placeName
+                            FROM bu_train_asset_type assetType
+                                     LEFT JOIN bu_train_place place ON place.id = assetType.place_id) t3
+                           ON t3.assetTypeId = t2.asset_type_id
+                 LEFT JOIN bu_material_spare_part t4 ON t4.id = t1.up_turnover_id
+                 LEFT JOIN (SELECT assetType.id AS assetTypeId, place.place_name AS placeName
+                            FROM bu_train_asset_type assetType
+                                     LEFT JOIN bu_train_place place ON place.id = assetType.place_id) t5
+                           ON t5.assetTypeId = t4.asset_type_id
+                 LEFT JOIN bu_mtr_line t6 ON t6.line_id = t1.line_id
+                 LEFT JOIN sys_user t7 ON t7.id = t1.user_id
+        WHERE t1.id = #{id}
+    </select>
+
+    <!-- 根据周转件id获取周转件最后一次换上的车号 -->
+    <select id="selectLastTrainNoByTurnoverId" resultType="java.lang.String">
+        SELECT train_no
+        FROM bu_work_turnover_change
+        WHERE up_turnover_id = #{turnoverId}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+</mapper>

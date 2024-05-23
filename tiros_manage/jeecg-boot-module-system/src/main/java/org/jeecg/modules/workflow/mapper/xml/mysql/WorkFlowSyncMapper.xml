@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.workflow.mapper.WorkFlowSyncMapper">
+
+    <resultMap id="ResultMap_DepartTree_User" type="org.jeecg.common.workflow.bean.WorkFlowGroup">
+        <id column="id" property="id"/>
+        <collection property="children" column="id" ofType="org.jeecg.common.workflow.bean.WorkFlowGroup"
+                    select="selectDepartChildren"/>
+        <collection property="users" column="id" ofType="org.jeecg.common.workflow.bean.WorkFlowUser"
+                    select="selectDepartUsers"/>
+    </resultMap>
+    <select id="selectDepartChildren" resultMap="ResultMap_DepartTree_User">
+        SELECT id,
+               parent_id   AS parentId,
+               depart_name AS groupName,
+               1           AS groupCategory,
+               memo        AS groupDesc
+        FROM sys_depart
+        WHERE parent_id = #{id}
+          AND del_flag != 1
+        ORDER BY depart_order, create_time
+    </select>
+    <select id="selectDepartUsers" resultType="org.jeecg.common.workflow.bean.WorkFlowUser">
+        SELECT id,
+               realname AS userName,
+               work_no  AS userNo,
+               phone    AS userPhone,
+               sex      AS userSex,
+               email,
+               #{id}    AS groupId,
+               1        as groupCategory
+        FROM sys_user
+        WHERE del_flag != 1
+          AND id IN (SELECT user_id FROM sys_user_depart WHERE dep_id = #{id})
+        ORDER BY user_identity DESC, work_no, create_time
+    </select>
+
+    <resultMap id="ResultMap_Role_User" type="org.jeecg.common.workflow.bean.WorkFlowGroup">
+        <id column="id" property="id"/>
+        <collection property="users" column="id" ofType="org.jeecg.common.workflow.bean.WorkFlowUser"
+                    select="selectRoleUsers"/>
+    </resultMap>
+    <select id="selectRoleUsers" resultType="org.jeecg.common.workflow.bean.WorkFlowUser">
+        SELECT id,
+               realname AS userName,
+               work_no  AS userNo,
+               phone    AS userPhone,
+               sex      AS userSex,
+               email,
+               #{id}    AS groupId,
+               2        as groupCategory
+        FROM sys_user
+        WHERE del_flag != 1
+          AND id IN (SELECT user_id FROM sys_user_role WHERE role_id = #{id})
+        ORDER BY user_identity DESC, work_no, create_time
+    </select>
+
+    <select id="selectAllTopDepartAndUserRecursion" resultMap="ResultMap_DepartTree_User">
+        SELECT id,
+               parent_id   AS parentId,
+               depart_name AS groupName,
+               1           AS groupCategory,
+               memo        AS groupDesc
+        FROM sys_depart
+        WHERE del_flag != 1
+          AND (parent_id IS NULL OR parent_id = '')
+        ORDER BY depart_order, create_time
+    </select>
+
+    <select id="selectAllRoleAndUserRecursion" resultMap="ResultMap_Role_User">
+        SELECT id,
+               role_name   AS groupName,
+               2           AS groupCategory,
+               description AS groupDesc
+        FROM sys_role
+        ORDER BY create_time
+    </select>
+
+</mapper>

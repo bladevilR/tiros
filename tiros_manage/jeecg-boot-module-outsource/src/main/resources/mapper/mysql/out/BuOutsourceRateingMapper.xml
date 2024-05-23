@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuOutsourceRateingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuOutsourceRateing">
+        <id column="id" property="id" />
+        <result column="contract_id" property="contractId" />
+        <result column="rateing_item" property="rateingItem" />
+        <result column="score" property="score" />
+        <result column="rate_date" property="rateDate" />
+        <result column="rate_desc" property="rateDesc" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <collection property="annexes" column="id" ofType="org.jeecg.modules.outsource.bean.BuOutsourceRateingAnnex" select="selectAnnexe"></collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, outin_detail_id, rateing_item, score, rate_date, rate_desc, create_time, create_by, update_time, update_by
+    </sql>
+    <select id="selectAnnexe" resultType="org.jeecg.modules.outsource.bean.BuOutsourceRateingAnnex">
+        select t.*
+        from  bu_outsource_rateing_annex t
+        where t.rate_id=#{id}
+    </select>
+    <select id="page" resultMap="BaseResultMap">
+
+       select  b.* from  bu_outsource_rateing b
+       <where>
+            <if test="rateing.contractId!=null and rateing.contractId!=''">
+                b.contract_id=#{rateing.contractId}
+            </if>
+            <if test="rateing.rateingItem!=null">
+                and  cast(b.rateing_item as SIGNED  INTEGER)= #{rateing.rateingItem}
+            </if>
+            <if test="rateing.startTime!=null and rateing.endTime!=null">
+                and b.rate_date between #{rateing.startTime} and #{rateing.endTime}
+            </if>
+       </where>
+       order by b.score
+    </select>
+
+    <select id="selectListBySupplierId" resultType="org.jeecg.modules.outsource.bean.BuOutsourceRateing">
+        SELECT
+        t.id,
+        t.rateing_item,
+        t.score,
+        t2.supplier_id
+        FROM bu_outsource_rateing t
+        LEFT JOIN bu_outsource_outin_detail t1 ON t1.id = t.contract_id
+        LEFT JOIN bu_outsource_outin t2 ON t2.id = t1.outin_id
+        <if test="supplierId != null and supplierId != ''">
+            WHERE t2.supplier_id = #{supplierId}
+        </if>
+    </select>
+
+</mapper>

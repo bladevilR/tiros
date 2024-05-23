@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.workcheck.mapper.BuWorkCheckMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheck">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_struct_id" property="assetStructId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="location" property="location"/>
+        <result column="period" property="period"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="judge" property="judge"/>
+        <result column="remark" property="remark"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="repair_pro_id" property="repairProId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="status" property="status"/>
+        <result column="code" property="code"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap_BuWorkCheck_WithItemTech" type="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheck">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_struct_id" property="assetStructId"/>
+        <result column="asset_id" property="assetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="location" property="location"/>
+        <result column="period" property="period"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="judge" property="judge"/>
+        <result column="remark" property="remark"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="repair_pro_id" property="repairProId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="status" property="status"/>
+        <result column="code" property="code"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="lineName" property="lineName"/>
+        <result column="repairProName" property="repairProName"/>
+        <result column="assetTypeName" property="assetTypeName"/>
+        <collection property="itemList" column="id"
+                    ofType="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheckItem"
+                    select="selectCheckItemList"/>
+        <collection property="techLinkList" column="id"
+                    ofType="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheckTechLink"
+                    select="selectCheckTechLinkList">
+        </collection>
+    </resultMap>
+    <select id="selectCheckItemList" resultType="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheckItem">
+        select t.*
+        from bu_work_check_item t
+        where check_id = #{id} order by SORT_NO
+    </select>
+    <select id="selectCheckTechLinkList" resultType="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheckTechLink">
+        select t.*,
+               t1.file_name as teckBookName
+        from bu_work_check_tech_link t
+                 left join bu_repair_tech_book t1 on t.teck_book_id = t1.id
+        where t.check_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, train_no, asset_type_id, asset_struct_id, asset_id, asset_name, asset_no,
+        location, period, group_id, group_name, judge, remark, create_group_id, create_time,
+        create_by, update_time, update_by, repair_pro_id, line_id, status, code, company_id, workshop_id
+    </sql>
+
+
+    <select id="selectWorkCheckPage" resultType="org.jeecg.modules.basemanage.workcheck.bean.BuWorkCheck">
+        select t.*,
+        t1.line_name as lineName,
+        t2.name as repairProName,
+        t3.name as assetTypeName
+        from bu_work_check t
+        left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_repair_program t2 on t2.id = t.repair_pro_id
+        left join bu_train_asset_type t3 on t3.id = t.asset_type_id
+        <where>
+            <if test="queryVO.name != null and queryVO.name != ''">
+                and t.title like concat('%',#{queryVO.name},'%')
+            </if>
+            <if test="queryVO.repairProId != null and queryVO.repairProId != ''">
+                and t.repair_pro_id = #{queryVO.repairProId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWorkCheckById" resultMap="ResultMap_BuWorkCheck_WithItemTech">
+        select t.*,
+               t1.line_name as lineName,
+               t2.name      as repairProName,
+               t3.name      as assetTypeName
+        from bu_work_check t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_repair_program t2 on t2.id = t.repair_pro_id
+                 left join bu_train_asset_type t3 on t3.id = t.asset_type_id
+        where t.id = #{id}
+    </select>
+
+</mapper>

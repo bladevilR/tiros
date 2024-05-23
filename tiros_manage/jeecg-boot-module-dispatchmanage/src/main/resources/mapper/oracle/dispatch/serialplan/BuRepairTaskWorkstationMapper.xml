@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskWorkstationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="workstation_id" property="workstationId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, workstation_id
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.workstationId, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_task_workstation
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectDistinctListByPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        select distinct t.workstation_id,
+                        t2.workshop_id,
+                        t2.station_no,
+                        t2.name,
+                        t2.location,
+                        t2.content,
+                        t2.remark,
+                        t3.name as workshopName
+        from bu_repair_task_workstation t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_mtr_workstation t2 on t2.id = t.workstation_id
+                 left join bu_mtr_workshop t3 on t3.id = t2.workshop_id
+        where t1.plan_id = #{planId}
+        order by decode(trim(translate(t2.station_no, '0123456789', ' ')), null, to_number(t2.station_no))
+    </select>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        select t.*,
+               t2.workshop_id,
+               t2.station_no,
+               t2.name,
+               t2.location,
+               t2.content,
+               t2.remark,
+               t3.name as workshopName
+        from bu_repair_task_workstation t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_mtr_workstation t2 on t2.id = t.workstation_id
+                 left join bu_mtr_workshop t3 on t3.id = t2.workshop_id
+        where t1.plan_id = #{planId}
+        order by decode(trim(translate(t2.station_no, '0123456789', ' ')), null, to_number(t2.station_no))
+    </select>
+
+    <select id="selectListForGenerateOrderByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        select t.*
+        from bu_repair_task_workstation t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+        where t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        select t.*,
+               t2.workshop_id,
+               t2.station_no,
+               t2.name,
+               t2.location,
+               t2.content,
+               t2.remark,
+               t3.name as workshopName
+        from bu_repair_task_workstation t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_mtr_workstation t2 on t2.id = t.workstation_id
+                 left join bu_mtr_workshop t3 on t3.id = t2.workshop_id
+        where t.task_id = #{taskId}
+        order by decode(trim(translate(t2.station_no, '0123456789', ' ')), null, to_number(t2.station_no))
+    </select>
+
+</mapper>

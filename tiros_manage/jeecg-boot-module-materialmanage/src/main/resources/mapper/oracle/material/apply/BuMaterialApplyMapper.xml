@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.apply.mapper.BuMaterialApplyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.apply.bean.BuMaterialApply">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="title" property="title"/>
+        <result column="apply_type" property="applyType"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="user_id" property="userId"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="ready_status" property="readyStatus"/>
+        <result column="status" property="status"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="receive_group_id" property="receiveGroupId"/>
+        <result column="receive_user_id" property="receiveUserId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sync_time" property="syncTime"/>
+        <result column="sync_result" property="syncResult"/>
+        <result column="sync_result_time" property="syncResultTime"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuMaterialApply_Detail" type="org.jeecg.modules.material.apply.bean.BuMaterialApply">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="title" property="title"/>
+        <result column="apply_type" property="applyType"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="user_id" property="userId"/>
+        <result column="apply_date" property="applyDate"/>
+        <result column="ready_status" property="readyStatus"/>
+        <result column="status" property="status"/>
+        <result column="receive_time" property="receiveTime"/>
+        <result column="receive_group_id" property="receiveGroupId"/>
+        <result column="receive_user_id" property="receiveUserId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sync_time" property="syncTime"/>
+        <result column="sync_result" property="syncResult"/>
+        <result column="sync_result_time" property="syncResultTime"/>
+        <result column="company_id" property="companyId"/>
+        <collection property="detailList" column="id"
+                    ofType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail"
+                    select="selectApplyDetailList"/>
+    </resultMap>
+    <select id="selectApplyDetailList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        SELECT t1.*,
+               t2.code     AS materialTypeCode,
+               t2.name     AS materialTypeName,
+               t2.spec     AS materialTypeSpec,
+               t2.unit     AS materialTypeUnit,
+               t4.name     AS warehouseName,
+               t5.realname AS confirmUserName,
+               t7.realname AS sendUserName
+        FROM bu_material_apply_detail t1
+                 LEFT JOIN bu_material_type t2 ON t2.id = t1.material_type_id
+                 LEFT JOIN bu_material_entry_detail t3 ON t3.id = t1.entry_detail_id
+                 LEFT JOIN bu_mtr_warehouse t4 ON t4.id = t3.self_warehouse_id
+                 LEFT JOIN sys_user t5 ON t5.id = t1.confirm_user
+                 LEFT JOIN sys_user t7 ON t7.id = t1.send_user
+        WHERE t1.apply_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, title, apply_type, work_order_id, train_no, dept_id, user_id,
+        apply_date, ready_status, status, receive_time, receive_group_id, receive_user_id,
+        depot_id, line_id, workshop_id, remark, create_time, create_by, update_time, update_by,
+        sync_time, sync_result, sync_result_time, company_id
+    </sql>
+
+
+    <update id="updateListForReceive">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_apply
+            set status = #{item.status, jdbcType=NUMERIC},
+            receive_user_id = #{item.receiveUserId, jdbcType=VARCHAR},
+            receive_time = #{item.receiveTime, jdbcType=TIMESTAMP}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateListStatus">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_apply
+            set status = #{item.status, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectApplyIdPageByCondition" resultType="java.lang.String">
+        select tt.id from (
+        SELECT
+        DISTINCT t1.id,t1.apply_date
+        FROM bu_material_apply t1
+        LEFT JOIN bu_material_apply_detail t2 ON t2.apply_id = t1.id
+        LEFT JOIN bu_material_type t3 ON t3.id = t2.material_type_id
+        LEFT JOIN sys_user t4 ON t4.id = t1.receive_user_id
+        LEFT JOIN bu_mtr_workshop_group t5 ON t5.id = t1.receive_group_id
+        <where>
+            <if test="queryVO.materialType != null and queryVO.materialType !=''">
+                AND
+                (
+                t3.code LIKE '%'||#{queryVO.materialType}||'%'
+                OR
+                t3.name LIKE '%'||#{queryVO.materialType}||'%'
+                )
+            </if>
+            <if test="queryVO.applyOrder != null and queryVO.applyOrder !=''">
+                AND
+                (
+                t1.code LIKE '%'||#{queryVO.applyOrder}||'%'
+                OR
+                t1.title LIKE '%'||#{queryVO.applyOrder}||'%'
+                )
+            </if>
+            <if test="queryVO.receiver != null and queryVO.receiver !=''">
+                AND
+                (
+                t4.realname LIKE '%'|| #{queryVO.receiver}||'%'
+                OR
+                t5.group_name LIKE '%'||#{queryVO.receiver}||'%'
+                )
+            </if>
+            <if test="queryVO.status != null">
+                AND t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.readyStatus != null">
+                AND t1.ready_status = #{queryVO.readyStatus}
+            </if>
+        </where>
+        ORDER BY t1.apply_date
+        ) tt
+    </select>
+
+    <select id="selectListByApplyIdList" resultMap="ResultMap_BuMaterialApply_Detail">
+        SELECT
+        t.*,
+        t1.group_name AS receiveGroupName,
+        t2.realname AS receiveUserName,
+        t3.order_name AS workOrderName,
+        t4.depart_name AS deptName,
+        t5.realname AS userName
+        FROM bu_material_apply t
+        LEFT JOIN bu_mtr_workshop_group t1 ON t1.id = t.receive_group_id
+        LEFT JOIN sys_user t2 ON t2.id = t.receive_user_id
+        LEFT JOIN bu_work_order t3 ON t3.id = t.work_order_id
+        LEFT JOIN sys_depart t4 ON t4.id = t.dept_id
+        LEFT JOIN sys_user t5 ON t5.id = t.user_id
+        WHERE t.id IN
+        <foreach collection="applyIdList" item="applyId" index="index" separator="," open="(" close=")">
+            #{applyId}
+        </foreach>
+    </select>
+
+    <select id="selectOrderIdPageForAppByCondition" resultType="java.lang.String">
+        <choose>
+            <when test="queryVO.status == 0">
+                select id
+                from bu_work_order
+                where
+                id in (
+                select a.work_order_id
+                from bu_material_apply a
+                left join bu_material_apply_detail a1 on a1.apply_id = a.id
+                left join bu_material_type a2 on a2.id = a1.material_type_id
+                where a.status = 0
+                <if test="queryVO.materialType != null and queryVO.materialType !=''">
+                    AND
+                    (
+                    a2.code LIKE '%'||#{queryVO.materialType}||'%'
+                    OR
+                    a2.name LIKE '%'||#{queryVO.materialType}||'%'
+                    )
+                </if>
+                )
+                and
+                id not in (
+                select b.work_order_id
+                from bu_material_apply b
+                left join bu_material_apply_detail b1 on b1.apply_id = b.id
+                left join bu_material_type b2 on b2.id = b1.material_type_id
+                where (b.status = 2 or b.status = 1)
+                <if test="queryVO.materialType != null and queryVO.materialType !=''">
+                    AND
+                    (
+                    b2.code LIKE '%'||#{queryVO.materialType}||'%'
+                    OR
+                    b2.name LIKE '%'||#{queryVO.materialType}||'%'
+                    )
+                </if>
+                )
+                order by order_code
+            </when>
+            <when test="queryVO.status == 2">
+                select id
+                from bu_work_order
+                where
+                id in (
+                select a.work_order_id
+                from bu_material_apply a
+                left join bu_material_apply_detail a1 on a1.apply_id = a.id
+                left join bu_material_type a2 on a2.id = a1.material_type_id
+                where a.status = 2
+                <if test="queryVO.materialType != null and queryVO.materialType !=''">
+                    AND
+                    (
+                    a2.code LIKE '%'||#{queryVO.materialType}||'%'
+                    OR
+                    a2.name LIKE '%'||#{queryVO.materialType}||'%'
+                    )
+                </if>
+                )
+                and
+                id not in (
+                select b.work_order_id
+                from bu_material_apply b
+                left join bu_material_apply_detail b1 on b1.apply_id = b.id
+                left join bu_material_type b2 on b2.id = b1.material_type_id
+                where (b.status = 0 or b.status = 1)
+                <if test="queryVO.materialType != null and queryVO.materialType !=''">
+                    AND
+                    (
+                    b2.code LIKE '%'||#{queryVO.materialType}||'%'
+                    OR
+                    b2.name LIKE '%'||#{queryVO.materialType}||'%'
+                    )
+                </if>
+                )
+                order by order_code
+            </when>
+        </choose>
+    </select>
+
+    <select id="selectApplyAndDetailStatusListOfCloseOrder" resultType="java.util.Map">
+        select t.id      as "applyId",
+               t.status  as "applyStatus",
+               t2.id     as "applyDetailId",
+               t2.status as "applyDetailStatus"
+        from bu_material_apply t
+                 left join bu_work_order t1 on t1.id = t.work_order_id
+                 left join bu_material_apply_detail t2 on t2.apply_id = t.id
+        where t1.order_status = 4
+          and t1.plan_id = #{planId}
+        order by t1.order_code
+    </select>
+
+    <select id="selectDepartIdByOrgCode" resultType="java.lang.String">
+        select id
+        from sys_depart
+        where org_code = #{orgCode}
+    </select>
+
+</mapper>

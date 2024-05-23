@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuFaultCategoryThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuFaultCategory">
+        <id column="id" property="id"/>
+        <result column="category_code" property="categoryCode"/>
+        <result column="category_desc" property="categoryDesc"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, category_code, category_desc
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.categoryCode},
+            #{item.categoryDesc},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_fault_category
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="list">
+        <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+            update bu_fault_category
+            <set>
+                category_desc = #{item.categoryDesc}
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.system.mapper.SysUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.system.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="realname" property="realname"/>
+        <result column="password" property="password"/>
+        <result column="salt" property="salt"/>
+        <result column="avatar" property="avatar"/>
+        <result column="birthday" property="birthday"/>
+        <result column="sex" property="sex"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="org_code" property="orgCode"/>
+        <result column="status" property="status"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="third_id" property="thirdId"/>
+        <result column="third_type" property="thirdType"/>
+        <result column="activiti_sync" property="activitiSync"/>
+        <result column="work_no" property="workNo"/>
+        <result column="post" property="post"/>
+        <result column="telephone" property="telephone"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="user_identity" property="userIdentity"/>
+        <result column="depart_ids" property="departIds"/>
+        <result column="is_sync" property="isSync"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_SysUser_Roles" type="org.jeecg.modules.system.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="realname" property="realname"/>
+        <result column="password" property="password"/>
+        <result column="salt" property="salt"/>
+        <result column="avatar" property="avatar"/>
+        <result column="birthday" property="birthday"/>
+        <result column="sex" property="sex"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="org_code" property="orgCode"/>
+        <result column="status" property="status"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="third_id" property="thirdId"/>
+        <result column="third_type" property="thirdType"/>
+        <result column="activiti_sync" property="activitiSync"/>
+        <result column="work_no" property="workNo"/>
+        <result column="post" property="post"/>
+        <result column="telephone" property="telephone"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="user_identity" property="userIdentity"/>
+        <result column="depart_ids" property="departIds"/>
+        <result column="is_sync" property="isSync"/>
+        <collection property="roles" column="id"
+                    ofType="java.lang.String"
+                    select="selectUserRolesByUserId"/>
+    </resultMap>
+    <select id="selectUserRolesByUserId" resultType="java.lang.String">
+        select role_id
+        from sys_user_role
+        where user_id = #{id}
+    </select>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, username, realname, password, salt, avatar, birthday, sex, email, phone, org_code, status, del_flag,
+        third_id, third_type, activiti_sync, work_no, post, telephone, create_by, create_time, update_by, update_time,
+        user_identity, depart_ids, is_sync
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.username},
+            #{item.realname},
+            #{item.password},
+            #{item.salt},
+            #{item.avatar},
+            #{item.birthday},
+            #{item.sex},
+            #{item.email},
+            #{item.phone},
+            #{item.orgCode},
+            #{item.status},
+            #{item.delFlag},
+            #{item.thirdId},
+            #{item.thirdType},
+            #{item.activitiSync},
+            #{item.workNo},
+            #{item.post},
+            #{item.telephone},
+            #{item.createBy},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updateTime},
+            #{item.userIdentity},
+            #{item.departIds},
+            #{item.isSync}
+        </trim>
+    </sql>
+
+    <sql id="getUserByOrgCodeFromSql">
+        FROM
+        sys_depart
+        INNER JOIN sys_user_depart ON sys_user_depart.dep_id = sys_depart.id
+        INNER JOIN sys_user ON sys_user.id = sys_user_depart.user_id
+        WHERE
+        sys_user.del_flag = 0 AND sys_depart.org_code LIKE '${orgCode}%'
+        <if test="userParams != null">
+            <if test="userParams.realname != null and userParams.realname != ''">
+                AND sys_user.realname LIKE concat(concat('%',#{userParams.realname}),'%')
+            </if>
+            <if test="userParams.workNo != null and userParams.workNo != ''">
+                AND sys_user.work_no LIKE concat(concat('%',#{userParams.workNo}),'%')
+            </if>
+        </if>
+    </sql>
+
+
+    <insert id="insertList" parameterType="list">
+        insert into sys_user
+        (
+        <include refid="Base_Column_List"/>
+        )
+        value
+        <foreach collection="list" item="item" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateListPassword">
+        <foreach collection="list" item="item" separator=";">
+            update sys_user
+            set
+            password = #{item.password}
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateUserDepart">
+        UPDATE sys_user
+        SET org_code = #{orgCode}
+        where username = #{username}
+    </update>
+
+    <update id="updateNullByEmptyString">
+        UPDATE sys_user
+        SET ${fieldName} = NULL
+        WHERE ${fieldName} = ''
+    </update>
+
+    <update id="deleteLogicDeletedBatch">
+        <foreach collection="list" item="item" separator=";">
+            update sys_user
+            set
+            status = 0,
+            del_flag = 1,
+            update_time = #{updateTime},
+            update_by = #{updateBy}
+            where work_no = #{item}
+        </foreach>
+    </update>
+
+    <update id="clearOrgCodeBatch">
+        <foreach collection="list" item="item" separator=";">
+            update sys_user
+            set
+            org_code = null,
+            update_time = #{updateTime},
+            update_by = #{updateBy}
+            where id = #{item}
+        </foreach>
+    </update>
+
+    <update id="revertLogicDeleted">
+        UPDATE
+            sys_user
+        SET del_flag    = 0,
+            update_by   = #{entity.updateBy},
+            update_time = #{entity.updateTime}
+        WHERE del_flag = 1
+          AND id IN (${userIds})
+    </update>
+
+    <delete id="deleteLogicDeleted">
+        DELETE
+        FROM sys_user
+        WHERE del_flag = 1
+          AND id IN (${userIds})
+    </delete>
+
+    <update id="deleteBathRoleUserRelation">
+        delete from sys_user_role
+        where role_id in
+        <foreach item="id" collection="roleIdArray" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="deleteBathRolePermissionRelation">
+        delete from sys_role_permission
+        where role_id in
+        <foreach item="id" collection="roleIdArray" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectUserByUsername" resultMap="ResultMap_SysUser_Roles">
+        select *
+        from sys_user
+        where username = #{username}
+          and del_flag = 0
+    </select>
+
+    <select id="selectDepNamesByUserIds" resultType="org.jeecg.modules.system.vo.SysUserDepVo">
+        select d.depart_name,
+        ud.user_id
+        from sys_user_depart ud,
+        sys_depart d
+        where d.id = ud.dep_id
+        and ud.user_id in
+        <foreach collection="userIds" index="index" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectUserPageByDepIds" resultType="org.jeecg.modules.system.entity.SysUser">
+        select *
+        from sys_user
+        where del_flag = 0
+        <if test="departIds != null  and departIds.size > 0">
+            and id in (select user_id from sys_user_depart where dep_id in
+            <foreach collection="departIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            )
+        </if>
+        <if test="username != null and username != ''">
+            and username = #{username}
+        </if>
+    </select>
+
+    <select id="selectUserPageByRoleId" resultType="org.jeecg.modules.system.entity.SysUser">
+        select *
+        from sys_user
+        where del_flag = 0
+        and id in (select user_id from sys_user_role where role_id = #{roleId})
+        <if test="username != null and username != ''">
+            and username = #{username}
+        </if>
+    </select>
+
+    <select id="getUserByPhone" resultType="org.jeecg.modules.system.entity.SysUser">
+        select *
+        from sys_user
+        where phone = #{phone}
+          and del_flag = 0
+    </select>
+
+    <select id="getUserByOrgCode" resultType="org.jeecg.modules.system.model.SysUserSysDepartModel">
+        SELECT
+        sys_user.id AS id,
+        sys_user.realname AS realname,
+        sys_user.work_no AS workNo,
+        sys_user.post AS post,
+        sys_user.telephone AS telephone,
+        sys_user.email AS email,
+        sys_user.phone AS phone,
+        sys_depart.id AS departId,
+        sys_depart.depart_name AS departName
+        <include refid="getUserByOrgCodeFromSql"/>
+        ORDER BY
+        sys_depart.org_code ASC
+    </select>
+
+    <select id="getUserByOrgCodeTotal" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        <include refid="getUserByOrgCodeFromSql"/>
+    </select>
+
+    <select id="selectLogicDeleted" resultType="org.jeecg.modules.system.entity.SysUser">
+        SELECT *
+        FROM sys_user ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectListByGroupId" resultType="org.jeecg.modules.system.entity.SysUser">
+        SELECT t.*
+        FROM sys_user t
+                 LEFT JOIN sys_user_depart t1 ON t1.user_id = t.id
+        WHERE t.del_flag = 0
+          AND t1.dep_id = #{groupId}
+    </select>
+
+    <select id="selectListByGroupIdAndSearchText" resultType="org.jeecg.modules.system.entity.SysUser">
+        SELECT t.*
+        FROM sys_user t
+        LEFT JOIN sys_user_depart t1 ON t1.user_id = t.id
+        WHERE t.del_flag = 0
+        <if test="groupId != null and groupId != ''">
+            AND t1.dep_id = #{groupId}
+        </if>
+        <if test="searchText != null and searchText != ''">
+            and (
+            t.USERNAME concat('%',#{searchText},'%')
+            or
+            t.REALNAME concat('%',#{searchText},'%')
+            )
+        </if>
+    </select>
+
+</mapper>

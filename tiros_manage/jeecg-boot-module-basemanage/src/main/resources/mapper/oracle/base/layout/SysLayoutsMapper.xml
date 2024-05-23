@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.layout.mapper.SysLayoutsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.layout.bean.SysLayouts">
+        <id column="id" property="id"/>
+        <result column="layout_name" property="layoutName"/>
+        <result column="layout_code" property="layoutCode"/>
+        <result column="layout_desc" property="layoutDesc"/>
+        <result column="is_main" property="isMain"/>
+        <result column="layout_scope" property="layoutScope"/>
+        <result column="by_user_id" property="byUserId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_SysLayouts_Collection" type="org.jeecg.modules.basemanage.layout.bean.SysLayouts">
+        <id column="id" property="id"/>
+        <result column="layout_name" property="layoutName"/>
+        <result column="layout_code" property="layoutCode"/>
+        <result column="layout_desc" property="layoutDesc"/>
+        <result column="is_main" property="isMain"/>
+        <result column="layout_scope" property="layoutScope"/>
+        <result column="by_user_id" property="byUserId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <collection property="layoutWidgetsList" column="id"
+                    ofType="org.jeecg.modules.basemanage.layout.bean.SysLayoutWidgets"
+                    select="selectLayoutWidgetsList"/>
+    </resultMap>
+    <select id="selectLayoutWidgetsList" resultType="org.jeecg.modules.basemanage.layout.bean.SysLayoutWidgets">
+        select t.*,
+               t1.widget_category,
+               t2.name as widgetCategoryName,
+               t1.widget_name,
+               t1.widget_desc,
+               t1.component_path,
+               t1.status
+        from sys_layout_widgets t
+                 left join sys_widgets t1 on t1.id = t.widget_id
+                 left join sys_category t2 on t2.id = t1.widget_category
+        where t.layout_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, layout_name, layout_code, layout_desc, is_main, layout_scope, by_user_id,
+        status, create_time, create_by, update_time, update_by
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.basemanage.layout.bean.SysLayouts">
+        select t.*,
+        t1.realname as byUserName
+        from sys_layouts t
+        left join sys_user t1 on t1.id = t.by_user_id
+        <where>
+            <if test="queryVO.layoutName != null and queryVO.layoutName != ''">
+                and t.layout_name like '%'||#{queryVO.layoutName}||'%'
+            </if>
+            <if test="queryVO.byUserId != null and queryVO.byUserId != ''">
+                and t.by_user_id = #{queryVO.byUserId}
+            </if>
+            <if test="queryVO.status != null">
+                and t.status = #{queryVO.status}
+            </if>
+        </where>
+        order by t.create_time desc
+    </select>
+
+    <select id="selectLayoutsById" resultMap="ResultMap_SysLayouts_Collection">
+        select t.*,
+               t1.realname as byUserName
+        from sys_layouts t
+                 left join sys_user t1 on t1.id = t.by_user_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectDefaultLayoutsIdByUserId" resultType="java.lang.String">
+        select tt.*
+        from (
+                 select t.id
+                 from sys_layouts t
+                 where t.is_main = 1
+                   and (t.by_user_id = #{userId} or t.layout_scope = 0)
+                 order by t.layout_scope desc, t.create_time desc
+             ) tt where rownum=1
+
+    </select>
+
+</mapper>

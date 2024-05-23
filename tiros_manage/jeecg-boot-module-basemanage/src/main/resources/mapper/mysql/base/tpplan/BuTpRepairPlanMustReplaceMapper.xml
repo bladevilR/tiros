@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.tpplan.mapper.BuTpRepairPlanMustReplaceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanMustReplace">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="must_replace_id" property="mustReplaceId"/>
+        <result column="remark" property="remark"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, must_replace_id, remark, asset_type_id, material_type_id, amount
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.taskId},
+            #{item.mustReplaceId},
+            #{item.remark},
+            #{item.assetTypeId},
+            #{item.materialTypeId},
+            #{item.amount},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_tp_repair_plan_must_replace
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByPlanId"
+            resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanMustReplace">
+        select t.*,
+               t9.task_name,
+               t3.name       as repairProgramName,
+               t4.line_name  as lineName,
+               t1.group_id,
+               t5.group_name as groupName,
+               t6.name       as workstationName,
+               t7.name       as locationName,
+               t2.name,
+               t2.code,
+               t2.spec,
+               t2.unit,
+               t2.category1  as materialTypeCategory,
+               t8.name       as sysName
+        from bu_tp_repair_plan_must_replace t
+                 left join bu_material_must_list t1 on t1.id = t.must_replace_id
+                 left join bu_material_type t2 on t1.material_type_id = t2.id
+                 left join bu_repair_program t3 on t3.id = t1.repair_program_id
+                 left join bu_mtr_line t4 on t4.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t1.group_id
+                 left join bu_mtr_workstation t6 on t6.id = t1.workstation_id
+                 left join bu_train_structure_detail t7 on t7.id = t1.location
+                 left join bu_train_asset_type t8 on t8.id = t1.sys_id
+                 left join bu_tp_repair_plan_task t9 on t9.id = t.task_id
+        where t9.plan_id = #{planId}
+        order by t9.work_group_id, t.material_type_id
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanMustReplace">
+        select t.*,
+               t3.name       as repairProgramName,
+               t4.line_name  as lineName,
+               t5.group_name as groupName,
+               t6.name       as workstationName,
+               t7.name       as locationName,
+               t2.name,
+               t2.code,
+               t2.spec,
+               t2.unit,
+               t2.category1  as materialTypeCategory,
+               t8.name       as sysName
+        from bu_tp_repair_plan_must_replace t
+                 left join bu_material_must_list t1 on t1.id = t.must_replace_id
+                 left join bu_material_type t2 on t1.material_type_id = t2.id
+                 left join bu_repair_program t3 on t3.id = t1.repair_program_id
+                 left join bu_mtr_line t4 on t4.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t1.group_id
+                 left join bu_mtr_workstation t6 on t6.id = t1.workstation_id
+                 left join bu_train_structure_detail t7 on t7.id = t1.location
+                 left join bu_train_asset_type t8 on t8.id = t1.sys_id
+        where t.task_id = #{taskId}
+        order by t2.code
+    </select>
+
+    <select id="selectListAll" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanMustReplace">
+        select *
+        from bu_tp_repair_plan_must_replace
+        where must_replace_id in (
+            select id
+            from bu_material_must_list
+        )
+
+    </select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.material.mapper.BuMaterialTypeAttrMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.material.bean.BuMaterialTypeAttr">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="system_id" property="systemId"/>
+        <result column="lead" property="lead"/>
+        <result column="theshold" property="theshold"/>
+        <result column="one_require" property="oneRequire"/>
+        <result column="two_require" property="twoRequire"/>
+        <result column="three_require" property="threeRequire"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, system_id, lead, theshold, one_require, two_require, three_require
+    </sql>
+
+
+    <insert id="insertBatch" parameterType="list">
+        insert into bu_material_type_attr (id, material_type_id,theshold)
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            #{item.id, jdbcType=VARCHAR},#{item.materialTypeId, jdbcType=VARCHAR},#{item.theshold, jdbcType=DECIMAL}
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateBatch" parameterType="list">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_type_attr set theshold=#{item.theshold, jdbcType=NUMERIC}
+            where material_type_id= #{item.materialTypeId, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectByMaterialTypeId" resultType="org.jeecg.modules.material.material.bean.BuMaterialTypeAttr">
+        SELECT t1.*,
+               t2.category2 AS materialAttr,
+               t3.name      AS systemName
+        FROM bu_material_type_attr t1
+                 LEFT JOIN bu_material_type t2 ON t2.id = t1.material_type_id
+                 LEFT JOIN bu_train_asset_type t3 ON t3.id = t1.system_id
+        WHERE t1.material_type_id = #{materialTypeId}
+    </select>
+
+    <select id="selectValidThresholdList" resultType="org.jeecg.modules.material.material.bean.BuMaterialTypeAttr">
+        SELECT t.*,
+               t1.code as materialTypeCode,
+               t1.name as materialTypeName
+        from bu_material_type_attr t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+        where t.theshold > 0
+        order by t.material_type_id
+    </select>
+
+</mapper>

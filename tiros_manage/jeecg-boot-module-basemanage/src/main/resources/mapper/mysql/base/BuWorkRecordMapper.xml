@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.workrecord.mapper.BuWorkRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecord">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="title" property="title"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_pro_id" property="repairProId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="work_date" property="workDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result property="workGroupName" column="workGroupName"/>
+        <result column="create_group_id " property="createGroupId"/>
+        <result column="regu_id " property="reguId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap_BuWorkRecord_Collection" type="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecord">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="title" property="title"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_pro_id" property="repairProId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="work_date" property="workDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_group_id " property="createGroupId"/>
+        <result column="regu_id " property="reguId"/>
+        <collection property="categoryList" column="id"
+                    ofType="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordCategory"
+                    select="selectWorkRecordCategoryList"/>
+    </resultMap>
+    <select id="selectWorkRecordCategoryList" resultMap="ResultMap_BuWorkRecordCategory_Collection">
+        SELECT t.*,
+               t1.title AS reguName
+        FROM bu_work_record_category t
+                 LEFT JOIN bu_repair_regu_detail t1 ON t1.id = t.regu_detail_id
+        WHERE t.work_rec_id = #{id}
+        order by t.rec_index
+    </select>
+    <resultMap id="ResultMap_BuWorkRecordCategory_Collection"
+               type="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordCategory">
+        <id column="id" property="id"/>
+        <result column="work_rec_id" property="workRecId"/>
+        <result column="rec_index" property="recIndex"/>
+        <result column="regu_title" property="reguTitle"/>
+        <result column="regu_detail_id" property="reguDetailId"/>
+        <result column="parent_id" property="parentId"/>
+        <collection property="detailList" column="id"
+                    ofType="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordDetail"
+                    select="selectWorkRecordDetailList"/>
+    </resultMap>
+    <select id="selectWorkRecordDetailList"
+            resultType="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordDetail">
+        select t.*
+        from bu_work_record_detail t
+        where t.category_id = #{id}
+        order by CAST(t.item_no AS SIGNED)
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, title, line_id, repair_pro_id, train_no, work_date, finish_date,
+        work_group_id, remark, status, check_result, check_date, check_user_id,
+        create_time, create_by, update_time, update_by, create_group_id, regu_id
+    </sql>
+
+    <select id="selectWorkRecordPage" resultType="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecord">
+        SELECT
+        t.*,
+        t1.depart_name AS workGroupName,
+        t2.line_name AS lineName,
+        t3.name AS repairProName,
+        t4.name as assetTypeName,
+        t5.depart_name as createGroupName,
+        t6.name as reguName,
+        t6.version as reguVersion
+        FROM bu_work_record t
+        LEFT JOIN sys_depart t1 ON t1.id = t.work_group_id
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_pro_id
+        LEFT JOIN bu_train_asset_type t4 ON t4.id = t.asset_type_id
+        LEFT JOIN sys_depart t5 ON t5.id = t.create_group_id
+        LEFT JOIN bu_repair_regu_info t6 ON t6.id = t.regu_id
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProId != null and queryVO.repairProId != ''">
+                AND t.repair_pro_id = #{queryVO.repairProId}
+            </if>
+            <if test="queryVO.workstationId != null and queryVO.workstationId != ''">
+                AND t.work_group_id = #{queryVO.workstationId}
+            </if>
+            <if test="queryVO.name != null and queryVO.name != ''">
+                AND
+                (
+                t.title LIKE CONCAT('%',#{queryVO.name},'%')
+                OR
+                t.code LIKE CONCAT('%',#{queryVO.name},'%')
+                )
+            </if>
+            <if test="queryVO.createGroupId != null and queryVO.createGroupId != ''">
+                AND t.create_group_id = #{queryVO.createGroupId}
+            </if>
+            <if test="queryVO.reguId != null and queryVO.reguId != ''">
+                AND t.regu_id = #{queryVO.reguId}
+            </if>
+        </where>
+        ORDER BY t.code
+    </select>
+
+    <select id="selectWorkRecordById" resultMap="ResultMap_BuWorkRecord_Collection">
+        SELECT t.*,
+               t1.depart_name AS workGroupName,
+               t2.line_name   AS lineName,
+               t3.name        AS repairProName,
+               t4.name        as assetTypeName,
+               t5.depart_name as createGroupName,
+               t6.name        as reguName,
+               t6.version     as reguVersion
+        FROM bu_work_record t
+                 LEFT JOIN sys_depart t1 ON t1.id = t.work_group_id
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_pro_id
+                 left join bu_train_asset_type t4 on t4.id = t.asset_type_id
+                 LEFT JOIN sys_depart t5 ON t5.id = t.create_group_id
+                 LEFT JOIN bu_repair_regu_info t6 ON t6.id = t.regu_id
+        where t.id = #{id}
+        order by t.code
+    </select>
+
+    <select id="selectCheckListByDetailIdList"
+            resultType="org.jeecg.modules.basemanage.workrecord.bean.bo.BuWorkOrderRecordCheckBO">
+        select
+        t.id,
+        t1.work_rec_detail_id as workRecordDetailId,
+        t.check_type,
+        t.check_user_id,
+        t.check_time,
+        t2.realname as checkUserName
+        from bu_work_order_record_check t
+        left join bu_work_order_record_detail t1 on t1.id = t.record_detail_id
+        left join sys_user t2 on t2.id = t.check_user_id
+        where t1.work_rec_detail_id in
+        <foreach collection="workRecordDetailIdList" item="workRecordDetailId"
+                 index="index" separator="," open="(" close=")">
+            #{workRecordDetailId}
+        </foreach>
+        order by t.check_time
+    </select>
+
+</mapper>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.tiros.stock.use.mapper.BuMaterialStockUseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.common.tiros.stock.use.bean.BuMaterialStockUse">
+        <id column="id" property="id"/>
+        <result column="stock_type" property="stockType"/>
+        <result column="stock_id" property="stockId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="use_time" property="useTime"/>
+        <result column="use_reason" property="useReason"/>
+        <result column="use_type" property="useType"/>
+        <result column="use_amount" property="useAmount"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="assign_detail_id" property="assignDetailId"/>
+        <result column="order_material_act_id" property="orderMaterialActId"/>
+        <result column="operation_user" property="operationUser"/>
+        <result column="remark" property="remark"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, stock_type, stock_id, warehouse_id, material_type_id, trade_no, use_time, use_reason, use_type,
+        use_amount, train_no, order_code, assign_detail_id, order_material_act_id, operation_user, remark,
+        company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.stockType, jdbcType=NUMERIC},
+            #{item.stockId, jdbcType=VARCHAR},
+            #{item.warehouseId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.useTime, jdbcType=TIMESTAMP},
+            #{item.useReason, jdbcType=VARCHAR},
+            #{item.useType, jdbcType=NUMERIC},
+            #{item.useAmount, jdbcType=NUMERIC},
+            #{item.trainNo, jdbcType=VARCHAR},
+            #{item.orderCode, jdbcType=VARCHAR},
+            #{item.assignDetailId, jdbcType=VARCHAR},
+            #{item.orderMaterialActId, jdbcType=VARCHAR},
+            #{item.operationUser, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_stock_use
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByMaterialTypeIdList" resultType="org.jeecg.common.tiros.stock.use.bean.BuMaterialStockUse">
+        select t.*,
+        t1.wbs AS warehouseWbs,
+        t1.name AS warehouseName,
+        t1.wh_level as warehouseLevel
+        from bu_material_stock_use t
+        left join bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+        where t.material_type_id
+        <choose>
+            <when test="materialTypeIdList != null and materialTypeIdList.size > 0">
+                in
+                <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+                    #{materialTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListByMaterialTypeId" resultType="org.jeecg.common.tiros.stock.use.bean.BuMaterialStockUse">
+        select t.*,
+               t1.wbs      AS warehouseWbs,
+               t1.name     AS warehouseName,
+               t1.wh_level as warehouseLevel
+        from bu_material_stock_use t
+                 left join bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+        where t.material_type_id = #{materialTypeId}
+    </select>
+
+</mapper>

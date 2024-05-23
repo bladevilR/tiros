@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.stock.mapper.BuMaterialStockMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.stock.bean.BuMaterialStock">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="price" property="price"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, warehouse_id, material_type_id, amount, price, entry_detail_id, trade_no, company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.warehouseId},
+            #{item.materialTypeId},
+            #{item.amount},
+            #{item.price},
+            #{item.entryDetailId},
+            #{item.tradeNo},
+            #{item.companyId},
+            #{item.workshopId},
+            #{item.lineId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_stock
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <delete id="deleteZeroAmount">
+        delete
+        from bu_material_stock
+        where amount is null
+           or amount = 0
+    </delete>
+
+    <delete id="deleteNotExistMaterialType">
+        delete
+        from bu_material_stock
+        where material_type_id not in (select id from bu_material_type)
+    </delete>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.material.stock.bean.BuMaterialStock">
+        SELECT
+        t.*,
+        t1.code AS materialTypeCode,
+        t1.name AS materialTypeName,
+        t1.price AS materialTypePrice,
+        t2.wbs AS warehouseWbs,
+        t2.name AS warehouseName,
+        t2.wh_level as warehouseLevel,
+        t1.category1 AS materialType,
+        t1.category2 AS materialAttr,
+        t1.unit AS unit,
+        t1.spec AS spec,
+        t3.entry_date AS entryDate,
+        t3.production_date AS productionDate,
+        t3.expir_date AS expirDate,
+        t4.can_replace
+        FROM bu_material_stock t
+        LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+        LEFT JOIN bu_mtr_warehouse t2 on t2.id = t.warehouse_id
+        LEFT JOIN bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+        left join bu_material_type_replace t4 on t4.id = t.material_type_id
+        where t2.wh_level >= 4
+        <if test="queryVO.wbs != null and queryVO.wbs != ''">
+            AND t2.wbs LIKE CONCAT(#{queryVO.wbs},'%')
+        </if>
+        <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+        <!--                AND-->
+        <!--                (-->
+        <!--                t1.code LIKE CONCAT('%',#{queryVO.searchText},'%')-->
+        <!--                OR-->
+        <!--                t1.name LIKE CONCAT('%',#{queryVO.searchText},'%')-->
+        <!--                )-->
+        <!--            </if>-->
+        <if test="queryVO.searchMaterialTypeIdList != null and queryVO.searchMaterialTypeIdList.size > 0">
+            and t.material_type_id in
+            <foreach collection="queryVO.searchMaterialTypeIdList" item="materialTypeId" open="(" separator=","
+                     close=")">
+                #{materialTypeId}
+            </foreach>
+        </if>
+        <if test="queryVO.materialType != null">
+            AND t1.category1 = #{queryVO.materialType}
+        </if>
+        <if test="queryVO.materialAttr != null and queryVO.materialAttr != ''">
+            AND t1.category2 = #{queryVO.materialAttr}
+        </if>
+        order by t1.code, t2.wbs
+    </select>
+
+    <select id="selectListByMaterialTypeId" resultType="org.jeecg.modules.material.stock.bean.BuMaterialStock">
+        SELECT t.*,
+               t1.code                                              AS materialTypeCode,
+               t1.name                                              AS materialTypeName,
+               t1.price                                             AS materialTypePrice,
+               t2.wbs                                               AS warehouseWbs,
+               case wh_level when 4 then null else t2.parent_id end as parentId,
+               t2.name                                              AS warehouseName,
+               t2.wh_level                                          as warehouseLevel,
+               t1.category1                                         AS materialType,
+               t1.category2                                         AS materialAttr,
+               t1.unit                                              AS unit,
+               t1.spec                                              AS spec,
+               t3.entry_date                                        AS entryDate,
+               t3.production_date                                   AS productionDate,
+               t3.expir_date                                        AS expirDate,
+               t4.can_replace
+        FROM bu_material_stock t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+                 LEFT JOIN bu_mtr_warehouse t2 on t2.id = t.warehouse_id
+                 LEFT JOIN bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+                 left join bu_material_type_replace t4 on t4.id = t.material_type_id
+        where t.material_type_id = #{materialTypeId}
+        order by t2.wbs
+    </select>
+
+    <select id="selectListByMaterialTypeIdList" resultType="org.jeecg.modules.material.stock.bean.BuMaterialStock">
+        SELECT t.*,
+        t1.code AS materialTypeCode,
+        t1.name AS materialTypeName,
+        t1.price AS materialTypePrice,
+        t2.wbs AS warehouseWbs,
+        case wh_level when 4 then null else t2.parent_id end as parentId,
+        t2.name AS warehouseName,
+        t2.wh_level as warehouseLevel,
+        t1.category1 AS materialType,
+        t1.category2 AS materialAttr,
+        t1.unit AS unit,
+        t1.spec AS spec,
+        t3.entry_date AS entryDate,
+        t3.production_date AS productionDate,
+        t3.expir_date AS expirDate,
+        t4.can_replace
+        FROM bu_material_stock t
+        LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+        LEFT JOIN bu_mtr_warehouse t2 on t2.id = t.warehouse_id
+        LEFT JOIN bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+        left join bu_material_type_replace t4 on t4.id = t.material_type_id
+        where t.material_type_id
+        <choose>
+            <when test="materialTypeIdList != null and materialTypeIdList.size > 0">
+                in
+                <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+                    #{materialTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t2.wbs
+    </select>
+
+    <select id="selectBuMaterialAlertVOPageByCondition"
+            resultType="org.jeecg.modules.material.alert.bean.BuMaterialAlertVO">
+        select * from
+        (
+        <choose>
+            <when test="queryVO.alertType != null and queryVO.alertType == 1">
+                select
+                t.materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                1 as alertType,
+                t1.category1 as materialType,
+                IF(ISNULL(t2.theshold),0,t2.theshold) as alertStock,
+                t.currentStock,
+                (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) as diffStock,
+                NULL as leaveFactory,
+                NULL as productionDate,
+                NULL as expirDay,
+                NULL as expirDate
+                from (
+                select material_type_id as materialId,
+                IF(ISNULL(sum(amount)),0,sum(amount)) as currentStock
+                from bu_material_stock
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    where warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                group by material_type_id
+                ) t
+                left join bu_material_type t1 on t1.id = t.materialId
+                left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+                where (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) > 0
+            </when>
+            <when test="queryVO.alertType != null and queryVO.alertType == 2">
+                select
+                t.material_type_id as materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                2 as alertType,
+                t1.category1 as materialType,
+                NULL as alertStock,
+                NULL as currentStock,
+                NULL as diffStock,
+                t3.leave_factory as leaveFactory,
+                t3.production_date as productionDate,
+                t3.expir_day as expirDay,
+                t3.expir_date as expirDate
+                from bu_material_stock t
+                left join bu_material_type t1 on t1.id = t.material_type_id
+                left join bu_material_type_attr t2 on t2.material_type_id = t.material_type_id
+                left join bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+                <where>
+                    <if test="queryVO.materialExpireDateLine!=null">
+                        (
+                        DATEDIFF(#{queryVO.materialExpireDateLine},t3.expir_date) >= 0
+                        or
+                        DATEDIFF(#{queryVO.materialExpireDateLine},t3.production_date) >=
+                        t3.expir_day*(1-IF(ISNULL(t2.lead),0,t2.lead*0.01))
+                        )
+                    </if>
+                    <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                        and t.warehouse_id in(
+                        select id from bu_mtr_warehouse
+                        where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                        )
+                    </if>
+                </where>
+            </when>
+            <otherwise>
+                (
+                select
+                t.materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                1 as alertType,
+                t1.category1 as materialType,
+                IF(ISNULL(t2.theshold),0,t2.theshold) as alertStock,
+                t.currentStock,
+                (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) as diffStock,
+                NULL as leaveFactory,
+                NULL as productionDate,
+                NULL as expirDay,
+                NULL as expirDate
+                from (
+                select material_type_id as materialId,
+                IF(ISNULL(sum(amount)),0,sum(amount)) as currentStock
+                from bu_material_stock
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    where warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                group by material_type_id
+                ) t
+                left join bu_material_type t1 on t1.id = t.materialId
+                left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+                where (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) > 0
+                )
+                UNION ALL
+                (
+                select
+                t.material_type_id as materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                2 as alertType,
+                t1.category1 as materialType,
+                NULL as alertStock,
+                NULL as currentStock,
+                NULL as diffStock,
+                t3.leave_factory as leaveFactory,
+                t3.production_date as productionDate,
+                t3.expir_day as expirDay,
+                t3.expir_date as expirDate
+                from bu_material_stock t
+                left join bu_material_type t1 on t1.id = t.material_type_id
+                left join bu_material_type_attr t2 on t2.material_type_id = t.material_type_id
+                left join bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+                where
+                (
+                DATEDIFF(NOW(),t3.expir_date) &gt;= 0
+                or
+                DATEDIFF(NOW(),t3.production_date) &gt;= t3.expir_day*(1-IF(ISNULL(t2.lead),0,t2.lead*0.01))
+                )
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    and t.warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                temp.materialCode LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                temp.materialName LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.materialType != null and queryVO.materialType != ''">
+                AND temp.materialType = #{queryVO.materialType}
+            </if>
+        </where>
+        order by temp.materialCode,temp.alertType
+    </select>
+    <select id="selectBuMaterialAlertVOPageByConditionApp"
+            resultType="org.jeecg.modules.material.alert.bean.BuMaterialAlertVO">
+        select * from
+        (
+        <choose>
+            <when test="queryVO.alertType != null and queryVO.alertType == 1">
+                select
+                t.materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                1 as alertType,
+                t1.category1 as materialType,
+                IF(ISNULL(t2.theshold),0,t2.theshold) as alertStock,
+                t.currentStock,
+                (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) as diffStock,
+                NULL as leaveFactory,
+                NULL as productionDate,
+                NULL as expirDay,
+                NULL as expirDate
+                from (
+                select material_type_id as materialId,
+                IF(ISNULL(sum(amount)),0,sum(amount)) as currentStock
+                from bu_material_stock
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    where warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                group by material_type_id
+                ) t
+                left join bu_material_type t1 on t1.id = t.materialId
+                left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+                where (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) > 0
+            </when>
+            <when test="queryVO.alertType != null and queryVO.alertType == 2">
+                select
+                t.material_type_id as materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                2 as alertType,
+                t1.category1 as materialType,
+                NULL as alertStock,
+                NULL as currentStock,
+                NULL as diffStock,
+                t3.leave_factory as leaveFactory,
+                t3.production_date as productionDate,
+                t3.expir_day as expirDay,
+                t3.expir_date as expirDate
+                from bu_material_stock t
+                left join bu_material_type t1 on t1.id = t.material_type_id
+                left join bu_material_type_attr t2 on t2.material_type_id = t.material_type_id
+                left join bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+                where
+                (
+                DATEDIFF(NOW(),t3.expir_date) >= 0
+                or
+                DATEDIFF(NOW(),t3.production_date) >= t3.expir_day*(1-IF(ISNULL(t2.lead),0,t2.lead*0.01))
+                )
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    and t.warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+            </when>
+            <otherwise>
+                (
+                select
+                t.materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                1 as alertType,
+                t1.category1 as materialType,
+                IF(ISNULL(t2.theshold),0,t2.theshold) as alertStock,
+                t.currentStock,
+                (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) as diffStock,
+                NULL as leaveFactory,
+                NULL as productionDate,
+                NULL as expirDay,
+                NULL as expirDate
+                from (
+                select material_type_id as materialId,
+                IF(ISNULL(sum(amount)),0,sum(amount)) as currentStock
+                from bu_material_stock
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    where warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                group by material_type_id
+                ) t
+                left join bu_material_type t1 on t1.id = t.materialId
+                left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+                where (IF(ISNULL(t2.theshold),0,t2.theshold) - t.currentStock) > 0
+                )
+                UNION ALL
+                (
+                select
+                t.material_type_id as materialId,
+                t1.code as materialCode,
+                t1.name as materialName,
+                t1.spec as materialSpec,
+                2 as alertType,
+                t1.category1 as materialType,
+                NULL as alertStock,
+                NULL as currentStock,
+                NULL as diffStock,
+                t3.leave_factory as leaveFactory,
+                t3.production_date as productionDate,
+                t3.expir_day as expirDay,
+                t3.expir_date as expirDate
+                from bu_material_stock t
+                left join bu_material_type t1 on t1.id = t.material_type_id
+                left join bu_material_type_attr t2 on t2.material_type_id = t.material_type_id
+                left join bu_material_entry_detail t3 on t3.id = t.entry_detail_id
+                where
+                (
+                DATEDIFF(NOW(),t3.expir_date) &gt;= 0
+                or
+                DATEDIFF(NOW(),t3.production_date) &gt;= t3.expir_day*(1-IF(ISNULL(t2.lead),0,t2.lead*0.01))
+                )
+                <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                    and t.warehouse_id in(
+                    select id from bu_mtr_warehouse
+                    where wbs like CONCAT((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')
+                    )
+                </if>
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                temp.materialCode LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                temp.materialName LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.materialType != null and queryVO.materialType != ''">
+                AND temp.materialType = #{queryVO.materialType}
+            </if>
+            <choose>
+                <when test="queryVO.read">
+                    and temp.materialId in (select alert_id from bu_alert_read where user_id=#{queryVO.userId})
+                </when>
+                <otherwise>
+                    and temp.materialId not in (select alert_id from bu_alert_read where user_id=#{queryVO.userId})
+                </otherwise>
+            </choose>
+        </where>
+        order by temp.materialCode,temp.alertType
+    </select>
+
+    <select id="selectWeekBuMaterialAlertVOList" resultType="org.jeecg.modules.material.alert.bean.BuMaterialAlertVO">
+        select t.materialId,
+               t1.code                                                          as materialCode,
+               t1.name                                                          as materialName,
+               t1.spec                                                          as materialSpec,
+               1                                                                as alertType,
+               t1.category1                                                     as materialType,
+               IF(ISNULL(t2.one_require), 0, t2.one_require)                    as alertStock,
+               t.currentStock,
+               (IF(ISNULL(t2.one_require), 0, t2.one_require) - t.currentStock) as diffStock,
+               NULL                                                             as leaveFactory,
+               NULL                                                             as productionDate,
+               NULL                                                             as expirDay,
+               NULL                                                             as expirDate
+        from (
+                 select material_type_id                        as materialId,
+                        IF(ISNULL(sum(amount)), 0, sum(amount)) as currentStock
+                 from bu_material_stock
+                 group by material_type_id
+             ) t
+                 left join bu_material_type t1 on t1.id = t.materialId
+                 left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+        where (IF(ISNULL(t2.one_require), 0, t2.one_require) - t.currentStock) > 0
+        order by t1.code
+    </select>
+
+    <select id="selectMonthBuMaterialAlertVOList" resultType="org.jeecg.modules.material.alert.bean.BuMaterialAlertVO">
+        select t.materialId,
+               t1.code                                                          as materialCode,
+               t1.name                                                          as materialName,
+               t1.spec                                                          as materialSpec,
+               1                                                                as alertType,
+               t1.category1                                                     as materialType,
+               IF(ISNULL(t2.two_require), 0, t2.two_require)                    as alertStock,
+               t.currentStock,
+               (IF(ISNULL(t2.two_require), 0, t2.two_require) - t.currentStock) as diffStock,
+               NULL                                                             as leaveFactory,
+               NULL                                                             as productionDate,
+               NULL                                                             as expirDay,
+               NULL                                                             as expirDate
+        from (
+                 select material_type_id                        as materialId,
+                        IF(ISNULL(sum(amount)), 0, sum(amount)) as currentStock
+                 from bu_material_stock
+                 group by material_type_id
+             ) t
+                 left join bu_material_type t1 on t1.id = t.materialId
+                 left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+        where (IF(ISNULL(t2.two_require), 0, t2.two_require) - t.currentStock) > 0
+        order by t1.code
+    </select>
+
+    <select id="selectThresholdBuMaterialAlertVOList"
+            resultType="org.jeecg.modules.material.alert.bean.BuMaterialAlertVO">
+        select t.materialId,
+               t1.code                                              as materialCode,
+               t1.name                                              as materialName,
+               t1.spec                                              as materialSpec,
+               1                                                    as alertType,
+               t1.category1                                         as materialType,
+               NVl2(t2.theshold, t2.theshold, 0)                    as alertStock,
+               t.currentStock,
+               (NVL2(t2.theshold, t2.theshold, 0) - t.currentStock) as diffStock,
+               NULL                                                 as leaveFactory,
+               NULL                                                 as productionDate,
+               NULL                                                 as expirDay,
+               NULL                                                 as expirDate
+        from (
+                 select material_type_id                  as materialId,
+                        NVL2(sum(amount), sum(amount), 0) as currentStock
+                 from bu_material_stock
+                 group by material_type_id
+             ) t
+                 left join bu_material_type t1 on t1.id = t.materialId
+                 left join bu_material_type_attr t2 on t2.material_type_id = t.materialId
+        where (NVL2(t2.theshold, t2.theshold, 0) - t.currentStock) > 0
+        order by t1.code
+    </select>
+
+    <select id="selectPriceValidList" resultType="org.jeecg.modules.material.stock.bean.BuMaterialStock">
+        select t.id,
+               t.material_type_id,
+               t.trade_no,
+               t.price,
+               t.warehouse_id,
+               t1.wbs as warehouseWbs,
+               t2.can_replace
+        from bu_material_stock t
+                 left join bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+                 left join bu_material_type_replace t2 on t2.id = t.material_type_id
+        where t.price > 0
+        order by t.material_type_id, t.trade_no nulls first, t1.wh_level, t1.name
+    </select>
+
+</mapper>

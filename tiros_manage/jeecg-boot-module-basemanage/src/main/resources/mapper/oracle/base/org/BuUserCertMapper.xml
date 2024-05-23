@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.org.mapper.BuUserCertMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.org.bean.BuUserCert">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="cert_name" property="certName" />
+        <result column="cert_no" property="certNo" />
+        <result column="cert_category" property="certCategory" />
+        <result column="valid_date" property="validDate" />
+        <result column="scan_file" property="scanFile" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, cert_name, cert_no, cert_category, valid_date, scan_file, remark
+    </sql>
+
+</mapper>

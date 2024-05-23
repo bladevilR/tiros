@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.training.mapper.BuTrainingAnnexMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.training.bean.BuTrainingAnnex">
+        <id column="id" property="id" />
+        <result column="training_id" property="trainingId" />
+        <result column="file_id" property="fileId" />
+        <result column="name" property="name" />
+        <result column="type" property="type" />
+        <result column="savepath" property="savepath" />
+        <result column="file_size" property="fileSize" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, training_id, file_id, name, type, savepath, file_size
+    </sql>
+
+</mapper>

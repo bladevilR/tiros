@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.warehouse.mapper.BuMtrWarehouseMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="wh_level" property="whLevel"/>
+        <result column="type" property="type"/>
+        <result column="close" property="close"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="wbs" property="wbs"/>
+        <result column="sys_house_code" property="sysHouseCode"/>
+        <result column="sys_house_category" property="sysHouseCategory"/>
+        <result column="location" property="location"/>
+        <result column="line_id" property="lineId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="sync" property="sync"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuMtrWarehouse_Children" type="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="wh_level" property="whLevel"/>
+        <result column="type" property="type"/>
+        <result column="close" property="close"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="wbs" property="wbs"/>
+        <result column="sys_house_code" property="sysHouseCode"/>
+        <result column="sys_house_category" property="sysHouseCategory"/>
+        <result column="location" property="location"/>
+        <result column="line_id" property="lineId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="sync" property="sync"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <collection property="children" ofType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse" column="id"
+                    select="selectChildren">
+        </collection>
+    </resultMap>
+    <select id="selectChildren" resultMap="ResultMap_BuMtrWarehouse_Children">
+        select id,
+               name,
+               parent_id,
+               decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren
+        from bu_mtr_warehouse t
+        where parent_id = #{id}
+    </select>
+
+    <resultMap id="ResultMap_BuMtrWarehouse_Children_Simple"
+               type="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse"
+                    select="selectChildrenSimple">
+        </collection>
+    </resultMap>
+    <select id="selectChildrenSimple" resultMap="ResultMap_BuMtrWarehouse_Children_Simple">
+        select id,
+               name,
+               parent_id
+        from bu_mtr_warehouse t
+        where parent_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, code, wh_level, type, close, parent_id, wbs, sys_house_code, sys_house_category, location,
+        line_id, depot_id, workshop_id, sync, status, remark, create_time, create_by, update_time, update_by,
+        company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.name},
+            #{item.code},
+            #{item.whLevel},
+            #{item.type},
+            #{item.close},
+            #{item.parentId},
+            #{item.wbs},
+            #{item.sysHouseCode},
+            #{item.sysHouseCategory},
+            #{item.location},
+            #{item.lineId},
+            #{item.depotId},
+            #{item.workshopId},
+            #{item.sync},
+            #{item.status},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.companyId},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_mtr_warehouse
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        SELECT
+        t.*,
+        decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+        t1.line_name,
+        t2.name AS depotName,
+        t3.name AS workshopName
+        FROM bu_mtr_warehouse t
+        LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t.depot_id
+        LEFT JOIN bu_mtr_workshop t3 ON t3.id = t.workshop_id
+        <where>
+            <if test="queryVO.parentId != null and queryVO.parentId != ''">
+                AND t.parent_id = #{queryVO.parentId}
+            </if>
+            <!--<choose>
+                <when test="queryVO.parentId != null and queryVO.parentId != ''">
+                    AND t.parent_id = #{queryVO.parentId}
+                </when>
+                <otherwise>
+                    AND (t.parent_id IS NULL OR t.parent_id = '')
+                </otherwise>
+            </choose>-->
+            <if test="queryVO.type != null">
+                AND t.type = #{queryVO.type}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t.code LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                t.name LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+        </where>
+        ORDER BY hasChildren, t.name, t.wbs
+    </select>
+
+    <select id="selectWarehouseById" resultType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        SELECT t.*,
+               decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+               t1.line_name,
+               t2.name                                                                             AS depotName,
+               t3.name                                                                             AS workshopName,
+               t4.name                                                                             as parentName
+        FROM bu_mtr_warehouse t
+                 LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+                 LEFT JOIN bu_mtr_depot t2 ON t2.id = t.depot_id
+                 LEFT JOIN bu_mtr_workshop t3 ON t3.id = t.workshop_id
+                 LEFT JOIN bu_mtr_warehouse t4 ON t4.id = t.parent_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectListByParentId" resultType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        SELECT
+        t.*,
+        decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+        t1.line_name,
+        t2.name AS depotName,
+        t3.name AS workshopName
+        FROM bu_mtr_warehouse t
+        LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t.depot_id
+        LEFT JOIN bu_mtr_workshop t3 ON t3.id = t.workshop_id
+        <where>
+            <choose>
+                <when test="parentId != null and parentId != ''">
+                    AND t.parent_id = #{parentId}
+                </when>
+                <otherwise>
+                    AND t.parent_id IS NULL OR t.parent_id = ''
+                </otherwise>
+            </choose>
+            <if test="workshopId != null and workshopId != ''">
+                AND t.workshop_id = #{workshopId}
+            </if>
+        </where>
+        ORDER BY t.wbs
+    </select>
+
+    <select id="selectAllTrees" resultMap="ResultMap_BuMtrWarehouse_Children">
+        select id,
+               name,
+               parent_id,
+               decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren
+        from bu_mtr_warehouse t
+        where parent_id is null
+           or parent_id = ''
+    </select>
+
+    <select id="selectValidList" resultType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        select t.id,
+        t.name,
+        t.parent_id,
+        t.wbs,
+        decode((select count(1) from bu_mtr_warehouse where parent_id = t.id), 0, 'false', 'true') as hasChildren
+        from bu_mtr_warehouse t
+        where t.status = 1
+        <if test="workshopId != null and workshopId != ''">
+            and t.workshop_id = #{workshopId}
+        </if>
+        order by t.wbs
+    </select>
+
+    <select id="selectAllChildrenTreeByParentId" resultMap="ResultMap_BuMtrWarehouse_Children_Simple">
+        select
+        id,
+        name,
+        parent_id
+        from bu_mtr_warehouse t
+        <if test="parentId != null and parentId != ''">
+            where parent_id = #{parentId}
+        </if>
+    </select>
+
+    <select id="selectIdAndAllChildrenIdListByParentId" resultType="java.lang.String">
+        select id
+        from bu_mtr_warehouse
+        where wbs like concat((select wbs from bu_mtr_warehouse where id = #{parentId}), '%')
+    </select>
+
+    <select id="selectWbsListByIdList" resultType="java.lang.String">
+        select wbs from bu_mtr_warehouse where id
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListAndAllChildrenListByWbsList"
+            resultType="org.jeecg.modules.material.warehouse.bean.BuMtrWarehouse">
+        select t.*
+        from bu_mtr_warehouse t where
+        <choose>
+            <when test="wbsList != null and wbsList.size > 0">
+                <foreach collection="wbsList" item="wbs" separator=" or ">
+                    t.wbs like concat(#{wbs},'%')
+                </foreach>
+            </when>
+            <otherwise>
+                t.wbs = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectUserWorkshopIdByUserId" resultType="java.lang.String">
+        select distinct workshop_id
+        from bu_mtr_workshop_group
+        where id in (select dep_id from sys_user_depart where user_id = #{userId})
+    </select>
+
+    <select id="selectAllSimpleInfoListForCache" resultType="org.jeecg.common.tiros.cache.warehouse.CacheWarehouseBO">
+        select id, name, code, wh_level, type, parent_id, wbs, sys_house_code
+        from bu_mtr_warehouse
+    </select>
+
+</mapper>

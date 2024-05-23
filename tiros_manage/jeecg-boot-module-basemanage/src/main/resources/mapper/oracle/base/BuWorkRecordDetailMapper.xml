@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.workrecord.mapper.BuWorkRecordDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordDetail">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="item_no" property="itemNo"/>
+        <result column="work_content" property="workContent"/>
+        <result column="check_level" property="checkLevel"/>
+        <result column="tech_require" property="techRequire"/>
+        <result column="work_info" property="workInfo"/>
+        <result column="result" property="result"/>
+        <result column="self_check" property="selfCheck"/>
+        <result column="self_check_time" property="selfCheckTime"/>
+        <result column="guarder_check" property="guarderCheck"/>
+        <result column="guarder_check_time" property="guarderCheckTime"/>
+        <result column="monitor_check" property="monitorCheck"/>
+        <result column="monitor_check_time" property="monitorCheckTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, category_id, item_no, work_content, check_level, tech_require,
+        work_info, result, self_check, self_check_time, guarder_check,
+        guarder_check_time, monitor_check, monitor_check_time, create_time,
+        create_by, update_time, update_by
+    </sql>
+
+
+    <select id="listByCondition"
+            resultType="org.jeecg.modules.basemanage.workrecord.bean.BuWorkRecordDetail">
+        SELECT
+        t1.*,
+        t2.rec_index AS recIndex
+        FROM bu_work_record_detail t1
+        LEFT JOIN bu_work_record_category t2 ON t1.category_id = t2.id
+        <where>
+            <if test="queryVO.id != null and queryVO.id != ''">
+                AND t2.work_rec_id = #{queryVO.id}
+            </if>
+            <if test="queryVO.categoryId != null and queryVO.categoryId != ''">
+                AND t1.category_id = #{queryVO.categoryId}
+            </if>
+            <if test="queryVO.workContent != null and queryVO.workContent != ''">
+                AND t1.work_content LIKE  '%'||#{queryVO.workContent}||'%'
+            </if>
+            <if test="queryVO.techRequire != null and queryVO.techRequire != ''">
+                AND t1.tech_require LIKE '%'||#{queryVO.techRequire}||'%'
+            </if>
+        </where>
+        ORDER BY CAST(t1.item_no AS int)
+    </select>
+
+    <select id="selectIdListByWorkRecordIdList" resultType="java.lang.String">
+        SELECT
+        t.id
+        FROM bu_work_record_detail t
+        LEFT JOIN bu_work_record_category t1 ON t1.id = t.category_id
+        WHERE t1.work_rec_id IN
+        <foreach collection="workRecordIdList" item="workRecordId" index="index" separator="," open="(" close=")">
+            #{workRecordId}
+        </foreach>
+    </select>
+
+    <select id="selectIdListByCategoryIdList" resultType="java.lang.String">
+        SELECT
+        t.id
+        FROM bu_work_record_detail t
+        WHERE t.category_id IN
+        <foreach collection="categoryIdList" item="categoryId" index="index" separator="," open="(" close=")">
+            #{categoryId}
+        </foreach>
+    </select>
+
+</mapper>

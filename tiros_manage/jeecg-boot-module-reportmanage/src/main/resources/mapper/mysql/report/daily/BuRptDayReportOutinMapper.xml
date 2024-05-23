@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.daily.mapper.BuRptDayReportOutinMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.daily.bean.BuRptDayReportOutin">
+        <id column="id" property="id" />
+        <result column="report_id" property="reportId" />
+        <result column="asset_type_id" property="assetTypeId" />
+        <result column="asset_type_name" property="assetTypeName" />
+        <result column="send_desc" property="sendDesc" />
+        <result column="receive_desc" property="receiveDesc" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, report_id, asset_type_id, asset_type_name, send_desc, receive_desc
+    </sql>
+
+</mapper>

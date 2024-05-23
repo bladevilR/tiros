@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuTrainInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.traininfo.entity.BuTrainInfo">
+        <id column="id" property="id"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="group_num" property="groupNum"/>
+        <result column="mileage" property="mileage"/>
+        <result column="status" property="status"/>
+        <result column="use_date" property="useDate"/>
+        <result column="warranty_date" property="warrantyDate"/>
+        <result column="track_id" property="trackId"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="made_date" property="madeDate"/>
+        <result column="buy_date" property="buyDate"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_gen_asset" property="isGenAsset"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_type_id, line_id, train_no, group_num, mileage, status, use_date, warranty_date,
+        track_id, train_struct_id, supplier_id, contract_no, contract_name, made_date, buy_date,
+        remark, create_time, create_by, update_time, update_by, is_gen_asset, company_id, workshop_id
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainInfo">
+        select t.*,
+        t1.name as trainType,
+        t2.line_name as line,
+        t3.name as track,
+        t4.name as supplier
+        from bu_train_info t
+        left join bu_train_type t1 on t1.id = t.train_type_id
+        left join bu_mtr_line t2 on t2.line_id = t.line_id
+        left join bu_mtr_track t3 on t3.id = t.track_id
+        left join bu_base_supplier t4 on t4.id = t.supplier_id
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_no like concat('%',#{queryVO.trainNo},'%')
+            </if>
+            <if test="queryVO.status != null">
+                and t.status = #{queryVO.status}
+            </if>
+        </where>
+        order by t.train_no
+    </select>
+
+    <select id="selectByTrainNo" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainInfo">
+        select t.*,
+               t1.name      as trainType,
+               t2.line_name as line,
+               t3.name      as track,
+               t4.name      as supplier
+        from bu_train_info t
+                 left join bu_train_type t1 on t1.id = t.train_type_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_mtr_track t3 on t3.id = t.track_id
+                 left join bu_base_supplier t4 on t4.id = t.supplier_id
+        where t.train_no = #{trainNo}
+    </select>
+
+    <select id="selectIdByTrainNo" resultType="java.lang.String">
+        select id
+        from bu_train_info
+        where train_no = #{trainNo}
+    </select>
+
+    <update id="updateStructIdNull">
+        update bu_train_info
+        set train_struct_id = null
+        where train_struct_id
+        <choose>
+            <when test="structIdList != null and structIdList.size >0">
+                in
+                <foreach collection="structIdList" item="structId" index="index" open="(" separator="," close=")">
+                    #{structId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </update>
+
+</mapper>

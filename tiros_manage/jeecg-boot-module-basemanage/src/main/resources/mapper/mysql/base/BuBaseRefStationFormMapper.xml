@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.workstation.mapper.BuBaseRefStationFormMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.workstation.entity.BuBaseRefStationForm">
+        <id column="id" property="id"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="form_by" property="formType"/>
+        <result column="form_id" property="formId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, workstation_id, form_by, form_id
+    </sql>
+
+    <select id="selectListByWorkstationId"
+            resultType="org.jeecg.modules.basemanage.workstation.entity.BuBaseRefStationForm">
+        select temp.* from (
+        select t.*,
+        t.form_by as formType,
+        (case t.form_by
+        when 1 then t1.code
+        when 2 then ''
+        when 3 then t1.code
+        when 4 then t4.code
+        else '' end) as code,
+        (case t.form_by
+        when 1 then t1.name
+        when 2 then t2.name
+        when 3 then t1.name
+        when 4 then t4.title
+        else '' end) as formName,
+        (case t.form_by
+        when 1 then t1.status
+        when 2 then t2.status
+        when 3 then t1.status
+        when 4 then t4.status
+        else 1 end) as status,
+        (case t.form_by
+        when 1 then t1.remark
+        when 2 then t2.remark
+        when 3 then t1.remark
+        when 4 then t4.remark
+        else '' end) as remark,
+        (case t.form_by
+        when 1 then t1.line_id
+        when 2 then NULL
+        when 3 then t1.line_id
+        when 4 then t4.line_id
+        else '' end) as lineId,
+        (case t.form_by
+        when 1 then t1.repair_program_id
+        when 2 then NULL
+        when 3 then t1.repair_program_id
+        when 4 then t4.repair_pro_id
+        else '' end) as repairProId,
+        (case t.form_by
+        when 1 then t6.name
+        when 2 then NULL
+        when 3 then t6.name
+        when 4 then t7.name
+        else '' end) as repairProName,
+        t5.name as reguName,
+        t5.version as reguVersion
+        from bu_base_ref_station_form t
+        left join bu_base_form_template t1 on t1.id = t.form_id
+        left join bu_doc_file t2 on t2.id = t.form_id
+        left join bu_work_check t4 on t4.id = t.form_id
+        LEFT JOIN bu_repair_regu_info t5 ON t5.id = t1.regu_id
+        left join bu_repair_program t6 on t6.id = t1.repair_program_id
+        left join bu_repair_program t7 on t7.id = t4.repair_pro_id
+        <if test="queryVO.workstationId != null and queryVO.workstationId != ''">
+            where t.workstation_id = #{queryVO.workstationId}
+        </if>
+        ) temp
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and temp.lineId = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProId != null and queryVO.repairProId != ''">
+                and temp.repairProId = #{queryVO.repairProId}
+            </if>
+            <if test="queryVO.type != null">
+                and temp.type = #{queryVO.type}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUnrelatedFormPage"
+            resultType="org.jeecg.modules.basemanage.workstation.entity.vo.WorkstationFormInfoVO">
+        select temp.*,
+        t1.depart_name as createGroupName
+        from (
+        <choose>
+            <when test="queryVO.type != null and queryVO.type == 1">
+                select
+                1 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.name as formName,
+                t.status as status,
+                t.type as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_program_id as repairProId
+                from bu_base_form_template t
+                where category = (select id from sys_category where name = '数据记录表')
+            </when>
+            <when test="queryVO.type != null and queryVO.type == 3">
+                select
+                3 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.name as formName,
+                t.status as status,
+                t.type as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_program_id as repairProId
+                from bu_base_form_template t
+                where category = (select id from sys_category where name = '作业记录表')
+            </when>
+            <when test="queryVO.type != null and queryVO.type == 4">
+                select
+                4 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.title as formName,
+                t.status as status,
+                NULL as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_pro_id as repairProId
+                from bu_work_check t
+            </when>
+            <otherwise>
+                (
+                select
+                1 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.name as formName,
+                t.status as status,
+                t.type as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_program_id as repairProId
+                from bu_base_form_template t
+                where category = (select id from sys_category where name = '数据记录表')
+                )
+                UNION ALL
+                (
+                select
+                3 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.name as formName,
+                t.status as status,
+                t.type as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_program_id as repairProId
+                from bu_base_form_template t
+                where category = (select id from sys_category where name = '作业记录表')
+                )
+                UNION ALL
+                (
+                select
+                4 as formBy,
+                t.id as formId,
+                t.code as code,
+                t.title as formName,
+                t.status as status,
+                NULL as type,
+                t.remark as remark,
+                t.create_group_id as createGroupId,
+                t.line_id as lineId,
+                t.repair_pro_id as repairProId
+                from bu_work_check t
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        left join sys_depart t1 on t1.id = temp.createGroupId
+        where temp.formId not in
+        (select form_id from bu_base_ref_station_form where workstation_id = #{queryVO.workstationId})
+        <if test="queryVO.searchText != null and queryVO.searchText != ''">
+            and
+            (
+            temp.code like CONCAT('%',#{queryVO.searchText},'%')
+            or
+            temp.formName like CONCAT('%',#{queryVO.searchText},'%')
+            )
+        </if>
+        <if test="queryVO.createGroupId != null and queryVO.createGroupId != ''">
+            and temp.createGroupId = #{queryVO.createGroupId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and temp.lineId = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.repairProId!= null and queryVO.repairProId!= ''">
+            and temp.repairProId = #{queryVO.repairProId}
+        </if>
+        order by temp.type, temp.code
+    </select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.fault.mapper.BuTrainAssetQualityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.fault.bean.BuTrainAsset">
+        <id column="id" property="id"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_id" property="trainId"/>
+        <result column="brand" property="brand"/>
+        <result column="vendor" property="vendor"/>
+        <result column="model" property="model"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="turnover" property="turnover"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="place_id" property="placeId"/>
+        <result column="place_desc" property="placeDesc"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="struct_type" property="structType"/>
+        <result column="wbs" property="wbs"/>
+        <result column="remark" property="remark"/>
+        <result column="sort_no" property="sortNo"/>
+        <result column="turnover_asset_id" property="turnoverAssetId"/>
+        <result column="short_name" property="shortName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, asset_name, asset_no, parent_id, struct_detail_id, asset_type_id, line_id, train_id,
+        brand, vendor, model, manuf_no, material_code, asset_code, subjunctive, turnover, material_type_id,
+        place_id, place_desc, status, create_time, create_by, update_time, update_by, struct_type, wbs,
+        remark, sort_no, turnover_asset_id, short_name
+    </sql>
+
+</mapper>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='UTF-8' />
+  <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">-->
+  <title>苏州轨道交通车辆架大修信息管理系统</title>
+  <link rel='icon' href='<%= BASE_URL %>logico.png'>
+  <script src='/cdn/babel-polyfill/polyfill_7_2_5.js'></script>
+  <style>
+    html,
+    body,
+    #app {
+      height: 100%;
+      margin: 0px;
+      padding: 0px;
+    }
+
+    .chromeframe {
+      margin: 0.2em 0;
+      background: #ccc;
+      color: #000;
+      padding: 0.2em 0;
+    }
+
+    #loader-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 999999;
+    }
+
+    #loader {
+      display: block;
+      position: relative;
+      left: 50%;
+      top: 50%;
+      width: 120px;
+      height: 120px;
+      margin: -75px 0 0 -75px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      /* COLOR 1 */
+      border-top-color: #FFF;
+      -webkit-animation: spin 2s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -ms-animation: spin 2s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -moz-animation: spin 2s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -o-animation: spin 2s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      animation: spin 2s linear infinite;
+      /* Chrome, Firefox 16+, IE 10+, Opera */
+      z-index: 1001;
+    }
+
+    #loader:before {
+      content: "";
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      /* COLOR 2 */
+      border-top-color: #FFF;
+      -webkit-animation: spin 3s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -moz-animation: spin 3s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -o-animation: spin 3s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -ms-animation: spin 3s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      animation: spin 3s linear infinite;
+      /* Chrome, Firefox 16+, IE 10+, Opera */
+    }
+
+    #loader:after {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      bottom: 15px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      border-top-color: #FFF;
+      /* COLOR 3 */
+      -moz-animation: spin 1.5s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -o-animation: spin 1.5s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -ms-animation: spin 1.5s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      -webkit-animation: spin 1.5s linear infinite;
+      /* Chrome, Opera 15+, Safari 5+ */
+      animation: spin 1.5s linear infinite;
+      /* Chrome, Firefox 16+, IE 10+, Opera */
+    }
+
+    @-webkit-keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        /* Chrome, Opera 15+, Safari 3.1+ */
+        -ms-transform: rotate(0deg);
+        /* IE 9 */
+        transform: rotate(0deg);
+        /* Firefox 16+, IE 10+, Opera */
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+        /* Chrome, Opera 15+, Safari 3.1+ */
+        -ms-transform: rotate(360deg);
+        /* IE 9 */
+        transform: rotate(360deg);
+        /* Firefox 16+, IE 10+, Opera */
+      }
+    }
+
+    @keyframes spin {
+      0% {
+        -webkit-transform: rotate(0deg);
+        /* Chrome, Opera 15+, Safari 3.1+ */
+        -ms-transform: rotate(0deg);
+        /* IE 9 */
+        transform: rotate(0deg);
+        /* Firefox 16+, IE 10+, Opera */
+      }
+
+      100% {
+        -webkit-transform: rotate(360deg);
+        /* Chrome, Opera 15+, Safari 3.1+ */
+        -ms-transform: rotate(360deg);
+        /* IE 9 */
+        transform: rotate(360deg);
+        /* Firefox 16+, IE 10+, Opera */
+      }
+    }
+
+    #loader-wrapper .loader-section {
+      position: fixed;
+      top: 0;
+      width: 51%;
+      height: 100%;
+      background: #49a9ee;
+      /* Old browsers */
+      z-index: 1000;
+      -webkit-transform: translateX(0);
+      /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: translateX(0);
+      /* IE 9 */
+      transform: translateX(0);
+      /* Firefox 16+, IE 10+, Opera */
+    }
+
+    #loader-wrapper .loader-section.section-left {
+      left: 0;
+    }
+
+    #loader-wrapper .loader-section.section-right {
+      right: 0;
+    }
+
+    /* Loaded */
+    .loaded #loader-wrapper .loader-section.section-left {
+      -webkit-transform: translateX(-100%);
+      /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: translateX(-100%);
+      /* IE 9 */
+      transform: translateX(-100%);
+      /* Firefox 16+, IE 10+, Opera */
+      -webkit-transition: all 0.7s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+      transition: all 0.7s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+    }
+
+    .loaded #loader-wrapper .loader-section.section-right {
+      -webkit-transform: translateX(100%);
+      /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: translateX(100%);
+      /* IE 9 */
+      transform: translateX(100%);
+      /* Firefox 16+, IE 10+, Opera */
+      -webkit-transition: all 0.7s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+      transition: all 0.7s 0.3s cubic-bezier(0.645, 0.045, 0.355, 1.000);
+    }
+
+    .loaded #loader {
+      opacity: 0;
+      -webkit-transition: all 0.3s ease-out;
+      transition: all 0.3s ease-out;
+    }
+
+    .loaded #loader-wrapper {
+      visibility: hidden;
+      -webkit-transform: translateY(-100%);
+      /* Chrome, Opera 15+, Safari 3.1+ */
+      -ms-transform: translateY(-100%);
+      /* IE 9 */
+      transform: translateY(-100%);
+      /* Firefox 16+, IE 10+, Opera */
+      -webkit-transition: all 0.3s 1s ease-out;
+      transition: all 0.3s 1s ease-out;
+    }
+
+    /* JavaScript Turned Off */
+    .no-js #loader-wrapper {
+      display: none;
+    }
+
+    .no-js h1 {
+      color: #222222;
+    }
+
+    #loader-wrapper .load_title {
+      font-family: 'Open Sans';
+      color: #FFF;
+      font-size: 14px;
+      width: 100%;
+      text-align: center;
+      z-index: 9999999999999;
+      position: absolute;
+      top: 60%;
+      opacity: 1;
+      line-height: 30px;
+    }
+
+    #loader-wrapper .load_title span {
+      font-weight: normal;
+      font-style: italic;
+      font-size: 14px;
+      color: #FFF;
+      opacity: 0.5;
+    }
+
+    /* 滚动条优化 start */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #ffffff;
+      border-radius: 2px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c7c7c7;
+      border-radius: 2px;
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: #c7c7c7;
+    }
+
+    /*悬停颜色*/
+    ::-webkit-scrollbar-thumb:hover {
+      background: #908f8f;
+    }
+
+    /*解决火狐滚动条样式问题*/
+    div {
+      scrollbar-color: #e2e2e2 white;
+      scrollbar-width: thin;
+    }
+
+    /* 滚动条优化 end */
+
+    .ant-tree li .ant-tree-node-content-wrapper {
+      height: auto !important;
+    }
+
+    .ant-tree-node-content-wrapper {
+      white-space: normal;
+      max-width: 100%;
+    }
+  </style>
+  <!-- 全局配置 -->
+  <script>
+    window._CONFIG = {}
+    window._CONFIG['systemName'] = '车辆架大修信息管理系统'
+    //本机环境
+    window._CONFIG['domianURL'] = 'http://localhost:8080/tiros'
+    window._CONFIG['syncMaximo'] = 'http://localhost:8090'
+    window._CONFIG['workflowURL'] = 'http://localhost:9096/'
+    window._CONFIG['fileServiceUrl'] = 'http://localhost:9002/tiros'
+    window._CONFIG['onlinePreviewDomainURL'] = 'http://localhost:9003/onlinePreview'
+
+    //开发环境-本地
+    // window._CONFIG['domianURL'] = 'http://192.168.31.10:8080/tiros'
+    // window._CONFIG['syncMaximo'] = 'http://192.168.31.10:8090'
+    // window._CONFIG['workflowURL'] = 'http://192.168.31.10:9096/'
+    // window._CONFIG['fileServiceUrl'] = 'http://192.168.31.10:9002/tiros'
+    // window._CONFIG['onlinePreviewDomainURL'] = 'http://192.168.31.10:9003/onlinePreview'
+
+    //开发环境-外网
+    // window._CONFIG['domianURL'] = 'http://159.75.51.109:9005/tiros'
+    // window._CONFIG['workflowURL'] = 'http://159.75.51.109:9004/'
+    // window._CONFIG['fileServiceUrl'] = 'http://159.75.51.109:9002/tiros'
+    // window._CONFIG['onlinePreviewDomainURL'] = 'http://159.75.51.109:9003/onlinePreview'
+
+    //客户-测试环境
+    // window._CONFIG['domianURL'] = 'http://10.97.10.124:8080/tiros'
+    // window._CONFIG['syncMaximo'] = 'http://10.97.10.124:8090'
+    // window._CONFIG['workflowURL'] = 'http://10.97.10.124:9096/'
+    // window._CONFIG['fileServiceUrl'] = 'http://10.97.10.124:9002/tiros'
+    // window._CONFIG['onlinePreviewDomainURL'] = 'http://10.97.10.124:9003/onlinePreview'
+
+    //客户-生产环境
+    // window._CONFIG['domianURL'] = 'http://10.97.10.123:8080/tiros'
+    // window._CONFIG['syncMaximo'] = 'http://10.97.10.123:8090'
+    // window._CONFIG['workflowURL'] = 'http://10.97.10.123:9096/'
+    // window._CONFIG['fileServiceUrl'] = 'http://10.97.10.123:9002/tiros'
+    // window._CONFIG['onlinePreviewDomainURL'] = 'http://10.97.10.123:9003/onlinePreview'
+
+    const BODY_HEIGHT = document.documentElement.clientHeight || document.body.clientHeight
+  </script>
+  <script>
+    // 设置是否在uniapp套壳程序中打开
+    var query = window.location.search.substring(1)
+    if (query.indexOf('is_uniapp=true') > -1) {
+      localStorage.setItem('is_uniapp', 'true')
+    }
+  </script>
+  <link href='/miniui/themes/icons.css' rel='stylesheet' type='text/css' />
+  <link href='/miniui/themes/default/miniui.css' rel='stylesheet' type='text/css' />
+  <!--<link href="/miniui/themes/blue/skin.css" rel="stylesheet" type="text/css" />-->
+
+  <link rel='stylesheet' href='/excel/plugins/css/pluginsCss.css' />
+  <link rel='stylesheet' href='/excel/plugins/plugins.css' />
+  <link rel='stylesheet' href='/excel/css/luckysheet.css' />
+  <link rel='stylesheet' href='/excel/assets/iconfont/iconfont.css' />
+  <script src='/excel/plugins/js/plugin.js'></script>
+  <script src='/excel/luckysheet.umd.js'></script>
+  <script src='/excel/luckyexcel.umd.js'></script>
+</head>
+
+<body>
+<!-- built files will be auto injected -->
+<div id='app'>
+  <div id='loader-wrapper'>
+    <div id='loader'></div>
+    <div class='loader-section section-left'></div>
+    <div class='loader-section section-right'></div>
+    <div class='load_title'>正在加载,请耐心等待</div>
+  </div>
+</div>
+<!-- 引入jquery 与上面的 plugin.js 冲突 -->
+<!--<script src="/miniui/jquery-1.6.2.min.js"></script>-->
+<script src='/miniui/miniui.js'></script>
+<script src='/miniui/locale/zh_CN.js'></script>
+<!--
+<script src="/miniui/exts/StatusColumn.js"></script>
+-->
+<script src='/miniui/exts/ProjectServices.js'></script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormCheckRecordJudgeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordJudge">
+        <id column="id" property="id"/>
+        <result column="check_inst_id" property="checkInstId"/>
+        <result column="jd_user_id" property="jdUserId"/>
+        <result column="jd_content" property="jdContent"/>
+        <result column="jd_time" property="jdTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, check_inst_id, jd_user_id, jd_content, jd_time
+    </sql>
+
+    <select id="selectListByQueryVO" resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordJudge">
+        select t.*,
+        t1.title as checkInstName,
+        t2.realname as jdUserName
+        from bu_pl_check_record_judge t
+        left join bu_pl_check_record t1 on t1.id = t.check_inst_id
+        left join sys_user t2 on t2.id = t.jd_user_id
+        where t.check_inst_id = #{queryVO.checkInstId}
+        <if test="queryVO.jdUserId != null and queryVO.jdUserId != ''">
+            and t.jd_user_id = #{queryVO.jdUserId}
+        </if>
+    </select>
+
+    <select id="selectListByCheckInstId"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordJudge">
+        select t.*,
+               t1.title    as checkInstName,
+               t2.realname as jdUserName
+        from bu_pl_check_record_judge t
+                 left join bu_pl_check_record t1 on t1.id = t.check_inst_id
+                 left join sys_user t2 on t2.id = t.jd_user_id
+        where t.check_inst_id = #{checkInstId}
+    </select>
+
+    <select id="selectJudgeById" resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormCheckRecordJudge">
+        select t.*,
+               t1.title    as checkInstName,
+               t2.realname as jdUserName
+        from bu_pl_check_record_judge t
+                 left join bu_pl_check_record t1 on t1.id = t.check_inst_id
+                 left join sys_user t2 on t2.id = t.jd_user_id
+        where t.id = #{id}
+    </select>
+
+</mapper>

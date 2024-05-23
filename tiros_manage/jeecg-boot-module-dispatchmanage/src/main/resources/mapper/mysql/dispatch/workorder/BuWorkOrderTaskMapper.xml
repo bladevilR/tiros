@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTask">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="task_type" property="taskType"/>
+        <result column="task_obj_id" property="taskObjId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_name" property="taskName"/>
+        <result column="task_content" property="taskContent"/>
+        <result column="work_time" property="workTime"/>
+        <result column="remark" property="remark"/>
+        <result column="task_start" property="taskStart"/>
+        <result column="task_finish" property="taskFinish"/>
+        <result column="task_time" property="taskTime"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="task_status" property="taskStatus"/>
+        <result column="out_task" property="outTask"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="important" property="important"/>
+        <result column="method" property="method"/>
+        <result column="safe_notice" property="safeNotice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, task_type, task_obj_id, task_no, task_name, task_content, work_time,
+        remark, task_start, task_finish, task_time, report_time, task_status, out_task,
+        asset_type_id, struct_detail_id, train_asset_id, important, method, safe_notice
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.orderId},
+            #{item.taskType},
+            #{item.taskObjId},
+            #{item.taskNo},
+            #{item.taskName},
+            #{item.taskContent},
+            #{item.workTime},
+            #{item.remark},
+            #{item.taskStart},
+            #{item.taskFinish},
+            #{item.taskTime},
+            #{item.reportTime},
+            #{item.taskStatus},
+            #{item.outTask},
+            #{item.assetTypeId},
+            #{item.structDetailId},
+            #{item.trainAssetId},
+            #{item.important},
+            #{item.method},
+            #{item.safeNotice},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_work_order_task
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateListTaskObjId">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_work_order_task
+                set task_obj_id = #{item.taskObjId}
+                where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+
+    <delete id="deleteByOrderIdList">
+        delete
+        from bu_work_order_task
+        where order_id in
+        <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <select id="selectTaskList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTask">
+        select
+        t.*,
+        t1.order_code,
+        t1.order_name,
+        t1.train_no
+        from bu_work_order_task t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        left join bu_repair_plan t2 on t2.id = t1.plan_id
+        <where>
+            <if test="queryVO.orderStatusList != null and queryVO.orderStatusList.size > 0">
+                and t1.order_status in
+                <foreach collection="queryVO.orderStatusList" item="orderStatus"
+                         index="index" separator="," open="(" close=")">
+                    #{orderStatus}
+                </foreach>
+            </if>
+            <if test="queryVO.orderWorkStatusList != null and queryVO.orderWorkStatusList.size > 0">
+                and t1.work_status in
+                <foreach collection="queryVO.orderWorkStatusList" item="orderWorkStatus"
+                         index="index" separator="," open="(" close=")">
+                    #{orderWorkStatus}
+                </foreach>
+            </if>
+            <if test="queryVO.planStatusList != null and queryVO.planStatusList.size > 0">
+                and t2.status in
+                <foreach collection="queryVO.planStatusList" item="planStatus"
+                         index="index" separator="," open="(" close=")">
+                    #{planStatus}
+                </foreach>
+            </if>
+            <if test="queryVO.planProgressStatusList != null and queryVO.planProgressStatusList.size > 0">
+                and t2.progress_status in
+                <foreach collection="queryVO.planProgressStatusList" item="planProgressStatus"
+                         index="index" separator="," open="(" close=")">
+                    #{planProgressStatus}
+                </foreach>
+            </if>
+            <if test="queryVO.status != null">
+                and t.task_status = #{queryVO.status}
+            </if>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and t1.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.workOrderId != null and queryVO.workOrderId != ''">
+                and t.order_id = #{queryVO.workOrderId}
+            </if>
+            <if test="queryVO.taskName != null and queryVO.taskName != ''">
+                and t.task_name like concat('%',#{queryVO.taskName},'%')
+            </if>
+            <if test="queryVO.startDate != null">
+                and TO_DAYS(t1.start_time) = TO_DAYS(#{queryVO.startDate})
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t1.group_id = #{queryVO.groupId}
+            </if>
+        </where>
+        order by t1.order_code, t.task_no
+    </select>
+
+    <select id="selectTaskListForApp" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTask">
+        select
+        t.*
+        from bu_work_order_task t
+        left join bu_work_order t1 on t1.id = t.order_id
+        <where>
+            <if test="queryVO.workOrderId != null and queryVO.workOrderId != ''">
+                and t.order_id = #{queryVO.workOrderId}
+            </if>
+            <if test="queryVO.taskName != null and queryVO.taskName != ''">
+                and t.task_name like concat('%',#{queryVO.taskName},'%')
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t1.group_id = #{queryVO.groupId}
+            </if>
+            <if test="queryVO.unfinished != null and queryVO.unfinished == 1">
+                and t.task_status != 2
+            </if>
+            <if test="queryVO.hasWorkRecord != null and queryVO.hasWorkRecord == 1">
+                and (
+                select count(id) from bu_repair_plan_forms
+                where form_type = 3
+                and (plan_id = t.order_id or plan_id = t1.plan_id)
+                ) > 0
+            </if>
+            <if test="queryVO.important != null and queryVO.important == 1">
+                and t.important = 1
+            </if>
+        </where>
+        order by t1.order_code, t.task_no
+    </select>
+
+    <select id="selectTurnoverReplaceTime" resultType="java.util.Date">
+        select create_time
+        from bu_work_turnover_change
+        where id = #{changeId}
+    </select>
+
+    <select id="selectAssetReplaceTime" resultType="java.util.Date">
+        select change_date
+        from bu_work_part_change
+        where id = #{changeId}
+    </select>
+
+    <select id="selectWorkOrderTaskFile" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOtherData">
+        SELECT t.file_id,
+               t1.name            AS fileName,
+               t1.savepath,
+               #{workOrderTaskId} AS taskId
+        FROM bu_work_order_tech_file t
+                 LEFT JOIN bu_doc_file t1 ON t1.id = t.file_id
+        WHERE t.order_task_id = #{workOrderTaskId}
+    </select>
+
+    <select id="selectReguDetailFile" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOtherData">
+        SELECT t.file_id,
+               t1.name            AS fileName,
+               t1.savepath,
+               #{workOrderTaskId} AS taskId
+        FROM bu_repair_regu_tech_file t
+                 LEFT JOIN bu_doc_file t1 ON t1.id = t.file_id
+                 LEFT JOIN bu_repair_task_regu t2 ON t2.regu_detail_id = t.regu_detail_id
+                 LEFT JOIN bu_work_order_task t3 ON t3.task_obj_id = t2.task_id
+        WHERE t3.id = #{workOrderTaskId}
+          AND t3.task_type = 1
+    </select>
+
+    <select id="selectTaskRelativeReguDetailList" resultMap="ResultMap_BuRepairReguDetailBO">
+        SELECT DISTINCT t.id,
+                        t.parent_id,
+                        t.safe_notice,
+                        t.requirement,
+                        t.no
+        FROM bu_repair_regu_detail t
+                 LEFT JOIN bu_repair_task_regu t1 ON t1.regu_detail_id = t.id
+                 LEFT JOIN bu_work_order_task t2 ON t2.task_obj_id = t1.task_id
+        WHERE t2.id = #{taskId}
+        ORDER BY t.no
+    </select>
+    <resultMap id="ResultMap_BuRepairReguDetailBO"
+               type="org.jeecg.modules.dispatch.workorder.bean.bo.BuRepairReguDetailBO">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="safe_notice" property="safeNotice"/>
+        <result column="requirement" property="requirement"/>
+        <collection property="parentList" column="parent_id"
+                    ofType="org.jeecg.modules.dispatch.workorder.bean.bo.BuRepairReguDetailBO"
+                    select="selectRepairReguDetailParentList"/>
+    </resultMap>
+    <select id="selectRepairReguDetailParentList" resultMap="ResultMap_BuRepairReguDetailBO">
+        SELECT t.id,
+               t.parent_id,
+               t.safe_notice,
+               t.requirement,
+               t.no
+        FROM bu_repair_regu_detail t
+        WHERE t.id = #{parent_id}
+        ORDER BY t.no DESC
+    </select>
+
+    <select id="selectOrderRelativeReguDetailList" resultMap="ResultMap_BuRepairReguDetailBO">
+        SELECT DISTINCT t.id,
+                        t.parent_id,
+                        t.safe_notice,
+                        t.requirement,
+                        t.no
+        FROM bu_repair_regu_detail t
+                 LEFT JOIN bu_repair_task_regu t1 ON t1.regu_detail_id = t.id
+                 LEFT JOIN bu_work_order_task t2 ON t2.task_obj_id = t1.task_id
+        WHERE t2.order_id = #{orderId}
+        ORDER BY t.no
+    </select>
+
+    <select id="selectTaskByTaskId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTask">
+        SELECT t.*,
+               t1.name AS assetTypeName,
+               t2.name AS trainAssetName
+        FROM bu_work_order_task t
+                 LEFT JOIN bu_train_asset_type t1 ON t1.id = t.asset_type_id
+                 LEFT JOIN bu_maximo_train_asset t2 ON t2.id = t.train_asset_id
+        WHERE t.id = #{taskId}
+        order by t.task_no
+    </select>
+
+    <select id="selectJobRequirement" resultType="org.jeecg.modules.dispatch.workorder.bean.JobRequirement">
+        select id,
+               safe_notice as safeNotice,
+               requirement,
+               parent_id   as parentId
+        from bu_repair_regu_detail
+        where id in
+              (select regu_detail_id from bu_repair_task_regu where task_id = #{taskObjId})
+        order by no
+    </select>
+
+    <select id="selectLastSafeAssumeByGroupId" resultType="java.util.Map">
+        SELECT id, content
+        FROM bu_work_safe_assume
+        WHERE group_id = #{groupId}
+        ORDER BY read_date DESC, create_time DESC LIMIT 0,1
+    </select>
+
+    <select id="selectJobRequirementByParent"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.JobRequirement">
+        select id,
+               safe_notice as safeNotice,
+               requirement,
+               parent_id   as parentId
+        from bu_repair_regu_detail
+        where parent_id = #{id}
+    </select>
+
+    <select id="selectFormIdListByTaskId" resultType="java.lang.String">
+        select form_id
+        from bu_base_ref_station_form
+        where workstation_id in
+              (select workstation_id from bu_work_order_task_workstation where order_task_id = #{taskId})
+    </select>
+
+    <select id="selectWorkOrderGenerateByTaskId" resultType="java.lang.Integer">
+        select t.generate
+        from bu_work_order t
+        where t.id = (select order_id from bu_work_order_task where id = #{taskId})
+    </select>
+
+    <select id="selectAsPlanTaskRepairPlanReguInfoByReguDetailId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        SELECT t.regu_id,
+               t.id    as reguDetailId,
+               t.no,
+               t.title,
+               t.type,
+               t.safe_notice,
+               t.outsource,
+               t.important,
+               t.method,
+               t.quality_level,
+               t.asset_type_id,
+               t.work_time,
+               t.requirement,
+               t.must_replace,
+               t.measure,
+               t1.name AS assetTypeName
+        from bu_repair_regu_detail t
+                 LEFT JOIN bu_train_asset_type t1 ON t1.id = t.asset_type_id
+        WHERE t.id = #{reguDetailId}
+    </select>
+
+    <select id="selectAsPlanTaskBookStepsByReguDetailId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskBookStep">
+        SELECT t.*,
+               t1.step_content as bootStepContent
+        FROM bu_repair_regu_techbook_detail t
+                 left join bu_repair_tech_book_detail t1 on t1.id = t.book_detail_id
+        WHERE t.regu_detail_id = #{reguDetailId}
+        order by t.book_step_no
+    </select>
+
+    <select id="selectOrderTaskFormInstListByOrderTaskId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskFormInst">
+        select temp.id,
+               temp.inst_type,
+               temp.form_inst_id,
+               temp.plan_id,
+               temp.work_order_id,
+               temp.work_order_task_id,
+               temp.record_ids,
+               temp.remark,
+               t5.task_name,
+               temp.planFormId,
+               temp.fromBy,
+               temp.formObjId,
+               temp.code     as formCode,
+               temp.name     as formName,
+               temp.assetTypeId,
+               t2.name       as assetTypeName,
+               temp.structDetailId,
+               t3.name       as structDetailName,
+               t3.wbs        as structDetailWbs,
+               temp.trainAssetId,
+               t4.asset_name as trainAssetName,
+               temp.status,
+               temp.checkResult,
+               temp.checkDate,
+               temp.checkUserId,
+               t6.realname   as checkUserName,
+               temp.workRecordType
+        from (
+                 (
+                     select t.*,
+                            a.plan_form_id        as planFormId,
+                            a2.code               as code,
+                            NVL(a.title, a2.name) as name,
+                            a1.from_by            as fromBy,
+                            a1.form_type          as formType,
+                            a.form_obj_id         as formObjId,
+                            a.train_no            as trainNo,
+                            a.asset_type_id       as assetTypeId,
+                            a.struct_detail_id    as structDetailId,
+                            a.train_asset_id      as trainAssetId,
+                            a.status,
+                            a.check_result        as checkResult,
+                            a.check_date          as checkDate,
+                            a.check_user_id       as checkUserId,
+                            a1.WORK_RECORD_TYPE   AS workRecordType
+                     from bu_work_order_task_form_inst t
+                              left join bu_pl_data_record a on a.id = t.form_inst_id
+                              left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+                              left join bu_base_form_template a2 on a2.id = a.form_obj_id
+                     where t.work_order_task_id = #{taskId}
+                       and t.inst_type = 1
+                 )
+                 UNION ALL
+                 (
+                     select t.*,
+                            a.plan_form_id                                                                    as planFormId,
+                            a2.code                                                                           as code,
+                            NVL(a.title,
+                                case a.work_record_type when 1 then a2.title when 2 then a3.name else '' end) as name,
+                            a1.from_by                                                                        as fromBy,
+                            a1.form_type                                                                      as formType,
+                            a.form_obj_id                                                                     as formObjId,
+                            a.train_no                                                                        as trainNo,
+                            a.asset_type_id                                                                   as assetTypeId,
+                            a.struct_detail_id                                                                as structDetailId,
+                            a.train_asset_id                                                                  as trainAssetId,
+                            a.status,
+                            a.check_result                                                                    as checkResult,
+                            a.check_date                                                                      as checkDate,
+                            a.check_user_id                                                                   as checkUserId,
+                            a1.WORK_RECORD_TYPE                                                               AS workRecordType
+                     from bu_work_order_task_form_inst t
+                              left join bu_pl_work_record a on a.id = t.form_inst_id
+                              left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+                              left join bu_work_record a2 on a2.id = a.form_obj_id
+                     where t.work_order_task_id = #{taskId}
+                       and t.inst_type = 3
+                 )
+                 UNION ALL
+                 (
+                     select t.*,
+                            a.plan_form_id         as planFormId,
+                            a2.code                as code,
+                            NVL(a.title, a2.title) as name,
+                            a1.from_by             as fromBy,
+                            a1.form_type           as formType,
+                            a.form_obj_id          as formObjId,
+                            a.train_no             as trainNo,
+                            a.asset_type_id        as assetTypeId,
+                            a.asset_struct_id      as structDetailId,
+                            a.asset_id             as trainAssetId,
+                            a.status,
+                            NULL                   as checkResult,
+                            NULL                   as checkDate,
+                            NULL                   as checkUserId,
+                            a1.WORK_RECORD_TYPE    AS workRecordType
+                     from bu_work_order_task_form_inst t
+                              left join bu_pl_check_record a on a.id = t.form_inst_id
+                              left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+                              left join bu_work_check a2 on a2.id = a.form_obj_id
+                     where t.work_order_task_id = #{taskId}
+                       and t.inst_type = 4
+                 )
+             ) temp
+                 left join bu_train_asset_type t2 on t2.id = temp.assetTypeId
+                 left join bu_train_asset t4 on t4.id = temp.trainAssetId
+                 left join bu_train_structure_detail t3 on t3.id = t4.struct_detail_id
+                 left join bu_work_order_task t5 on t5.id = temp.work_order_task_id
+                 left join sys_user t6 on t6.id = temp.checkUserId
+        order by temp.inst_type desc, temp.code
+    </select>
+
+    <select id="selectTaskAllBookSteps" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderBookStep">
+        select temp.*,
+               t1.step_content as bootStepContent,
+               t2.file_name    as bookName
+        from (
+                 (
+                     select t.id,
+                            t.work_order_id,
+                            t.task_id,
+                            t.tech_book_id,
+                            t.book_detail_id,
+                            t.book_step_no,
+                            t.boot_step_title,
+                            1 as belongOrderTask
+                     from bu_work_order_book_step t
+                     where t.task_id = #{taskId}
+                 )
+                 union all
+                 (
+                     select t.id,
+                            t0.order_id as work_order_id,
+                            t0.id       as task_id,
+                            t.tech_book_id,
+                            t.book_detail_id,
+                            t.book_step_no,
+                            t.boot_step_title,
+                            0           as belongOrderTask
+                     from bu_repair_task_book_step t
+                              left join bu_work_order_task t0 on t0.task_obj_id = t.task_id
+                     where t0.task_type = 1
+                       and t0.id = #{taskId}
+                 )
+                 union all
+                 (
+                     select t.id,
+                            t0.order_id as work_order_id,
+                            t0.id       as task_id,
+                            t.tech_book_id,
+                            t.book_detail_id,
+                            t.book_step_no,
+                            t.boot_step_title,
+                            0           as belongOrderTask
+                     from bu_repair_regu_techbook_detail t
+                              left join bu_work_order_task t0 on t0.task_obj_id = t.regu_detail_id
+                     where t0.task_type = 4
+                       and t0.id = #{taskId}
+                 )
+             ) temp
+                 left join bu_repair_tech_book_detail t1 on t1.id = temp.book_detail_id
+                 left join bu_repair_tech_book t2 on t2.id = t1.book_id
+        order by t2.file_no, temp.book_step_no
+    </select>
+
+    <select id="selectPlanGenerateOrderTaskAndTaskObjIdNullByPlanId" resultType="java.util.Map">
+        select t.id  as orderTaskId,
+               t2.id as planTaskId
+        from bu_work_order_task t
+                 left join bu_work_order t1 on t1.id = t.order_id
+                 left join bu_repair_plan_task t2
+                           on t2.day_index = regexp_substr(t1.order_name, '[0-9]+', 7) and t2.task_name = t.task_name
+        where t1.plan_id = #{planId}
+          and t2.plan_id = #{planId}
+          and t1.order_type = 1
+          and t1.generate = 1
+          and t.task_obj_id is null
+    </select>
+
+    <select id="selectNullMaterialOrderTaskAndTpPlanTask" resultType="java.util.Map">
+        select t1.id as orderId,
+        t.id as orderTaskId,
+        t3.id as tpPlanTaskId
+        from bu_work_order_task t
+        left join bu_work_order t1 on t1.id = t.order_id
+        left join bu_repair_plan_task t2 on t2.id = t.task_obj_id
+        left join bu_tp_repair_plan_task t3 on t3.day_index = t2.day_index and t3.task_name = t2.task_name and
+        t3.work_group_id = t2.work_group_id
+        where t1.plan_id = #{planId}
+        and t2.plan_id = #{planId}
+        and t3.plan_id = (select plan_template_id from bu_repair_plan where id = #{planId})
+        and t1.order_type not in (4, 5)
+        and t.task_type = 1
+        and t1.id not in (select order_id from bu_work_order_material)
+        <if test="groupId != null and groupId != ''">
+            and t1.group_id = #{groupId}
+            and t3.work_group_id = #{groupId}
+        </if>
+    </select>
+
+    <select id="selectTrainAssetCodeByOrderId" resultType="java.lang.String">
+        select t1.code
+        from bu_work_order_task t
+                 left join bu_maximo_train_asset t1 on t1.id = t.train_asset_id
+        where t.order_id = #{orderId}
+        order by t1.code
+    </select>
+
+    <select id="selectSafeNoticeDataLength" resultType="java.lang.Integer">
+        select data_length
+        from all_TAB_COLUMNS
+        where table_name = 'BU_WORK_ORDER_TASK'
+          and column_name = 'SAFE_NOTICE'
+    </select>
+
+    <select id="selectErrorTimeListOfCloseOrder" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTask">
+        select t.*
+        from bu_work_order_task t
+                 left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_status = 4
+          and (t.task_start &lt; t1.act_start or t.task_finish &gt; t1.act_finish)
+        order by t1.order_code desc
+    </select>
+
+</mapper>

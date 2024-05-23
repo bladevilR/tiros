@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.cost.mapper.BuRptBoardTrainMaterialProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.cost.bean.BuRptBoardTrainMaterial">
+        <id column="id" property="id"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_period" property="repairPeriod"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="program_id" property="programId"/>
+        <result column="must_cost" property="mustCost"/>
+        <result column="random_cost" property="randomCost"/>
+        <result column="consume_cost" property="consumeCost"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, line_id, repair_period, train_id, train_no, repair_index, year, month,
+        program_id, must_cost, random_cost, consume_cost, workshop_id, company_id
+    </sql>
+
+</mapper>

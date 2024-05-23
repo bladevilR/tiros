@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormWorkRecordChecksMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordChecks">
+        <id column="id" property="id"/>
+        <result column="record_detail_id" property="recordDetailId"/>
+        <result column="check_type" property="checkType"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="result" property="result"/>
+        <result column="result_desc" property="resultDesc"/>
+        <result column="col_num" property="colNum"/>
+        <result column="together_check_user_ids" property="togetherCheckUserIds"/>
+        <result column="together_check_user_names" property="togetherCheckUserNames"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, record_detail_id, check_type, check_user_id, check_time, result, result_desc, col_num,
+        together_check_user_ids, together_check_user_names, create_time, create_by, update_time, update_by
+    </sql>
+
+    <select id="selectUserBOByUserName" resultType="org.jeecg.modules.dispatch.workorder.bean.bo.SysUserBO">
+        SELECT id,
+               username,
+               realname,
+               password,
+               salt
+        FROM sys_user
+        WHERE username = #{username}
+    </select>
+
+</mapper>

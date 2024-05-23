@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderMaterialActsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        <id column="id" property="id"/>
+        <result column="order_material_id" property="orderMaterialId"/>
+        <result column="group_stock_id" property="groupStockId"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="apply_detail_id" property="applyDetailId"/>
+        <result column="assign_detail_id" property="assignDetailId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="price" property="price"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_material_id, group_stock_id, apply_id, apply_detail_id, assign_detail_id, trade_no, act_amount,
+        create_time, create_by, update_time, update_by, price
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.orderMaterialId, jdbcType=VARCHAR},
+            #{item.groupStockId, jdbcType=VARCHAR},
+            #{item.applyId, jdbcType=VARCHAR},
+            #{item.applyDetailId, jdbcType=VARCHAR},
+            #{item.assignDetailId, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.actAmount, jdbcType=FLOAT},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.price, jdbcType=NUMERIC},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_work_order_material_acts
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_work_order_material_acts
+            set
+            order_material_id = #{item.orderMaterialId, jdbcType=VARCHAR},
+            group_stock_id = #{item.groupStockId, jdbcType=VARCHAR},
+            apply_id = #{item.applyId, jdbcType=VARCHAR},
+            apply_detail_id = #{item.applyDetailId, jdbcType=VARCHAR},
+            assign_detail_id = #{item.assignDetailId, jdbcType=VARCHAR},
+            trade_no = #{item.tradeNo, jdbcType=VARCHAR},
+            act_amount = #{item.actAmount, jdbcType=FLOAT},
+            create_time = #{item.createTime, jdbcType=TIMESTAMP},
+            create_by = #{item.createBy, jdbcType=VARCHAR},
+            update_time = #{item.updateTime, jdbcType=TIMESTAMP},
+            update_by = #{item.updateBy, jdbcType=VARCHAR},
+            price = #{item.price, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updatePriceBatch">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_work_order_material_acts set price = #{item.price, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <delete id="deleteByOrderIdList">
+        delete
+        from bu_work_order_material_acts
+        where order_material_id in (
+        select id from bu_work_order_material where order_id in
+        <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+            #{orderId}
+        </foreach>
+        )
+    </delete>
+
+    <select id="selectListOfNoGroupStockId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select t.*,
+               t1.material_type_id,
+               t2.group_id
+        from bu_work_order_material_acts t
+                 left join bu_work_order_material t1 on t1.id = t.order_material_id
+                 left join bu_work_order t2 on t2.id = t1.order_id
+        where t.group_stock_id is null
+    </select>
+
+    <select id="selectListOfSubmitOrCloseOrder"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select t.*,
+               t1.material_type_id,
+               t2.order_code,
+               t2.order_name,
+               t2.order_status,
+               t2.group_id
+        from bu_work_order_material_acts t
+                 left join bu_work_order_material t1 on t1.id = t.order_material_id
+                 left join bu_work_order t2 on t2.id = t1.order_id
+        where t.act_amount > 0
+          and t2.order_type not in (4, 5)
+          and t2.order_status in (3, 4)
+    </select>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select t.*,
+               t1.material_type_id,
+               t2.code as materialTypeCode,
+               t2.name as materialTypeName,
+               t1.order_id,
+               t3.order_code,
+               t3.group_id,
+               t4.group_name
+        from bu_work_order_material_acts t
+                 left join bu_work_order_material t1 on t1.id = t.order_material_id
+                 left join bu_material_type t2 on t2.id = t1.material_type_id
+                 left join bu_work_order t3 on t3.id = t1.order_id
+                 left join bu_mtr_workshop_group t4 on t4.id = t3.group_id
+        where t1.order_id = #{orderId}
+    </select>
+
+    <select id="selectListByOrderIdList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select t.*,
+        t1.material_type_id,
+        t2.code as materialTypeCode,
+        t2.name as materialTypeName,
+        t1.order_id,
+        t3.order_code,
+        t3.group_id,
+        t4.group_name
+        from bu_work_order_material_acts t
+        left join bu_work_order_material t1 on t1.id = t.order_material_id
+        left join bu_material_type t2 on t2.id = t1.material_type_id
+        left join bu_work_order t3 on t3.id = t1.order_id
+        left join bu_mtr_workshop_group t4 on t4.id = t3.group_id
+        where t1.order_id
+        <choose>
+            <when test="orderIdList != null and orderIdList.size > 0">
+                in
+                <foreach collection="orderIdList" item="orderId" index="index" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </when>
+            <otherwise>
+                ='-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListByOrderMaterialIdList"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderMaterialActs">
+        select t.*,
+        t1.train_no as groupStockTrainNo
+        from bu_work_order_material_acts t
+        left join bu_material_group_stock t1 on t1.id = t.group_stock_id
+        where t.order_material_id in
+        <foreach collection="orderMaterialIdList" item="orderMaterialId" open="(" separator="," close=")">
+            #{orderMaterialId}
+        </foreach>
+    </select>
+
+</mapper>

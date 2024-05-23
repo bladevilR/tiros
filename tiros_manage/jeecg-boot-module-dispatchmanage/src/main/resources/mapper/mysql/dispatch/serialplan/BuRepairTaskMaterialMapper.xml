@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, material_type_id, amount, remark, use_category
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.taskId},
+            #{item.materialTypeId},
+            #{item.amount},
+            #{item.remark},
+            #{item.useCategory},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_task_material
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectDistinctListByPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial">
+        select t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        from (select a.material_type_id,
+                     SUM(a.amount) as amount,
+                     a.use_category
+              from bu_repair_task_material a
+                       left join bu_repair_plan_task a1 on a1.id = a.task_id
+              where a1.plan_id = #{planId}
+              group by a.material_type_id, a.use_category) t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+        order by t1.code
+    </select>
+
+    <select id="selectListForGenerateOrderByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial">
+        select t.*,
+               t2.category1
+        from bu_repair_task_material t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_material_type t2 on t2.id = t.material_type_id
+        where t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial">
+        select t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        from bu_repair_task_material t
+                 left join bu_material_type t1 on t1.id = t.material_type_id
+        where t.task_id = #{taskId}
+        order by t1.code
+    </select>
+
+</mapper>

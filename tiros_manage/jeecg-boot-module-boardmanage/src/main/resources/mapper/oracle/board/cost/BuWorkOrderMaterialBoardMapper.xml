@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.cost.mapper.BuWorkOrderMaterialBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.cost.bean.BuWorkOrderMaterial">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="is_verify" property="isVerify"/>
+        <result column="op_type" property="opType"/>
+        <result column="is_gen_order" property="isGenOrder"/>
+        <result column="plan_amount" property="planAmount"/>
+        <result column="need_dispatchin" property="needDispatchin"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_task_id, material_type_id, amount, act_amount, remark, use_category,
+        is_verify, op_type, is_gen_order, plan_amount, need_dispatchin, system_id, workstation_id
+    </sql>
+
+
+    <select id="selectCostListByYearAndCondition" resultType="org.jeecg.modules.board.cost.bean.BuWorkOrderMaterial">
+        SELECT
+        t.id,
+        t.op_type,
+        t.use_category,
+        t.material_type_id,
+        t.amount,
+        t.act_amount,
+        t4.price as materialTypePrice,
+        t4.name AS materialTypeName,
+        t4.code AS materialTypeCode,
+        (select SUM(a.act_amount) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeAmount,
+        (select SUM(a.act_amount * a.price) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeTotalPrice,
+        t1.start_time as consumeTime
+        FROM bu_work_order_material t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        LEFT JOIN bu_repair_plan t2 ON t2.id = t1.plan_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t2.repair_program_id
+        LEFT JOIN bu_material_type t4 ON t4.id = t.material_type_id
+        where t1.order_type not in (4, 5) AND t1.order_status in (3, 4)
+        AND t2.id IS NOT NULL
+        AND TO_NUMBER(TO_CHAR(t1.start_time,'YYYY'))= #{year}
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t2.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t1.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            AND t1.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.programType != null and queryVO.programType != 0">
+            AND t3.pro_type = #{queryVO.programType}
+        </if>
+        order by t.op_type, t.use_category, t4.code
+    </select>
+
+    <select id="selectCostListByCondition" resultType="org.jeecg.modules.board.cost.bean.BuWorkOrderMaterial">
+        SELECT
+        t.id,
+        t.op_type,
+        t.use_category,
+        t.material_type_id,
+        t.amount,
+        t.act_amount,
+        t4.price as materialTypePrice,
+        t4.name AS materialTypeName,
+        t4.code AS materialTypeCode,
+        (select SUM(a.act_amount) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeAmount,
+        (select SUM(a.act_amount * a.price) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeTotalPrice,
+        t1.start_time as consumeTime
+        FROM bu_work_order_material t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        LEFT JOIN bu_repair_plan t2 ON t2.id = t1.plan_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t2.repair_program_id
+        LEFT JOIN bu_material_type t4 ON t4.id = t.material_type_id
+        where t1.order_type not in (4, 5) AND t1.order_status in (3, 4)
+        AND t2.id IS NOT NULL
+        AND (t1.start_time &gt;= #{queryVO.startDate} and t1.start_time &lt;= #{queryVO.endDate})
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t2.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t1.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            AND t1.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.programType != null and queryVO.programType != 0">
+            AND t3.pro_type = #{queryVO.programType}
+        </if>
+        order by t.op_type, t.use_category, t4.code
+    </select>
+
+    <select id="selectMaterialAlertVOList" resultType="org.jeecg.modules.board.cost.bean.vo.BuMaterialAlertVO">
+        SELECT t.material_type_id                            AS materialId, t1.code AS materialCode,
+               t1.name                                       AS materialName, t.theshold AS alertStock,
+               (SELECT NVL2(SUM(amount), SUM(amount), 0)
+                FROM bu_material_stock
+                WHERE material_type_id = t.material_type_id) AS currentStock
+        FROM (SELECT * FROM bu_material_type_attr WHERE theshold != -1) t
+                 LEFT JOIN bu_material_type t1 on t1.id = t.material_type_id
+    </select>
+
+</mapper>

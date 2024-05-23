@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderTaskFormInstMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskFormInst">
+        <id column="id" property="id"/>
+        <result column="inst_type" property="instType"/>
+        <result column="form_inst_id" property="formInstId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_task_id" property="workOrderTaskId"/>
+        <result column="remark" property="remark"/>
+        <result column="record_ids" property="recordIds"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, inst_type, form_inst_id, plan_id, work_order_id, work_order_task_id, remark, record_ids
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.instType, jdbcType=INTEGER},
+            #{item.formInstId, jdbcType=VARCHAR},
+            #{item.planId, jdbcType=VARCHAR},
+            #{item.workOrderId, jdbcType=VARCHAR},
+            #{item.workOrderTaskId, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.recordIds, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_work_order_task_form_inst
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+    <select id="selectFormName" resultType="java.lang.String">
+
+        <if test="formType==1">
+            select t1.name from bu_pl_data_record t
+            left join bu_base_form_template t1 on t1.id=t.form_obj_id
+            where t.id=#{fromId}
+        </if>
+
+        <if test="formType==3">
+            select t1.title from bu_pl_work_record t
+            left join bu_work_record t1 on t1.id=t.form_obj_id
+            where t.id=#{fromId}
+        </if>
+
+        <if test="formType==4">
+            select t1.title from bu_pl_check_record t
+            left join bu_work_check t1 on t1.id=t.form_obj_id
+            where t.id=#{fromId}
+        </if>
+
+    </select>
+
+</mapper>

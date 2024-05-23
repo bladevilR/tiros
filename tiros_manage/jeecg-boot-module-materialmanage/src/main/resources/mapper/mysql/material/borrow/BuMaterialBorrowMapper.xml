@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.borrow.mapper.BuMaterialBorrowMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.borrow.bean.BuMaterialBorrow">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="borrow_dep" property="borrowDep"/>
+        <result column="borrow_user" property="borrowUser"/>
+        <result column="borrow_date" property="borrowDate"/>
+        <result column="return_type" property="returnType"/>
+        <result column="return_status" property="returnStatus"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, amount, warehouse_id, dept_id, borrow_user_id, borrow_date, return_type, return_status,
+        remark, create_time, create_by, update_time, update_by, company_id, workshop_id, line_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.material.borrow.bean.BuMaterialBorrow">
+        SELECT
+        t1.*,
+        t2.name AS warehouseName,
+        if(t1.borrow_type=1,t4.realname,t1.borrow_user) AS borrowUserName,
+        if(t1.borrow_type=1,t3.depart_name,t1.borrow_dep) AS deptName
+        FROM bu_material_borrow t1
+        LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+        LEFT JOIN sys_depart t3 ON t3.id = t1.borrow_dep
+        LEFT JOIN sys_user t4 ON t4.id = t1.borrow_user
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t3.depart_name LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_dep LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_user LIKE concat('%',#{queryVO.searchText},'%')
+                OR t4.realname LIKE concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate!= null">
+                AND t1.borrow_date BETWEEN #{queryVO.startDate} AND #{queryVO.endDate}
+            </if>
+            <if test="queryVO.borrowType != null">
+                AND t1.borrow_type = #{queryVO.borrowType}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPageByConditionApp" resultType="org.jeecg.modules.material.borrow.bean.BuMaterialBorrow">
+        SELECT
+        t1.*,
+        t2.name AS warehouseName,
+        if(t1.borrow_type=1,t4.realname,t1.borrow_user) AS borrowUserName,
+        if(t1.borrow_type=1,t3.depart_name,t1.borrow_dep) AS deptName
+        FROM bu_material_borrow t1
+        LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+        LEFT JOIN sys_depart t3 ON t3.id = t1.borrow_dep
+        LEFT JOIN sys_user t4 ON t4.id = t1.borrow_user
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t3.depart_name LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_dep LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_user LIKE concat('%',#{queryVO.searchText},'%')
+                OR t4.realname LIKE concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate!= null">
+                AND t1.borrow_date BETWEEN #{queryVO.startDate} AND #{queryVO.endDate}
+            </if>
+            <if test="queryVO.borrowType != null">
+                AND t1.borrow_type = #{queryVO.borrowType}
+            </if>
+            <choose>
+                <when test="queryVO.returnStatus">
+                    AND  t1.return_status in(1,2)
+                </when>
+                <otherwise>
+                    AND  t1.return_status in(0,3)
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectListByCondition" resultType="org.jeecg.modules.material.borrow.bean.BuMaterialBorrow">
+        SELECT
+        t1.*,
+        t2.name AS warehouseName,
+        if(t1.borrow_type=1,t4.realname,t1.borrow_user) AS borrowUserName,
+        if(t1.borrow_type=1,t3.depart_name,t1.borrow_dep)AS deptName
+        FROM bu_material_borrow t1
+        LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+        LEFT JOIN sys_depart t3 ON t3.id = t1.borrow_dep
+        LEFT JOIN sys_user t4 ON t4.id = t1.borrow_user
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t3.depart_name LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_dep LIKE concat('%',#{queryVO.searchText},'%')
+                OR t1.borrow_user LIKE concat('%',#{queryVO.searchText},'%')
+                OR t4.realname LIKE concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate!= null">
+                AND t1.borrow_date BETWEEN #{queryVO.startDate} AND #{queryVO.endDate}
+            </if>
+            <if test="queryVO.borrowType != null">
+                AND t1.borrow_type = #{queryVO.borrowType}
+            </if>
+        </where>
+    </select>
+
+</mapper>

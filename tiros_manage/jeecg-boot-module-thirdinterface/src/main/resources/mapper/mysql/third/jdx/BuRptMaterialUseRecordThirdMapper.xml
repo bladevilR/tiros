@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuRptMaterialUseRecordThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuRptMaterialUseRecord">
+        <id column="id" property="id"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="order_task_name" property="orderTaskName"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_type_name" property="materialTypeName"/>
+        <result column="material_type_code" property="materialTypeCode"/>
+        <result column="material_type_model" property="materialTypeModel"/>
+        <result column="material_desc" property="materialDesc"/>
+        <result column="unit" property="unit"/>
+        <result column="kind" property="kind"/>
+        <result column="category1" property="category1"/>
+        <result column="category2" property="category2"/>
+        <result column="amount" property="amount"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="total_price" property="totalPrice"/>
+        <result column="use_date" property="useDate"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="depot_name" property="depotName"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="workshop_name" property="workshopName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="line_name" property="lineName"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="tsystem_id" property="tsystemId"/>
+        <result column="system_name" property="systemName"/>
+        <result column="period_id" property="periodId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="monitor" property="monitor"/>
+        <result column="monitor_name" property="monitorName"/>
+        <result column="station_id" property="stationId"/>
+        <result column="station_no" property="stationNo"/>
+        <result column="station_name" property="stationName"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, archive_type, work_order_id, work_order_name, order_task_id, order_task_name, material_type_id,
+        material_type_name, material_type_code, material_type_model, material_desc, unit, kind, category1,
+        category2, amount, unit_price, total_price, use_date, asset_code, depot_id, depot_name, workshop_id,
+        workshop_name, line_id, line_name, train_id, train_name, tsystem_id, system_name, period_id, group_id,
+        group_name, monitor, monitor_name, station_id, station_no, station_name, use_category, remark
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.archiveType},
+            #{item.workOrderId},
+            #{item.workOrderName},
+            #{item.orderTaskId},
+            #{item.orderTaskName},
+            #{item.materialTypeId},
+            #{item.materialTypeName},
+            #{item.materialTypeCode},
+            #{item.materialTypeModel},
+            #{item.materialDesc},
+            #{item.unit},
+            #{item.kind},
+            #{item.category1},
+            #{item.category2},
+            #{item.amount},
+            #{item.unitPrice},
+            #{item.totalPrice},
+            #{item.useDate},
+            #{item.assetCode},
+            #{item.depotId},
+            #{item.depotName},
+            #{item.workshopId},
+            #{item.workshopName},
+            #{item.lineId},
+            #{item.lineName},
+            #{item.trainId},
+            #{item.trainName},
+            #{item.tsystemId},
+            #{item.systemName},
+            #{item.periodId},
+            #{item.groupId},
+            #{item.groupName},
+            #{item.monitor},
+            #{item.monitorName},
+            #{item.stationId},
+            #{item.stationNo},
+            #{item.stationName},
+            #{item.useCategory},
+            #{item.remark},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_rpt_material_use_record
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

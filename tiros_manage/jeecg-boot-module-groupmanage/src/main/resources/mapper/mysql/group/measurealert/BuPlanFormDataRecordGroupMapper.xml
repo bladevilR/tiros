@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.measurealert.mapper.BuPlanFormDataRecordGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.measurealert.bean.BuPlanFormDataRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="status" property="status"/>
+        <result column="write_date" property="writeDate"/>
+        <result column="write_user_id" property="writeUserId"/>
+        <result column="result" property="result"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="title" property="title"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, plan_form_id, form_obj_id, form_index, train_no, asset_type_id, struct_detail_id, train_asset_id,
+        status, write_date, write_user_id, result, create_time, create_by, update_time, update_by,
+        check_result, check_date, check_user_id, title
+    </sql>
+
+</mapper>

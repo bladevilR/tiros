@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMtrWarehouseThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMtrWarehouse">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="wh_level" property="whLevel"/>
+        <result column="type" property="type"/>
+        <result column="close" property="close"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="wbs" property="wbs"/>
+        <result column="sys_house_code" property="sysHouseCode"/>
+        <result column="sys_house_category" property="sysHouseCategory"/>
+        <result column="location" property="location"/>
+        <result column="line_id" property="lineId"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="sync" property="sync"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, code, wh_level, type, close, parent_id, wbs, sys_house_code, sys_house_category, location,
+        line_id, depot_id, workshop_id, sync, status, remark, create_time, create_by, update_time, update_by,
+        company_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.name},
+            #{item.code},
+            #{item.whLevel},
+            #{item.type},
+            #{item.close},
+            #{item.parentId},
+            #{item.wbs},
+            #{item.sysHouseCode},
+            #{item.sysHouseCategory},
+            #{item.location},
+            #{item.lineId},
+            #{item.depotId},
+            #{item.workshopId},
+            #{item.sync},
+            #{item.status},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.companyId},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_mtr_warehouse
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+</mapper>

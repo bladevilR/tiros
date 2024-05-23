@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuFaultSolutionThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuFaultSolution">
+        <id column="id" property="id"/>
+        <result column="solution_code" property="solutionCode"/>
+        <result column="solution_desc" property="solutionDesc"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_reason_id" property="faultReasonId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, solution_code, solution_desc, category_id, fault_code_id, fault_reason_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.solutionCode},
+            #{item.solutionDesc},
+            #{item.categoryId},
+            #{item.faultCodeId},
+            #{item.faultReasonId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_fault_solution
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="list">
+        <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+            update bu_fault_solution
+            <set>
+                solution_desc = #{item.solutionDesc},
+                category_id = #{item.categoryId},
+                fault_code_id = #{item.faultCodeId},
+                fault_reason_id = #{item.faultReasonId},
+            </set>
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+</mapper>

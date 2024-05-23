@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.apply.mapper.BuMaterialApplyDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        <id column="id" property="id"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="receive" property="receive"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="status" property="status"/>
+        <result column="confirm_user" property="confirmUser"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="send_user" property="sendUser"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="order_material_id" property="orderMaterialId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_id, material_type_id, amount, receive, entry_detail_id, status, confirm_user, confirm_time,
+        create_time, create_by, update_time, update_by, send_user, send_time, unit_price, use_category, order_material_id
+    </sql>
+
+
+    <update id="updatePriceBatch">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_apply_detail
+            set
+            unit_price = #{item.unitPrice, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateListForReceive">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_apply_detail
+            set
+            status = #{item.status, jdbcType=NUMERIC},
+            confirm_user = #{item.confirmUser, jdbcType=VARCHAR},
+            confirm_time = #{item.confirmTime, jdbcType=TIMESTAMP},
+            unit_price = #{item.unitPrice, jdbcType=NUMERIC}
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectListByIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.*,
+        t1.apply_type,
+        t1.work_order_id as orderId,
+        t2.plan_id,
+        t2.line_id,
+        t2.train_no,
+        t2.group_id,
+        t2.order_code,
+        t2.order_type,
+        t3.code as materialTypeCode,
+        t3.name as materialTypeName,
+        t3.spec AS materialTypeSpec,
+        t3.unit as materialTypeUnit
+        from bu_material_apply_detail t
+        left join bu_material_apply t1 on t1.id = t.apply_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        left join bu_material_type t3 on t3.id = t.material_type_id
+        where t.id
+        <choose>
+            <when test="detailIdList != null and detailIdList.size > 0">
+                in
+                <foreach collection="detailIdList" item="detailId" separator="," open="(" close=")">
+                    #{detailId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListByApplyId" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        SELECT t.*,
+        t1.apply_type,
+        t2.code AS materialTypeCode,
+        t2.name AS materialTypeName,
+        t2.spec AS materialTypeSpec,
+        t2.unit AS materialTypeUnit,
+        t3.realname AS confirmUserName,
+        t4.realname AS sendUserName
+        FROM bu_material_apply_detail t
+        LEFT JOIN bu_material_apply t1 ON t1.id = t.apply_id
+        LEFT JOIN bu_material_type t2 ON t2.id = t.material_type_id
+        LEFT JOIN sys_user t3 ON t3.id = t.confirm_user
+        LEFT JOIN sys_user t4 ON t4.id = t.send_user
+        WHERE t.apply_id = #{applyId}
+        <if test="status != null and status.size > 0">
+            and t.status in
+            <foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY t.confirm_time desc, t2.code
+    </select>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        SELECT t.*,
+        t1.apply_type,
+        t2.code AS materialTypeCode,
+        t2.name AS materialTypeName,
+        t2.spec AS materialTypeSpec,
+        t2.unit AS materialTypeUnit,
+        t3.realname AS confirmUserName,
+        t4.realname AS sendUserName
+        FROM bu_material_apply_detail t
+        LEFT JOIN bu_material_apply t1 ON t1.id = t.apply_id
+        LEFT JOIN bu_material_type t2 ON t2.id = t.material_type_id
+        LEFT JOIN sys_user t3 ON t3.id = t.confirm_user
+        LEFT JOIN sys_user t4 ON t4.id = t.send_user
+        WHERE t1.work_order_id = #{orderId}
+        <if test="status != null and status.size > 0">
+            and t.status in
+            <foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY t.confirm_time desc, t2.code
+    </select>
+
+    <select id="selectListByOrderIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.*,
+        t1.apply_type,
+        t1.work_order_id as orderId
+        from bu_material_apply_detail t
+        left join bu_material_apply t1 on t1.id = t.apply_id
+        where t1.work_order_id
+        <choose>
+            <when test="orderIdList != null and orderIdList.size > 0">
+                in
+                <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+                    #{orderId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        <if test="status != null and status.size > 0">
+            and t.status in
+            <foreach collection="status" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectListByPalletIdList" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.*,
+        t1.apply_type,
+        t1.work_order_id as orderId,
+        t2.plan_id,
+        t2.line_id,
+        t2.train_no,
+        t2.group_id,
+        t2.order_code,
+        t2.order_type
+        from bu_material_apply_detail t
+        left join bu_material_apply t1 on t1.id = t.apply_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        where t.id in
+        (select apply_detail_id from bu_material_assign_detail where pallet_id
+        <choose>
+            <when test="palletIdList != null and palletIdList.size > 0">
+                in
+                <foreach collection="palletIdList" item="palletId" separator="," open="(" close=")">
+                    #{palletId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        )
+    </select>
+
+    <select id="selectMaterialCostList" resultType="org.jeecg.modules.material.cost.bean.vo.CompareResultVO">
+        select * from (
+        select temp.* ,(case when temp.needAmount- temp.receiveAmount !=0 then 1 when temp.receiveAmount-
+        nvl(temp.consumeAmount,0) != 0 then 1 when temp.needAmount - nvl(temp.consumeAmount,0) != 0 then 1 else 0 end
+        )as amountIsDiff,
+        a.name as materialName,a.CODE as materialCode,a.spec as materialSpec,b.GROUP_NAME as groupName from(
+        select t.*,t1.consumeAmount,NVL2(t1.consumeAmount,1,0) as isVerify from (
+        select t2.group_id,t.material_type_id as materialId,t.use_category,SUM(t.amount)as needAmount,SUM(t.receive)as
+        receiveAmount from
+        bu_material_apply_detail t
+        left join bu_material_apply t1 on t1.id = t.apply_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        left join bu_mtr_line t3 on t3.line_id = t2.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t2.group_id
+        left join bu_material_type t5 on t5.id = t.material_type_id
+        where t.status in(2,3)
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">and t2.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t2.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t2.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.planId != null and queryVO.planId != ''">
+            and t2.plan_id = #{queryVO.planId}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            AND (t1.receive_time &gt;= #{queryVO.startDate} AND t1.receive_time &lt;= #{queryVO.endDate})
+        </if>
+        group by t2.group_id,t.material_type_id,t.use_category
+        )t left join (
+        select t2.group_id,t.material_type_id as materialId,t.use_category,SUM(t.amount)as
+        needAmount,SUM(t.act_amount)as consumeAmount from
+        bu_work_order_material t
+        left join bu_work_order t2 on t2.id = t.order_id
+        left join bu_mtr_line t3 on t3.line_id = t2.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t2.group_id
+        left join bu_material_type t5 on t5.id = t.material_type_id
+        where t2.order_status in (3, 4) and t2.order_type not in (4, 5)
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">and t2.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t2.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t2.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.planId != null and queryVO.planId != ''">
+            and t2.plan_id = #{queryVO.planId}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            AND (t2.start_time &gt;= #{queryVO.startDate} AND t2.start_time &lt;= #{queryVO.endDate})
+        </if>
+        group by t2.group_id,t.material_type_id,t.use_category
+        )t1 on t.materialId=t1.materialId and t.group_id=t1.group_id and t.use_category=t1.use_category ) temp
+        left join bu_material_type a on a.id=temp.materialId
+        left join bu_mtr_workshop_group b on b.id = temp.group_id
+        )
+        where needAmount is not null and needAmount!=0
+        <if test="queryVO.amountIsDiff!=null">
+            and amountIsDiff=#{queryVO.amountIsDiff}
+        </if>
+        order by materialCode
+    </select>
+
+    <select id="selectGroupMaterialPriceInfo" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.id,
+               t.apply_id,
+               t.material_type_id,
+               t.unit_price,
+               t1.receive_group_id as groupId
+        from bu_material_apply_detail t
+                 left join bu_material_apply t1 on t1.id = t.apply_id
+    </select>
+
+    <select id="selectListOfSubmitOrCloseOrder"
+            resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.id,
+               t.apply_id,
+               t.material_type_id,
+               t.receive,
+               t.unit_price,
+               t2.plan_id,
+               t2.line_id,
+               t2.train_no,
+               t2.group_id,
+               t2.order_code,
+               t2.order_type
+        from bu_material_apply_detail t
+                 left join bu_material_apply t1 on t1.id = t.apply_id
+                 left join bu_work_order t2 on t2.id = t1.work_order_id
+        where t2.order_status in (3, 4)
+          and t.receive > 0
+          and t.status = 2
+        order by t2.group_id, t.material_type_id, t.status
+    </select>
+
+    <select id="selectListForCostCompare" resultType="org.jeecg.modules.material.apply.bean.BuMaterialApplyDetail">
+        select t.*,
+        t2.plan_id,
+        t2.line_id,
+        t2.train_no,
+        t2.group_id,
+        t2.order_code,
+        t2.order_name,
+        t2.order_type
+        from bu_material_apply_detail t
+        left join bu_material_apply t1 on t1.id = t.apply_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        left join bu_material_type t3 on t3.id = t.material_type_id
+        where t2.order_status = 4
+        and t.receive > 0
+        and t.status = 2
+        and t2.plan_id = #{queryVO.planId}
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t2.group_id = #{queryVO.groupId}
+        </if>
+<!--        <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">-->
+<!--            and-->
+<!--            (-->
+<!--            t3.name like '%'||#{queryVO.materialSearchText}||'%'-->
+<!--            or-->
+<!--            t3.code like '%'||#{queryVO.materialSearchText}||'%'-->
+<!--            )-->
+<!--        </if>-->
+        <if test="queryVO.useCategory != null">
+            and t.use_category = #{queryVO.useCategory}
+        </if>
+        order by t2.line_id, t2.train_no, t2.group_id, t.use_category, t.material_type_id
+    </select>
+
+</mapper>

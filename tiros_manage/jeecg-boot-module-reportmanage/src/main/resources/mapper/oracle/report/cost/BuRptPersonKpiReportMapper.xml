@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.cost.mapper.BuRptPersonKpiReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.cost.bean.BuRptPersonKpi">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="work_no" property="workNo"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="rpt_date" property="rptDate"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="total_time" property="totalTime"/>
+        <result column="repair_time" property="repairTime"/>
+        <result column="fault_time" property="faultTime"/>
+        <result column="total_happen" property="totalHappen"/>
+        <result column="fault_amount" property="faultAmount"/>
+        <result column="handle_amount" property="handleAmount"/>
+        <result column="plan_id" property="planId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, user_name, work_no, depot_id, workshop_id, line_id, group_id, group_name,
+        rpt_date, year, month, total_time, repair_time, fault_time, total_happen, fault_amount,
+        handle_amount, plan_id, company_id
+    </sql>
+
+    <select id="selectListForTimeByKpiQueryVO" resultType="org.jeecg.modules.report.cost.bean.BuRptPersonKpi">
+        select t.*,
+        t1.line_name,
+        t2.train_no
+        from bu_rpt_person_kpi t
+        left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_repair_plan t2 on t2.id = t.plan_id
+        where t.total_time &gt; 0
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.plan_id in (select id from bu_repair_plan where train_no = #{queryVO.trainNo})
+        </if>
+        <if test="queryVO.startDate != null">
+            and t.rpt_date &gt;= #{queryVO.startDate}
+        </if>
+        <if test="queryVO.endDate != null">
+            and t.rpt_date &lt;= #{queryVO.endDate}
+        </if>
+        <if test="queryVO.groupId!=null and queryVO.groupId!=''">
+            and t.group_id=#{queryVO.groupId}
+        </if>
+    </select>
+
+</mapper>

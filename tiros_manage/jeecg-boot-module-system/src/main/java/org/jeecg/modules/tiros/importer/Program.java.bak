@@ -1,0 +1,430 @@
+package org.jeecg.modules.basemanage.importer;
+
+
+import cn.hutool.core.io.resource.ClassPathResource;
+import cn.hutool.core.util.StrUtil;
+
+
+import org.apache.commons.collections.CollectionUtils;
+import org.jeecg.modules.basemanage.importer.assettype.TrainStructImporter;
+import org.jeecg.modules.basemanage.importer.bean.BuRepairReguInfo;
+import org.jeecg.modules.basemanage.importer.bean.conf.ImportConfig;
+import org.jeecg.modules.basemanage.importer.dao.ImporterDao;
+import org.jeecg.modules.basemanage.importer.service.*;
+import org.jeecg.modules.basemanage.importer.utils.JDBCUtilsConfig;
+
+
+import java.io.*;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * @author yyg
+ */
+public class Program {
+    private static Connection con = JDBCUtilsConfig.getConnection();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        String propertiesPath = null;
+        System.out.println("请输入import.properties(导入配置文件，GBK编码, 为空表示采用默认地址)地址:");
+        propertiesPath = scanner.nextLine();
+
+        if (StrUtil.isBlank(propertiesPath)) {
+            ClassPathResource resource = new ClassPathResource("config/import.properties");
+            propertiesPath = resource.getAbsolutePath();
+        }
+
+        ImportConfig importConfig = loadConf(propertiesPath);
+
+        while (true) {
+            System.out.println();
+            System.out.println("注意：部分操作将删除原有数据");
+            System.out.println("3.导入工位 将清除车间（id=" + importConfig.getWorkshopId() + "）原有的工位数据");
+            System.out.println("4.导入设备结构 将清除车型（id=" + importConfig.getTrainTypeId() + "）原有的设备结构数据");
+            System.out.println();
+            System.out.println("请选择要导入的数据：");
+            System.out.println("" +
+                    "1.规程 2.计划模版 3.工位 4.设备结构 5.作业记录表 6.班组与工位关联 7.人员 " +
+                    "8.仓库 9.物质类型分类 10.物质类型 " +
+                    "11.所有(1-10)  0.退出");
+            int iType = scanner.nextInt();
+            if (iType >= 1 && iType <= 11) {
+                if (iType == 1) {
+                    // 导入规程
+                    importRegu(importConfig);
+                }
+                if (iType == 2) {
+                    // 导入计划模板
+                    importTpPlan(importConfig);
+                }
+                if (iType == 3) {
+                    // 导入工位
+                    importWorkstation(importConfig);
+                }
+                if (iType == 4) {
+                    // 导入车辆设备结构
+                    importTrainStruct(importConfig);
+                }
+                if (iType == 5) {
+                    // 导入作业记录表单
+                    importWorkRecord(importConfig);
+                }
+                if (iType == 6) {
+                    // 导入班组与工位关联
+                    importGroupWorkstation(importConfig);
+                }
+                if (iType == 7) {
+                    // 导入人员
+                    importUser(importConfig);
+                }
+                if (iType == 8) {
+                    // 导入仓库
+                    importWarehouse(importConfig);
+                }
+                if (iType == 9) {
+                    // 导入物质类型分类
+                    importMaterialTypeCategory(importConfig);
+                }
+                if (iType == 10) {
+                    // 导入物质类型
+                    importMaterialType(importConfig);
+                }
+                if (iType == 11) {
+                    importRegu(importConfig);
+                    importTpPlan(importConfig);
+                    importWorkstation(importConfig);
+                    importTrainStruct(importConfig);
+                    importWorkRecord(importConfig);
+                    importGroupWorkstation(importConfig);
+                    importUser(importConfig);
+                    importWarehouse(importConfig);
+                    importMaterialTypeCategory(importConfig);
+                    importMaterialType(importConfig);
+                }
+
+                System.out.println();
+                System.out.println("导入操作执行完毕，请重新选择");
+                System.out.println();
+
+            } else if (iType == 0) {
+                JDBCUtilsConfig.closeConnection();
+                System.out.println("退出...");
+                System.exit(1);
+            } else {
+                System.out.println("请输入正确指令");
+            }
+        }
+    }
+
+
+    public static void importRegu(ImportConfig importConfig) {
+        String reguPath = importConfig.getReguFilePath();
+        if (fileExist(reguPath)) {
+            // 提示用户选中修程
+            System.out.println("请选择导入的规程对应的修程：1=架修 2=大修，请输入1或者2？");
+            Scanner scanner = new Scanner(System.in);
+            if (scanner.hasNext()) {
+                int inputIndex = scanner.nextInt();
+                if (inputIndex != 1 && inputIndex != 2) {
+                    System.out.println("输入的选择无效，默认为：1  架修");
+                    inputIndex = 1;
+                }
+
+                importConfig.setRepairProId(inputIndex + "");
+            }
+
+            System.out.println("导入规程--文件地址:" + reguPath);
+            System.out.println("导入规程--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new ReguImporter(con).importRegu(reguPath, importConfig);
+            } catch (Exception ex) {
+                System.out.println("导入规程--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入规程--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入规程--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    //    private static void importTpPlan(ImportConfig importConfig, Scanner scanner) {
+    private static void importTpPlan(ImportConfig importConfig) {
+        String tpPlanPath = importConfig.getTpPlanFilePath();
+        if (fileExist(tpPlanPath)) {
+            System.out.println("导入计划模板--文件地址:" + tpPlanPath);
+
+//            // 如果规程id为空，提示用户输入对应的规程id
+            List<BuRepairReguInfo> reguInfoList = ImporterDao.listReguInfo(con);
+            if (CollectionUtils.isNotEmpty(reguInfoList)) {
+
+                System.out.println("请选择计划模板关联的规程，数据库现有规程信息，如下：");
+                AtomicInteger index = new AtomicInteger(1);
+                for (BuRepairReguInfo reguInfo : reguInfoList) {
+                    System.out.println("序号 " + index.getAndIncrement() + "：" + reguInfo.getName() + "(id=" + reguInfo.getId() + ")");
+                }
+                System.out.println("选择规程序号");
+                int inputIndex = 1;
+                Scanner scanner = new Scanner(System.in);
+                if (scanner.hasNext()) {
+                    inputIndex = scanner.nextInt();
+                }
+                String reguId = reguInfoList.get(inputIndex - 1).getId();
+                importConfig.setReguId(reguId);
+                importConfig.setRepairProId(reguInfoList.get(inputIndex - 1).getRepairProId());
+            } else {
+                System.out.println("数据库无规程信息，请先导入规程信息");
+                return;
+            }
+            // 暂时不做计划模板和规程的关联
+
+            System.out.println("导入计划模板--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                Map<String, Map<String, List<String>>> content = new RepairPlanImport(con).ImportRepairPlan(tpPlanPath);
+                new RepairPlanRelationImport(con, content).ImportPlanTask(tpPlanPath, importConfig);
+            } catch (Exception ex) {
+                System.out.println("导入计划模板--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入计划模板--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入计划模板--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importWorkstation(ImportConfig importConfig) {
+        String workstationPath = importConfig.getWorkstationFilePath();
+        if (fileExist(workstationPath)) {
+            System.out.println("导入工位--文件地址:" + workstationPath);
+            System.out.println("导入工位--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new WorkstationImport(workstationPath, con).importWorkstation(importConfig);
+            } catch (Exception ex) {
+                System.out.println("导入工位--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入工位--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入工位--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importTrainStruct(ImportConfig importConfig) {
+        String trainTypeId = importConfig.getTrainTypeId();
+        String trainStructFilePath = importConfig.getTrainStructFilePath();
+        if (fileExist(trainStructFilePath)) {
+            System.out.println("导入车辆结构--文件地址:" + trainStructFilePath);
+            System.out.println("导入车辆结构--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new TrainStructImporter().run(trainStructFilePath, trainTypeId);
+            } catch (Exception ex) {
+                System.out.println("导入车辆结构--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入车辆结构--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入车辆结构--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importWorkRecord(ImportConfig importConfig) {
+        String workRecordPath = importConfig.getWorkRecordDirectoryPath();
+        if (fileExist(workRecordPath)) {
+            System.out.println("导入作业记录表--文件夹地址:" + workRecordPath);
+            System.out.println("导入作业记录表--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                ReguWorkRecord workRecord = new ReguWorkRecord(workRecordPath, con);
+                File[] files = workRecord.getWorkRecordFile();
+                for (int i = 0; i < files.length; i++) {
+                    workRecord.importReguWorkRecord(files[i], importConfig);
+                }
+            } catch (Exception ex) {
+                System.out.println("导入作业记录表--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入作业记录表--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入作业记录表--文件夹地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importGroupWorkstation(ImportConfig importConfig) {
+        String workstationPath = importConfig.getGroupWorkstationFilePath();
+        if (fileExist(workstationPath)) {
+            System.out.println("导入工班关联工位--开始，文件:" + workstationPath);
+            long time1 = System.currentTimeMillis();
+
+            new GroupWorkstationImport(workstationPath, con).importWorkstation(importConfig);
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入工位--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("工班关联工位文件地址无效，不进行导入操作");
+        }
+    }
+
+    private static void importUser(ImportConfig importConfig) {
+        String userFilePath = importConfig.getUserFilePath();
+        if (fileExist(userFilePath)) {
+            System.out.println("导入人员--开始，文件:" + userFilePath);
+            long time1 = System.currentTimeMillis();
+
+            new SysUserImport(userFilePath, con).importSysUser(importConfig);
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入人员--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("人员文件地址无效，不进行导入操作");
+        }
+    }
+
+    private static void importWarehouse(ImportConfig importConfig) {
+        String warehouseFilePath = importConfig.getWarehouseFilePath();
+        if (fileExist(warehouseFilePath)) {
+            System.out.println("导入仓库--文件地址:" + warehouseFilePath);
+            System.out.println("导入仓库--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new WarehouseImporter(con).importWarehouse(warehouseFilePath, importConfig);
+            } catch (Exception ex) {
+                System.out.println("导入仓库--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入仓库--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入仓库--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importMaterialTypeCategory(ImportConfig importConfig) {
+        String materialTypeFilePath = importConfig.getMaterialTypeFilePath();
+        if (fileExist(materialTypeFilePath)) {
+            System.out.println("导入物质类型分类--文件地址:" + materialTypeFilePath);
+            System.out.println("导入物质类型分类--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new MaterialTypeImporter(con).importMaterialTypeCategory(materialTypeFilePath);
+            } catch (Exception ex) {
+                System.out.println("导入物质类型分类--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入物质类型分类--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入物质类型分类--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+    private static void importMaterialType(ImportConfig importConfig) {
+        String materialTypeFilePath = importConfig.getMaterialTypeFilePath();
+        if (fileExist(materialTypeFilePath)) {
+            System.out.println("导入物质类型--文件地址:" + materialTypeFilePath);
+            System.out.println("导入物质类型--开始");
+            long time1 = System.currentTimeMillis();
+
+            try {
+                new MaterialTypeImporter(con).importMaterialType(materialTypeFilePath);
+            } catch (Exception ex) {
+                System.out.println("导入物质类型--失败，错误信息如下：");
+                ex.printStackTrace();
+            }
+
+            long time2 = System.currentTimeMillis();
+            System.out.println("导入物质类型--结束，耗时" + (time2 - time1) + "毫秒");
+        } else {
+            System.out.println("导入物质类型--文件地址无效，不进行导入操作");
+        }
+        System.out.println();
+    }
+
+
+    public static ImportConfig loadConf(String path) {
+        ImportConfig importConfig = new ImportConfig();
+
+        Properties properties = new Properties();
+        boolean fileExist = fileExist(path);
+        if (fileExist) {
+            try {
+                InputStream inputStream = new FileInputStream(path);
+                // 因为字节流是无法读取中文的，所以采取reader把inputStream转换成reader用字符流来读取中文
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "GBK"));
+                properties.load(bufferedReader);
+
+                importConfig.setReguFilePath(properties.getProperty("reguFilePath"));
+                importConfig.setTpPlanFilePath(properties.getProperty("tpPlanFilePath"));
+                importConfig.setWorkstationFilePath(properties.getProperty("workstationFilePath"));
+                importConfig.setTrainStructFilePath(properties.getProperty("trainStructFilePath"));
+                importConfig.setWorkRecordDirectoryPath(properties.getProperty("workRecordDirectoryPath"));
+                importConfig.setGroupWorkstationFilePath(properties.getProperty("groupWorkstationFilePath"));
+                importConfig.setUserFilePath(properties.getProperty("userFilePath"));
+                importConfig.setWarehouseFilePath(properties.getProperty("warehouseFilePath"));
+                importConfig.setMaterialTypeFilePath(properties.getProperty("materialTypeFilePath"));
+
+                importConfig.setLineId(properties.getProperty("lineId"));
+                importConfig.setRepairProId(properties.getProperty("repairProId"));
+                importConfig.setTrainTypeId(properties.getProperty("trainTypeId"));
+                importConfig.setWorkshopId(properties.getProperty("workshopId"));
+                importConfig.setTopWarehouseId(properties.getProperty("topWarehouseId"));
+
+                inputStream.close();
+            } catch (Exception ex) {
+                System.out.println("读取导入配置文件失败，请重试");
+                System.out.println(ex.getMessage());
+            }
+        } else {
+            System.out.println("导入配置文件路径错误，请重新操作");
+        }
+        System.out.println();
+
+        return importConfig;
+    }
+
+    public static boolean fileExist(String path) {
+        if (null == path) {
+            return false;
+        }
+        if (org.apache.commons.lang.StringUtils.isBlank(path)) {
+            return false;
+        }
+        File file = new File(path);
+        return file.exists();
+    }
+
+}

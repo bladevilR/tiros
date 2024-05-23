@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.toolequipment.mapper.BuMaterialToolEquipmentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.tool.bean.BuMaterialTools">
+        <id column="id" property="id"/>
+        <result column="tool_type" property="toolType"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="code" property="code"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="serial_no" property="serialNo"/>
+        <result column="name" property="name"/>
+        <result column="model" property="model"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="entrace_date" property="entraceDate"/>
+        <result column="lifetime" property="lifetime"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="entry_date" property="entryDate"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="status" property="status"/>
+        <result column="service_interval" property="serviceInterval"/>
+        <result column="last_check_time" property="lastCheckTime"/>
+        <result column="next_check_time" property="nextCheckTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_self_check" property="isSelfCheck"/>
+        <result column="last_self_check_time" property="lastSelfCheckTime"/>
+        <result column="price" property="price"/>
+        <result column="sync" property="sync"/>
+        <result column="is_electric" property="isElectric"/>
+        <result column="is_fixed_asset" property="isFixedAsset"/>
+        <result column="storage_location" property="storageLocation"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tool_type, material_type_id, code, asset_code, serial_no, name, model, supplier_id,
+        entrace_date, lifetime, leave_factory, expir_date, entry_date, line_id, workshop_id, group_id,
+        user_id, warehouse_id, status, service_interval, last_check_time, next_check_time, remark,
+        create_time, create_by, update_time, update_by, is_self_check, last_self_check_time, price, sync,
+        is_electric, is_fixed_asset, storage_location, company_id
+    </sql>
+
+
+    <!-- 根据条件查询分页工装信息 -->
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.group.tool.bean.BuMaterialTools">
+        SELECT
+        t1.*,
+        t2.name AS warehouseName,
+        t3.group_name AS groupName,
+        t4.name AS supplierName,
+        1 as amount
+        FROM bu_material_tools t1
+        LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+        LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t1.group_id
+        LEFT JOIN bu_base_supplier t4 ON t4.id = t1.supplier_id
+        <where>
+            t1.tool_type = 5
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t1.name LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t1.code LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.status != null">
+                AND t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                AND t1.group_id = #{queryVO.groupId}
+            </if>
+        </where>
+        ORDER BY t1.entry_date DESC
+    </select>
+
+    <!-- 根据id查询工装信息 -->
+    <select id="getById" resultType="org.jeecg.modules.group.tool.bean.BuMaterialTools">
+        SELECT t1.*,
+               t2.name              AS warehouseName,
+               t3.group_name        AS groupName,
+               t4.name AS supplierName,
+               NVL(t5.amount, 0) as amount
+        FROM bu_material_tools t1
+                 LEFT JOIN bu_mtr_warehouse t2 ON t2.id = t1.warehouse_id
+                 LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t1.group_id
+                 LEFT JOIN bu_base_supplier t4 ON t4.id = t1.supplier_id
+                 LEFT JOIN (SELECT material_type_id, COUNT(amount) AS amount
+                            FROM bu_material_stock
+                            GROUP BY material_type_id) t5
+                           ON t5.material_type_id = t1.material_type_id
+        WHERE t1.id = #{id}
+    </select>
+
+    <select id="selectUsageRecordList" resultType="org.jeecg.modules.group.tool.bean.vo.BuToolUsageRecordVO">
+        select
+        t.tool_id,
+        t1.tool_type,
+        t1.code,
+        t1.name,
+        t.order_id,
+        t2.order_code,
+        t2.order_name,
+        t.order_task_id,
+        t3.task_no as orderTaskNo,
+        t3.task_name as orderTaskName,
+        t2.line_id,
+        t4.line_name,
+        t2.train_no,
+        t3.asset_type_id as sysId,
+        t5.name as sysName,
+        t3.task_start as userDate,
+        t2.group_id,
+        t6.group_name
+        from bu_work_order_tool t
+        left join bu_material_tools t1 on t1.id = t.tool_id
+        left join bu_work_order t2 on t2.id = t.order_id
+        left join bu_work_order_task t3 on t3.id = t.order_task_id
+        left join bu_mtr_line t4 on t4.line_id= t2.line_id
+        left join bu_train_asset_type t5 on t5.id = t3.asset_type_id
+        left join bu_mtr_workshop_group t6 on t6.id = t2.group_id
+        where t.tool_id = #{id}
+        and t3.task_status = 2
+        <if test="trainNo != null and trainNo != ''">
+            and t2.train_no = #{trainNo}
+        </if>
+        order by t3.task_start desc
+    </select>
+
+</mapper>

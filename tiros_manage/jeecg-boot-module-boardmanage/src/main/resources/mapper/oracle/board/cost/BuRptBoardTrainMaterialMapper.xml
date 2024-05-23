@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.cost.mapper.BuRptBoardTrainMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.cost.bean.BuRptBoardTrainMaterial">
+        <id column="id" property="id"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_period" property="repairPeriod"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="program_id" property="programId"/>
+        <result column="must_cost" property="mustCost"/>
+        <result column="random_cost" property="randomCost"/>
+        <result column="consume_cost" property="consumeCost"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, line_id, repair_period, train_id, train_no, repair_index, year, month,
+        program_id, must_cost, random_cost, consume_cost, workshop_id, company_id
+    </sql>
+
+    <select id="listByYearAndCondition" resultType="org.jeecg.modules.board.cost.bean.BuRptBoardTrainMaterial">
+        SELECT
+        t.*,
+        t1.name AS depotName,
+        t2.name AS programName
+        FROM bu_rpt_board_train_material t
+        LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+        LEFT JOIN bu_repair_program t2 ON t2.id = t.program_id
+        <where>
+            AND t.year = #{year}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                AND t.workshop_id = #{queryVO.workshopId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                AND t2.pro_type = #{queryVO.programType}
+            </if>
+        </where>
+        ORDER BY t.year DESC,t.month DESC,t.train_no
+    </select>
+
+</mapper>

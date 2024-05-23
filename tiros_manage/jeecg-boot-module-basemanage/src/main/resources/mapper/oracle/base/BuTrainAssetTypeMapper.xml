@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuTrainAssetTypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType">
+        <id column="id" property="id"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="code" property="code"/>
+        <result column="wbs" property="wbs"/>
+        <result column="name" property="name"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="struct_type" property="structType"/>
+        <result column="init_num" property="initNum"/>
+        <result column="asset_category_id" property="assetCategoryId"/>
+        <result column="material_id" property="materialId"/>
+        <result column="subjunctive" property="subjunctive"/>
+        <result column="turnover" property="turnover"/>
+        <result column="bom" property="bom"/>
+        <result column="sort_num" property="sortNum"/>
+        <result column="unit" property="unit"/>
+        <result column="status" property="status"/>
+        <result column="place_id" property="placeId"/>
+        <result column="place_desc" property="placeDesc"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="short_name" property="shortName"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_type_id, code, wbs, name, parent_id, struct_type, init_num, asset_category_id,
+        material_id, subjunctive, turnover, bom, sort_num, unit, status, place_id, place_desc, remark,
+        create_time, create_by, update_time, update_by, short_name
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.trainTypeId, jdbcType=VARCHAR},
+            #{item.code, jdbcType=VARCHAR},
+            #{item.wbs, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.parentId, jdbcType=VARCHAR},
+            #{item.structType, jdbcType=NUMERIC},
+            #{item.initNum, jdbcType=NUMERIC},
+            #{item.assetCategoryId, jdbcType=VARCHAR},
+            #{item.materialId, jdbcType=VARCHAR},
+            #{item.subjunctive, jdbcType=NUMERIC},
+            #{item.turnover, jdbcType=NUMERIC},
+            #{item.bom, jdbcType=NUMERIC},
+            #{item.sortNum, jdbcType=VARCHAR},
+            #{item.unit, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.placeId, jdbcType=VARCHAR},
+            #{item.placeDesc, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.shortName, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_asset_type
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+
+    <update id="updateListCodeAndWbs">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_train_asset_type set code = #{item.code, jdbcType=NUMERIC}, wbs =
+                #{item.wbs, jdbcType=NUMERIC}
+                where id = #{item.id, jdbcType=NUMERIC}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectListByBuTrainAssetTypeQueryVO"
+            resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType">
+        <if test="queryVO.searchText == null or queryVO.searchText == ''">
+            select
+            t.*,
+            decode((select count(1) from bu_train_asset_type where parent_id = t.id), 0, 0, 1) as hasChildren,
+            nvl2(t.parent_id,t2.name,'') as parentName,
+            t1.place_code
+            from bu_train_asset_type t
+            left join bu_train_place t1 on t1.id = t.place_id
+            left join bu_train_asset_type t2 on t2.id = t.parent_id
+            <where>
+                <if test="queryVO.trainTypeId != null and queryVO.trainTypeId != ''">
+                    and t.train_type_id = #{queryVO.trainTypeId}
+                </if>
+                <if test="queryVO.status != null">
+                    and t.status = #{queryVO.status}
+                </if>
+                <if test="queryVO.structType != null">
+                    and t.struct_type = #{queryVO.structType}
+                </if>
+                <choose>
+                    <when test="queryVO.id != null and queryVO.id != ''">
+                        and t.parent_id = #{queryVO.id}
+                    </when>
+                    <otherwise>
+                        and (t.parent_id is null or t.parent_id = '')
+                    </otherwise>
+                </choose>
+            </where>
+            order by t.sort_num,t.wbs
+        </if>
+        <if test="queryVO.searchText != null and queryVO.searchText != '' ">
+            select
+            t.*,
+            decode((select count(1) from bu_train_asset_type where parent_id = t.id), 0, 0, 1) as hasChildren,
+            nvl2(t.parent_id,t2.name,'') as parentName,
+            t1.place_code
+            from bu_train_asset_type t
+            left join bu_train_place t1 on t1.id = t.place_id
+            left join bu_train_asset_type t2 on t2.id = t.parent_id
+            <where>
+                <if test="queryVO.trainTypeId != null and queryVO.trainTypeId != ''">
+                    and t.train_type_id = #{queryVO.trainTypeId}
+                </if>
+                <if test="queryVO.status != null">
+                    and t.status = #{queryVO.status}
+                </if>
+                <if test="queryVO.structType != null">
+                    and t.struct_type = #{queryVO.structType}
+                </if>
+                <if test="queryVO.id != null and queryVO.id != ''">
+                    and t.wbs like
+                    (select wbs from bu_train_asset_type where id=#{queryVO.id})||'%'
+                    and t.id  <![CDATA[ != ]]> #{queryVO.id}
+                </if>
+                and (
+                t.name like '%'||#{queryVO.searchText}||'%'
+                or
+                t.code like '%'||#{queryVO.searchText}||'%'
+                )
+            </where>
+            order by t.sort_num,t.wbs
+        </if>
+    </select>
+
+    <select id="selectAssetTypeById" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType">
+        select t.*
+        from bu_train_asset_type t
+        where t.id = #{id}
+    </select>
+
+    <select id="selectBrotherMaxCodeByParentIdAndTrainTypeId" resultType="java.lang.String">
+        select max(code)
+        from bu_train_asset_type
+        where train_type_id = #{trainTypeId}
+        <choose>
+            <when test="parentId != null and parentId != ''">
+                and parent_id = #{parentId}
+            </when>
+            <otherwise>
+                and parent_id is null or parent_id = ''
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWbsListByIdList" resultType="java.lang.String">
+        SELECT
+        t.wbs
+        FROM bu_train_asset_type t
+        where t.id
+        <choose>
+            <when test="assetTypeIdList != null and assetTypeIdList.size > 0">
+                in
+                <foreach collection="assetTypeIdList" item="assetTypeId" open="(" separator="," close=")">
+                    #{assetTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectAssetTypeAndChildrenAsListByWbsList"
+            resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType">
+        SELECT
+        t.*
+        FROM bu_train_asset_type t
+        where
+        <choose>
+            <when test="assetTypeWbsList != null and assetTypeWbsList.size > 0">
+                <foreach collection="assetTypeWbsList" item="assetTypeWbs" separator=" or ">
+                    t.wbs like #{assetTypeWbs}||'%'
+                </foreach>
+            </when>
+            <otherwise>
+                t.wbs = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <delete id="deleteAssetTypeAndChildrenByWbsList">
+        DELETE
+        FROM bu_train_asset_type
+        WHERE
+        <choose>
+            <when test="assetTypeWbsList != null and assetTypeWbsList.size > 0">
+                <foreach collection="assetTypeWbsList" item="assetTypeWbs" separator=" or ">
+                    wbs LIKE #{assetTypeWbs}||'%'
+                </foreach>
+            </when>
+            <otherwise>
+                wbs = '-1'
+            </otherwise>
+        </choose>
+    </delete>
+
+    <select id="selectTopSystemListByTrainNo"
+            resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType">
+        select t.*
+        from bu_train_asset_type t
+        where t.train_type_id = (select train_type_id from bu_train_info where train_no = #{trainNo})
+        <if test="parentId==null or parentId==''">
+            and t.struct_type = 1
+            and (t.parent_id is null or t.parent_id = '')
+        </if>
+        <if test="parentId!=null and parentId!=''">
+            and t.parent_id = #{parentId}
+        </if>
+    </select>
+
+    <select id="selectAllSimpleInfoListForCache"
+            resultType="org.jeecg.common.tiros.cache.assettype.BuTrainAssetTypeBO">
+        select id, name, short_name, struct_type, parent_id, train_type_id
+        from bu_train_asset_type
+    </select>
+
+</mapper>

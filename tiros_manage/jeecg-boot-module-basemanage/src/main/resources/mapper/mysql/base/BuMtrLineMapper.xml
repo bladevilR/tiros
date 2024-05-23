@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.line.mapper.BuMtrLineMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.line.entity.BuMtrLine">
+        <id column="line_id" property="lineId"/>
+        <result column="line_num" property="lineNum"/>
+        <result column="line_name" property="lineName"/>
+        <result column="line_length" property="lineLength"/>
+        <result column="day_kilometer" property="dayKilometer"/>
+        <result column="begin_time" property="beginTime"/>
+        <result column="station_amount" property="stationAmount"/>
+        <result column="run_start" property="runStart"/>
+        <result column="run_end" property="runEnd"/>
+        <result column="company_id" property="companyId"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="remark" property="remark"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        line_id, line_num, line_name, line_length, day_kilometer, begin_time, station_amount, run_start, run_end,
+        company_id, train_type_id, remark, workshop_id
+    </sql>
+
+
+    <select id="selectLineById" resultType="org.jeecg.modules.basemanage.line.entity.BuMtrLine">
+        select t.*,
+               t1.name as trainTypeName,
+               t2.name as companyName
+        from bu_mtr_line t
+                 left join bu_train_type t1 on t1.id = t.train_type_id
+                 left join bu_mtr_company t2 on t2.id = t.company_id
+        where t.line_id = #{lineId}
+    </select>
+
+    <select id="selectAllList" resultType="org.jeecg.modules.basemanage.line.entity.BuMtrLine">
+        select t.*,
+               t1.depot_id
+        from bu_mtr_line t
+                 left join bu_mtr_workshop t1 on t1.id = t.workshop_id
+        order by line_id
+    </select>
+
+</mapper>

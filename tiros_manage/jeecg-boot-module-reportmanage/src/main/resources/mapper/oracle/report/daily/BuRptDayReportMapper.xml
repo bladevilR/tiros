@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.daily.mapper.BuRptDayReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.daily.bean.BuRptDayReport">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="period" property="period"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="mileage" property="mileage"/>
+        <result column="report_date" property="reportDate"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="workshop" property="workshop"/>
+        <result column="user_name" property="userName"/>
+        <result column="report_content" property="reportContent"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuRptDayReport_Collection" type="org.jeecg.modules.report.daily.bean.BuRptDayReport">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="period" property="period"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="mileage" property="mileage"/>
+        <result column="report_date" property="reportDate"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="workshop" property="workshop"/>
+        <result column="user_name" property="userName"/>
+        <result column="report_content" property="reportContent"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+        <collection property="workPlanList" column="id"
+                    ofType="org.jeecg.modules.report.daily.bean.BuRptDayReportWorkPlan"
+                    select="selectWorkPlanList"/>
+        <collection property="nextWorkList" column="id"
+                    ofType="org.jeecg.modules.report.daily.bean.BuRptDayReportNextWork"
+                    select="selectNextWorkList"/>
+        <collection property="outinList" column="id"
+                    ofType="org.jeecg.modules.report.daily.bean.BuRptDayReportOutin"
+                    select="selectOutinList"/>
+        <collection property="faultList" column="id"
+                    ofType="org.jeecg.modules.report.daily.bean.BuRptDayReportFault"
+                    select="selectFaultList"/>
+        <collection property="otherFaultList" column="id"
+                    ofType="org.jeecg.modules.report.daily.bean.BuRptDayReportOtherFault"
+                    select="selectOtherFaultList"/>
+    </resultMap>
+    <select id="selectWorkPlanList" resultType="org.jeecg.modules.report.daily.bean.BuRptDayReportWorkPlan">
+        select *
+        from bu_rpt_day_report_work_plan
+        where report_id = #{id}
+    </select>
+    <select id="selectNextWorkList" resultType="org.jeecg.modules.report.daily.bean.BuRptDayReportNextWork">
+        select *
+        from bu_rpt_day_report_next_work
+        where report_id = #{id}
+    </select>
+    <select id="selectOutinList" resultType="org.jeecg.modules.report.daily.bean.BuRptDayReportOutin">
+        select *
+        from bu_rpt_day_report_outin
+        where report_id = #{id}
+    </select>
+    <select id="selectFaultList" resultType="org.jeecg.modules.report.daily.bean.BuRptDayReportFault">
+        select *
+        from bu_rpt_day_report_fault
+        where report_id = #{id}
+    </select>
+    <select id="selectOtherFaultList" resultType="org.jeecg.modules.report.daily.bean.BuRptDayReportOtherFault">
+        select *
+        from bu_rpt_day_report_other_fault
+        where report_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, period, train_no, mileage, report_date, day_index, workshop, user_name, company_id, line_id
+    </sql>
+
+    <select id="selectByCondition" resultMap="ResultMap_BuRptDayReport_Collection">
+        select *
+        from bu_rpt_day_report
+        where report_date = #{queryVO.day}
+          and train_no = #{queryVO.trainNo}
+          and workshop_id = #{queryVO.workshopId}
+    </select>
+
+    <select id="selectRepairInfo" resultType="java.util.Map">
+        select t1.mileage  as "mileage",
+               t.day_index as "dayIndex"
+        from bu_repair_plan_task t
+                 left join bu_repair_plan t1 on t1.id = t.plan_id
+                 left join bu_mtr_workshop_group t2 on t2.id = t.work_group_id
+        where to_char(#{queryVO.day},'yyyy-mm-dd') = to_char(t.start_time,'yyyy-mm-dd')
+          and t1.train_no = #{queryVO.trainNo}
+          and t2.workshop_id = #{queryVO.workshopId}
+    </select>
+
+    <select id="selectWorkshopNameByWorkshopId" resultType="java.lang.String">
+        select name
+        from bu_mtr_workshop
+        where id = #{workshopId}
+    </select>
+
+</mapper>

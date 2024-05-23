@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.toolplan.mapper.BuToolPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.toolplan.bean.BuToolPlan">
+        <id column="id" property="id" />
+        <result column="tool_id" property="toolId" />
+        <result column="plan_type" property="planType" />
+        <result column="start_time" property="startTime" />
+        <result column="end_time" property="endTime" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, tool_id, plan_type, start_time, end_time, remark, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 根据条件分页查询工具(装)运用/保养计划 -->
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.toolplan.bean.BuToolPlan">
+        SELECT
+        t1.*,
+        t2.name AS name,
+        t2.model AS model,
+        t2.status AS status,
+        t2.code AS code,
+        t2.asset_code AS assetCode,
+        t2.entrace_date AS entraceDate,
+        t3.name AS warehouseName,
+        t4.group_name AS groupName
+        FROM bu_tool_plan t1
+        LEFT JOIN bu_material_tools t2 ON t2.id = t1.tool_id
+        LEFT JOIN bu_mtr_warehouse t3 ON t3.id = t2.warehouse_id
+        LEFT JOIN bu_mtr_workshop_group t4 ON t4.id = t2.group_id
+        <where>
+            <if test="queryVO.planType != null">
+                AND t1.plan_type = #{queryVO.planType}
+            </if>
+            <if test="queryVO.name != null and queryVO.name != ''">
+                AND t2.name LIKE '%'||#{queryVO.name}||'%'
+            </if>
+            <if test="queryVO.code != null and queryVO.code != ''">
+                AND t2.code LIKE '%'||#{queryVO.code}||'%'
+            </if>
+            <if test="queryVO.status != null">
+                AND t2.status = #{queryVO.status}
+            </if>
+        </where>
+        ORDER BY t1.start_time
+    </select>
+
+    <select id="selectConflictToolPlanList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        bu_tool_plan
+        WHERE
+        tool_id = #{checkVO.toolId}
+        <if test="checkVO.startTime != null and checkVO.endTime != null">
+            AND
+            (
+            (#{checkVO.startTime} BETWEEN start_time AND end_time)
+            OR
+            (#{checkVO.endTime} BETWEEN start_time AND end_time)
+            )
+        </if>
+        <if test="checkVO.startTime == null and checkVO.endTime == null">
+            AND
+            (#{checkVO.nowTime} BETWEEN start_time AND end_time)
+        </if>
+    </select>
+
+</mapper>

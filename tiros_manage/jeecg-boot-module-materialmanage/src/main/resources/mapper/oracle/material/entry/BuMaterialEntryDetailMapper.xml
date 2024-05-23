@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.entry.mapper.BuMaterialEntryDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.entry.bean.BuMaterialEntryDetail">
+        <id column="id" property="id"/>
+        <result column="entry_order_id" property="entryOrderId"/>
+        <result column="ebs_warehouse_id" property="ebsWarehouseId"/>
+        <result column="ebs_warehouse_levl_2" property="ebsWarehouseLevl2"/>
+        <result column="self_warehouse_id" property="selfWarehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="price" property="price"/>
+        <result column="entry_user_id" property="entryUserId"/>
+        <result column="entry_date" property="entryDate"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="production_date" property="productionDate"/>
+        <result column="expir_day" property="expirDay"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="confirm" property="confirm"/>
+        <result column="entry_class" property="entryClass"/>
+        <result column="confirm_amount" property="confirmAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="confirm_user_id" property="confirmUserId"/>
+        <result property="entryNo" column="entry_no"/>
+        <result property="materialTypeCode" column="materialTypeCode"/>
+        <result property="materialTypeName" column="materialTypeName"/>
+        <result property="materialTypeSpec" column="materialTypeSpec"/>
+        <result property="materialTypeUnit" column="materialTypeUnit"/>
+        <result property="materialTypeCategory1" column="materialTypeCategory1"/>
+        <result property="selfWarehouseName" column="selfWarehouseName"/>
+        <result property="entryDeptId" column="entry_dept_id"/>
+        <result property="entryDeptName" column="entryDeptName"/>
+        <result property="confirmUserName" column="confirmUserName"/>
+        <collection property="detailList" column="id" select="selectDetail" ofType="org.jeecg.modules.material.entry.bean.BuMaterialEntryLevelFourDetail">
+        </collection>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, entry_order_id, ebs_warehouse_id, ebs_warehouse_levl_2, self_warehouse_id, material_type_id,
+        amount, price, entry_user_id, entry_date, leave_factory, production_date, expir_day, expir_date,
+        confirm, entry_class, confirm_amount, create_time, create_by, update_time, update_by, confirm_user_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.entryOrderId, jdbcType=VARCHAR},
+            #{item.ebsWarehouseId, jdbcType=VARCHAR},
+            #{item.ebsWarehouseLevl2, jdbcType=VARCHAR},
+            #{item.selfWarehouseId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DECIMAL},
+            #{item.price, jdbcType=DECIMAL},
+            #{item.entryUserId, jdbcType=VARCHAR},
+            #{item.entryDate, jdbcType=DATE},
+            #{item.leaveFactory, jdbcType=DATE},
+            #{item.productionDate, jdbcType=DATE},
+            #{item.expirDay, jdbcType=INTEGER},
+            #{item.expirDate, jdbcType=DATE},
+            #{item.confirm, jdbcType=INTEGER},
+            #{item.entryClass, jdbcType=INTEGER},
+            #{item.confirmAmount, jdbcType=DOUBLE},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.confirmUserId, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+ <select id="selectDetail" parameterType="string" resultType="org.jeecg.modules.material.entry.bean.BuMaterialEntryLevelFourDetail">
+     select t.*,t1.realname as oprationUserName,t2.NAME as selfWarehouseName
+     from bu_material_entry_4_detail t
+     left join SYS_USER t1 on t1.id=t.opration_user_id
+     left join bu_mtr_warehouse t2 on t2.id=t.self_warehouse_id
+     where t.enter_detail_id=#{id}
+ </select>
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_entry_detail
+            (
+            <include refid="Base_Column_List"/>
+            )
+           <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.material.entry.bean.BuMaterialEntryDetail">
+        SELECT
+        t.*,
+        t1.entry_no,
+        t2.code AS materialTypeCode,
+        t2.name AS materialTypeName,
+        t2.spec AS materialTypeSpec,
+        t2.unit AS materialTypeUnit,
+        t2.category1 AS materialTypeCategory1,
+        t3.name AS selfWarehouseName,
+        t4.realname as entryUserName,
+        t1.entry_dept_id,
+        (select a.name from bu_mtr_warehouse a where a.wh_level = '3' and (a.code = t.ebs_warehouse_levl_2 or a.id=t.ebs_warehouse_levl_2)) as
+        selfWarehouseName2,
+        t5.depart_name as entryDeptName,
+        t6.realname as confirmUserName
+        FROM bu_material_entry_detail t
+        LEFT JOIN bu_material_entry_order t1 on t1.id = t.entry_order_id
+        LEFT JOIN bu_material_type t2 ON t2.id = t.material_type_id
+        LEFT JOIN bu_mtr_warehouse t3 ON t3.id = t.self_warehouse_id
+        LEFT JOIN sys_user t4 ON t4.id = t.entry_user_id
+        LEFT JOIN sys_depart t5 ON t5.id = t1.entry_dept_id
+        LEFT JOIN sys_user t6 ON t6.id = t.confirm_user_id
+        <where>
+            <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">
+                AND t3.wbs like (select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId})||'%'
+            </if>
+            <if test="queryVO.entryClass != null">
+                AND t.entry_class = #{queryVO.entryClass}
+            </if>
+            <if test="queryVO.materialCategory != null and queryVO.materialCategory != ''">
+                AND t2.category1 = #{queryVO.materialCategory}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t2.code LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t2.name LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.confirm != null">
+                AND t.confirm = #{queryVO.confirm}
+            </if>
+        </where>
+        order by t1.entry_no desc, t2.code, t.entry_date desc
+    </select>
+
+    <select id="selectListByEntryOrderId" resultType="org.jeecg.modules.material.entry.bean.BuMaterialEntryDetail">
+        SELECT t.*,
+               t1.entry_no,
+               t2.code        AS materialTypeCode,
+               t2.name        AS materialTypeName,
+               t2.spec        AS materialTypeSpec,
+               t2.unit        AS materialTypeUnit,
+               t2.category1   AS materialTypeCategory1,
+               t3.name        AS selfWarehouseName,
+               t4.realname    as entryUserName,
+               t1.entry_dept_id,
+               t5.depart_name as entryDeptName,
+               t6.realname    as confirmUserName
+        FROM bu_material_entry_detail t
+                 LEFT JOIN bu_material_entry_order t1 on t1.id = t.entry_order_id
+                 LEFT JOIN bu_material_type t2 ON t2.id = t.material_type_id
+                 LEFT JOIN bu_mtr_warehouse t3 ON t3.id = t.self_warehouse_id
+                 LEFT JOIN sys_user t4 ON t4.id = t.entry_user_id
+                 LEFT JOIN sys_depart t5 ON t5.id = t1.entry_dept_id
+                 LEFT JOIN sys_user t6 ON t6.id = t.confirm_user_id
+        where t.entry_order_id = #{entryOrderId}
+        order by t2.code, t.entry_date desc
+    </select>
+
+    <select id="selectEntryDetailById" resultMap="BaseResultMap">
+        SELECT t.*,
+               t1.entry_no,
+               t2.code        AS materialTypeCode,
+               t2.name        AS materialTypeName,
+               t2.spec        AS materialTypeSpec,
+               t2.unit        AS materialTypeUnit,
+               t2.category1   AS materialTypeCategory1,
+               t3.name        AS selfWarehouseName,
+               t4.realname    as entryUserName,
+               t1.entry_dept_id,
+               t5.depart_name as entryDeptName,
+               t6.realname    as confirmUserName
+        FROM bu_material_entry_detail t
+                 LEFT JOIN bu_material_entry_order t1 on t1.id = t.entry_order_id
+                 LEFT JOIN bu_material_type t2 ON t2.id = t.material_type_id
+                 LEFT JOIN bu_mtr_warehouse t3 ON t3.id = t.self_warehouse_id
+                 LEFT JOIN sys_user t4 ON t4.id = t.entry_user_id
+                 LEFT JOIN sys_depart t5 ON t5.id = t1.entry_dept_id
+                 LEFT JOIN sys_user t6 ON t6.id = t.confirm_user_id
+        where t.id = #{entryDetailId}
+    </select>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormValuesMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormValues">
+        <id column="id" property="id" />
+        <result column="plan_form_id" property="planFormId" />
+        <result column="form_data_record_id" property="formDataRecordId" />
+        <result column="form_obj_id" property="formObjId" />
+        <result column="measure_threshold_id" property="measureThresholdId" />
+        <result column="alert_value" property="alertValue" />
+        <result column="alert_happen" property="alertHappen" />
+        <result column="alert_message" property="alertMessage" />
+        <result column="status" property="status" />
+        <result column="fixed_value" property="fixedValue" />
+        <result column="group_id" property="groupId" />
+        <result column="alert_time" property="alertTime" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="order_task_id" property="orderTaskId" />
+        <result column="fix_desc" property="fixDesc" />
+        <result column="order_id" property="orderId" />
+        <result column="link_domain" property="linkDomain" />
+        <result column="threshold_value" property="thresholdValue" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_form_id, form_data_record_id, form_obj_id, measure_threshold_id, alert_value, alert_happen,
+        alert_message, status, fixed_value, group_id, alert_time, create_time, create_by, update_time, update_by,
+        order_task_id, fix_desc, order_id, link_domain, threshold_value
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.planFormId, jdbcType=VARCHAR},
+            #{item.formDataRecordId, jdbcType=VARCHAR},
+            #{item.formObjId, jdbcType=VARCHAR},
+            #{item.measureThresholdId, jdbcType=VARCHAR},
+            #{item.alertValue, jdbcType=NUMERIC},
+            #{item.alertHappen, jdbcType=NUMERIC},
+            #{item.alertMessage, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.fixedValue, jdbcType=NUMERIC},
+            #{item.groupId, jdbcType=VARCHAR},
+            #{item.alertTime, jdbcType=TIMESTAMP},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.orderTaskId, jdbcType=VARCHAR},
+            #{item.fixDesc, jdbcType=VARCHAR},
+            #{item.orderId, jdbcType=VARCHAR},
+            #{item.linkDomain, jdbcType=VARCHAR},
+            #{item.thresholdValue, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_pl_data_record_value
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+</mapper>

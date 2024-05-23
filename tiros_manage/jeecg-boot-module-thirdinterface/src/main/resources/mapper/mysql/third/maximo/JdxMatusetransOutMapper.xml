@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxMatusetransOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxMatusetransOut">
+        <result column="BINNUM" property="binnum"/>
+        <result column="C_DEPT" property="cDept"/>
+        <result column="C_INVENTORYORG" property="cInventoryorg"/>
+        <result column="C_STATUS" property="cStatus"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="FCPROJECTID" property="fcprojectid"/>
+        <result column="FCTASKID" property="fctaskid"/>
+        <result column="ISSUETYPE" property="issuetype"/>
+        <result column="ITEMNUM" property="itemnum"/>
+        <result column="ITEMSETID" property="itemsetid"/>
+        <result column="LINECOST" property="linecost"/>
+        <result column="LINETYPE" property="linetype"/>
+        <result column="LOCATION" property="location"/>
+        <result column="LOTNUM" property="lotnum"/>
+        <result column="MATUSETRANSID" property="matusetransid"/>
+        <result column="OWNERSYSID" property="ownersysid"/>
+        <result column="POSITIVEQUANTITY" property="positivequantity"/>
+        <result column="QUANTITY" property="quantity"/>
+        <result column="REFWO" property="refwo"/>
+        <result column="SENDERSYSID" property="sendersysid"/>
+        <result column="SITEID" property="siteid"/>
+        <result column="STORELOC" property="storeloc"/>
+        <result column="TRANSDATE" property="transdate"/>
+        <result column="UNITCOST" property="unitcost"/>
+        <result column="TRANSID" property="transid"/>
+        <result column="TRANSSEQ" property="transseq"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        BINNUM, C_DEPT, C_INVENTORYORG, C_STATUS, DESCRIPTION, FCPROJECTID, FCTASKID, ISSUETYPE, ITEMNUM, ITEMSETID, LINECOST, LINETYPE, LOCATION, LOTNUM, MATUSETRANSID, OWNERSYSID, POSITIVEQUANTITY, QUANTITY, REFWO, SENDERSYSID, SITEID, STORELOC, TRANSDATE, UNITCOST, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

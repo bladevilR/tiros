@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.qrcode.mapper.BuMaterialQrcodeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.qrcode.bean.BuMaterialQrcode">
+        <id column="id" property="id"/>
+        <result column="obj_type" property="objType"/>
+        <result column="obj_id" property="objId"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="qrcode_img_url" property="qrcodeImgUrl"/>
+        <result column="print" property="print"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, obj_type, obj_id, material_code, asset_code, manuf_no, qrcode_img_url, print, company_id, workshop_id, line_id
+    </sql>
+
+    <select id="selectListObjNotExist" resultType="org.jeecg.modules.material.qrcode.bean.BuMaterialQrcode">
+        select t.*
+        from bu_material_qrcode t
+        where (t.obj_type = 3 and t.obj_id not in (select id from bu_material_pallet))
+           or (t.obj_type = 5 and t.obj_id not in (select id from bu_mtr_warehouse))
+    </select>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.workshopdb.mapper.WSFaultMapper">
+
+    <select id="countAll" resultType="java.lang.Long">
+        select COUNT(*) from [故障总表]
+        where [故障单状态] = '已审核'
+        and (
+        <foreach collection="lineNameList" item="lineName" separator=" or ">
+            [线别] = #{lineName}
+        </foreach>
+        )
+    </select>
+
+    <select id="selectAllList" resultType="org.jeecg.modules.third.workshopdb.bean.WSFault">
+        select *
+        from [故障总表]
+        where [故障单状态] = '已审核'
+        and (
+        <foreach collection="lineNameList" item="lineName" separator=" or ">
+            [线别] = #{lineName}
+        </foreach>
+        )
+        order by 序号
+    </select>
+
+</mapper>

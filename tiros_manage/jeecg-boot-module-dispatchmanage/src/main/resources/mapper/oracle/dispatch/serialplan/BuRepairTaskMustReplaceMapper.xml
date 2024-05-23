@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskMustReplaceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="changed" property="changed"/>
+        <result column="change_id" property="changeId"/>
+        <result column="remark" property="remark"/>
+        <result column="must_replace_id" property="mustReplaceId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, asset_type_id, changed, change_id, remark, must_replace_id, plan_id, material_type_id, amount
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.changed, jdbcType=INTEGER},
+            #{item.changeId, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.mustReplaceId, jdbcType=VARCHAR},
+            #{item.planId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=NUMERIC},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_task_must_replace
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectDistinctListByPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace">
+        select t.*,
+               t3.name       as repairProgramName,
+               t4.line_name  as lineName,
+               t5.group_name as groupName,
+               t6.name       as workstationName,
+               t7.name       as locationName,
+               t2.name,
+               t2.code,
+               t2.spec,
+               t2.unit,
+               t2.category1  as materialTypeCategory,
+               t8.name       as sysName
+        from (select a.must_replace_id,
+                     SUM(a.amount) as amount
+              from bu_repair_task_must_replace a
+                       left join bu_repair_plan_task a1 on a1.id = a.task_id
+              where a1.plan_id = #{planId}
+              group by a.must_replace_id) t
+                 left join bu_material_must_list t1 on t1.id = t.must_replace_id
+                 left join bu_material_type t2 on t1.material_type_id = t2.id
+                 left join bu_repair_program t3 on t3.id = t1.repair_program_id
+                 left join bu_mtr_line t4 on t4.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t1.group_id
+                 left join bu_mtr_workstation t6 on t6.id = t1.workstation_id
+                 left join bu_train_structure_detail t7 on t7.id = t1.location
+                 left join bu_train_asset_type t8 on t8.id = t1.sys_id
+        order by t2.code
+    </select>
+
+    <select id="selectListForGenerateOrderByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace">
+        select t.*,
+               t2.sys_id,
+               t2.workstation_id
+        from bu_repair_task_must_replace t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_material_must_list t2 on t2.id = t.must_replace_id
+        where t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace">
+        select t.*,
+               t3.name       as repairProgramName,
+               t4.line_name  as lineName,
+               t5.group_name as groupName,
+               t6.name       as workstationName,
+               t7.name       as locationName,
+               t2.name,
+               t2.code,
+               t2.spec,
+               t2.unit,
+               t2.category1  as materialTypeCategory,
+               t8.name       as sysName
+        from bu_repair_task_must_replace t
+                 left join bu_material_must_list t1 on t1.id = t.must_replace_id
+                 left join bu_material_type t2 on t1.material_type_id = t2.id
+                 left join bu_repair_program t3 on t3.id = t1.repair_program_id
+                 left join bu_mtr_line t4 on t4.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t1.group_id
+                 left join bu_mtr_workstation t6 on t6.id = t1.workstation_id
+                 left join bu_train_structure_detail t7 on t7.id = t1.location
+                 left join bu_train_asset_type t8 on t8.id = t1.sys_id
+        where t.task_id = #{taskId}
+        order by t2.code
+    </select>
+
+</mapper>

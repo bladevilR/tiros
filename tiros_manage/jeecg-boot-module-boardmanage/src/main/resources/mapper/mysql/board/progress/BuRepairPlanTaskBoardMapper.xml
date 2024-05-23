@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuRepairPlanTaskBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuRepairPlanTask">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_name" property="taskName"/>
+        <result column="task_wbs" property="taskWbs"/>
+        <result column="important" property="important"/>
+        <result column="outsource" property="outsource"/>
+        <result column="method" property="method"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="progress" property="progress"/>
+        <result column="duration" property="duration"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="predecessor" property="predecessor"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="gen_order" property="genOrder"/>
+        <result column="has_gen" property="hasGen"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="suspend_status" property="suspendStatus"/>
+        <result column="suspend_time" property="suspendTime"/>
+        <result column="active_time" property="activeTime"/>
+        <result column="safe_notice" property="safeNotice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, parent_id, task_no, task_name, task_wbs, important, outsource,
+        method, system_id, asset_type_id, work_time, progress, duration, start_time,
+        finish_time, act_start, act_finish, predecessor, day_index, work_group_id,
+        status, remark, gen_order, has_gen, create_time, create_by, update_time, update_by,
+        suspend_status, suspend_time, active_time, safe_notice
+    </sql>
+
+    <select id="listPlanTaskByCondition" resultType="org.jeecg.modules.board.progress.bean.BuRepairPlanTask">
+        SELECT
+        t.*
+        FROM bu_repair_plan_task t
+        LEFT JOIN bu_repair_plan t1 ON t1.id = t.plan_id
+        <where>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t1.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t1.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t1.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate != null">
+                AND
+                (
+                (t.start_time &gt;= #{queryVO.startDate} AND t.start_time &lt;= #{queryVO.endDate})
+                OR
+                (t.finish_time &gt;= #{queryVO.startDate} AND t.finish_time &lt;= #{queryVO.endDate})
+                )
+            </if>
+        </where>
+    </select>
+
+</mapper>

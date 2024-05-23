@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.plan.mapper.BuRepairPlanYearMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYear">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="year" property="year"/>
+        <result column="first_time" property="firstTime"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="middle_amount" property="middleAmount"/>
+        <result column="hight_amount" property="hightAmount"/>
+        <result column="middle_plan_template" property="middlePlanTemplate"/>
+        <result column="hight_plan_template" property="hightPlanTemplate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_子查询年计划详情 -->
+    <resultMap id="ResultMap_BuRepairPlanYear_WithDetail" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYear">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="year" property="year"/>
+        <result column="first_time" property="firstTime"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="middle_amount" property="middleAmount"/>
+        <result column="hight_amount" property="hightAmount"/>
+        <result column="middle_plan_template" property="middlePlanTemplate"/>
+        <result column="hight_plan_template" property="hightPlanTemplate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+        <collection property="detailList" column="id"
+                    ofType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail"
+                    select="selectPlanYearDetailList"/>
+    </resultMap>
+    <select id="selectPlanYearDetailList" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail">
+        SELECT t1.*,
+               t2.line_name AS lineName,
+               t3.name      AS programName
+        FROM bu_repair_plan_year_detail t1
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+        WHERE t1.year_plan_id = #{id}
+        ORDER BY t1.train_index
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, year, first_time, depot_id, remark, status, middle_amount, hight_amount,
+        middle_plan_template, hight_plan_template, create_time, create_by, update_time, update_by,
+        workshop_id, company_id, line_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYear">
+        SELECT
+        t1.*,
+        t4.tp_name AS middlePlanTemplateName,
+        t5.tp_name AS hightPlanTemplateName,
+        t2.name AS depotName,
+        t6.name AS workshopName,
+        NVL(t3.process_status, '未发起') AS wfStatus,
+        t3.process_candidate
+        FROM bu_repair_plan_year t1
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+        LEFT JOIN wf_biz_status t3 ON t3.business_key = t1.id
+        LEFT JOIN bu_tp_repair_plan t4 ON t4.id = t1.middle_plan_template
+        LEFT JOIN bu_tp_repair_plan t5 ON t5.id = t1.hight_plan_template
+        LEFT JOIN bu_mtr_workshop t6 ON t6.id = t1.workshop_id
+        <where>
+            <if test="queryVO.title != null and queryVO.title != ''">
+                AND t1.title LIKE '%'||#{queryVO.title}||'%'
+            </if>
+            <if test="queryVO.status != null">
+                <choose>
+                    <when test="queryVO.status == 0">
+                        AND
+                        (
+                        t3.process_status = '未发起'
+                        OR
+                        t3.process_status IS NULL
+                        )
+                    </when>
+                    <when test="queryVO.status == 2">
+                        AND t3.process_status = '已结束'
+                    </when>
+                    <when test="queryVO.status == 1">
+                        AND
+                        (
+                        t3.process_status != '未发起'
+                        AND
+                        t3.process_status != '已结束'
+                        AND
+                        t3.process_status IS NOT NULL
+                        )
+                    </when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY t1.year DESC, t1.first_time DESC
+    </select>
+
+    <select id="selectPlanYearWithDetailById" resultMap="ResultMap_BuRepairPlanYear_WithDetail">
+        SELECT t1.*,
+               t4.tp_name                       AS middlePlanTemplateName,
+               t5.tp_name                       AS hightPlanTemplateName,
+               t2.name                          AS depotName,
+               t6.name                          AS workshopName,
+               NVL(t3.process_status, '未发起') AS wfStatus,
+               t3.process_candidate
+        FROM bu_repair_plan_year t1
+                 LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+                 LEFT JOIN wf_biz_status t3 ON t3.business_key = t1.id
+                 LEFT JOIN bu_tp_repair_plan t4 on t4.id = t1.middle_plan_template
+                 LEFT JOIN bu_tp_repair_plan t5 on t5.id = t1.hight_plan_template
+                 LEFT JOIN bu_mtr_workshop t6 ON t6.id = t1.workshop_id
+        WHERE t1.id = #{id}
+    </select>
+
+    <select id="selectListByCondition" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYear">
+        SELECT
+        t.title title,
+        t1.amount amount,
+        t1.train_index trainIndex,
+        t1.start_date startDate,
+        t1.finish_date finishDate,
+        t1.STATUS status,
+        t2.line_name lineName,
+        t3.NAME programName
+        FROM
+        bu_repair_plan_year t
+        LEFT JOIN bu_repair_plan_year_detail t1 ON t1.year_plan_id = t.id
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+        LEFT JOIN wf_biz_status t4 ON t4.business_key = t.id
+
+        <where>
+            <if test="queryVO.id != null and queryVO.id != ''">
+                AND t.id = #{queryVO.id}
+            </if>
+
+        </where>
+        ORDER BY t.year,t.first_time
+    </select>
+
+</mapper>

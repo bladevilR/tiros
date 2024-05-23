@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.excel.mapper.BuRptExcelTemplateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.excel.bean.BuRptExcelTemplate">
+        <id column="id" property="id"/>
+        <result column="temp_code" property="tempCode"/>
+        <result column="temp_name" property="tempName"/>
+        <result column="temp_content" property="tempContent"/>
+        <result column="remark" property="remark"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, temp_code, temp_name, temp_content, remark, company_id, workshop_id, line_id
+    </sql>
+
+    <select id="selectPageBySearchText" resultType="org.jeecg.modules.report.excel.bean.BuRptExcelTemplate">
+        select *
+        from bu_rpt_excel_template
+        <if test="searchText != null and searchText != ''">
+            where
+            temp_code like '%'||#{searchText}||'%'
+            or
+            temp_name like '%'||#{searchText}||'%'
+        </if>
+        order by temp_code
+    </select>
+
+    <select id="selectByTempCode" resultType="org.jeecg.modules.report.excel.bean.BuRptExcelTemplate">
+        select *
+        from bu_rpt_excel_template
+        where temp_code = #{tempCode}
+    </select>
+
+</mapper>

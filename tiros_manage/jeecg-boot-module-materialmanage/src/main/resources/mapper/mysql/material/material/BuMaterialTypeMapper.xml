@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.material.mapper.BuMaterialTypeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.material.bean.BuMaterialType">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="spec" property="spec"/>
+        <result column="unit" property="unit"/>
+        <result column="price" property="price"/>
+        <result column="status" property="status"/>
+        <result column="kind" property="kind"/>
+        <result column="category" property="category"/>
+        <result column="category1" property="category1"/>
+        <result column="category2" property="category2"/>
+        <result column="category3" property="category3"/>
+        <result column="theshold" property="theshold"/>
+        <result column="subject" property="subject"/>
+        <result column="is_asset" property="isAsset"/>
+        <result column="from_head" property="fromHead"/>
+        <result column="is_consume" property="isConsume"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <!--        <result column="warehouse" property="warehouse"/>-->
+        <result column="extAttr" property="extAttr"/>
+        <result column="amount" property="amount"/>
+        <result column="category" property="category"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, spec, unit, price, status, kind, category, category1, category2, category3,
+        theshold, subject, is_asset, from_head, is_consume, remark, create_time, create_by, update_time, update_by
+    </sql>
+    <!-- 插入value sql -->
+    <sql id="insertValueItem">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.code},
+            #{item.name},
+            #{item.spec},
+            #{item.unit},
+            #{item.price},
+            #{item.status},
+            #{item.kind},
+            #{item.category1},
+            #{item.theshold},
+            #{item.isAsset},
+            #{item.fromHead},
+            #{item.createTime},
+        </trim>
+    </sql>
+    <insert id="insertBatch" parameterType="list">
+        insert into bu_material_type
+        (
+        id, code, name, spec, unit, price, status,kind, category1, theshold, is_asset, from_head,create_time
+        )
+        value
+        <foreach collection="list" item="item" separator=",">
+            (
+            <include refid="insertValueItem"/>
+            )
+        </foreach>
+
+    </insert>
+    <!--category1=#{item.category1, jdbcType=INTEGER},不改变类型-->
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            update bu_material_type set theshold=#{item.theshold},
+            spec=#{item.spec},unit=#{item.unit},name=#{item.name}
+            where id = #{item.id}
+        </foreach>
+
+    </update>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.code},
+            #{item.name},
+            #{item.spec},
+            #{item.unit},
+            #{item.price},
+            #{item.status},
+            #{item.kind},
+            #{item.category},
+            #{item.category1},
+            #{item.category2},
+            #{item.category3},
+            #{item.theshold},
+            #{item.subject},
+            #{item.isAsset},
+            #{item.fromHead},
+            #{item.isConsume},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_type
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updatePriceBatch">
+        <foreach collection="list" item="item" separator=";">
+            update bu_material_type set price = #{item.price}
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateIdEqualsCodeBatch">
+        <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+            update bu_material_type set id = #{item.code}
+            where id = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateOldNewMaterialTypeIdBusinessTableData">
+        <foreach collection="oldIdsNewIdMapList" item="oldIdsNewIdMap" separator=";">
+            update bu_material_stock set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_group_stock set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_must_list set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_tools set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_spare_part set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_type_attr set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_year_plan set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_regu_material set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_regu_tools set tool_type_id = #{oldIdsNewIdMap.newId}
+            where tool_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_tech_book_material set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_tech_book_tools set tool_type_id = #{oldIdsNewIdMap.newId}
+            where tool_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_tp_repair_plan_material set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_tp_repair_plan_tool set tool_type_id = #{oldIdsNewIdMap.newId}
+            where tool_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_tp_repair_plan_must_replace set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_task_material set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_task_tool set tool_type_id = #{oldIdsNewIdMap.newId}
+            where tool_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_repair_task_must_replace set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_work_order_material set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_work_order_tool set tool_type_id = #{oldIdsNewIdMap.newId}
+            where tool_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_work_part_change set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_apply_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_assign_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_borrow_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_entry_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_entry_4_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+            ;
+            update bu_material_returned_detail set material_type_id = #{oldIdsNewIdMap.newId}
+            where material_type_id in
+            <foreach collection="oldIdsNewIdMap.oldIds" item="oldId" separator="," open="(" close=")">
+                #{oldId}
+            </foreach>
+        </foreach>
+    </update>
+
+    <update id="updateMaterialTypePriceBusinessTableData">
+        <foreach collection="oldIdsNewIdMapList" item="oldIdsNewIdMap" separator=";">
+            update bu_work_order_material_acts set price = #{idPriceMap.price}
+            where order_material_id in (select id from bu_work_order_material where material_type_id = #{idPriceMap.id})
+            ;
+            update bu_material_group_stock set price = #{idPriceMap.price}
+            where material_type_id = #{idPriceMap.id}
+            ;
+            update bu_material_assign_detail set price = #{idPriceMap.price}
+            where material_type_id = #{idPriceMap.id}
+            ;
+            update bu_material_stock set price = #{idPriceMap.price}
+            where material_type_id = #{idPriceMap.id}
+            ;
+            update bu_material_entry_detail set price = #{idPriceMap.price}
+            where material_type_id = #{idPriceMap.id}
+            ;
+            update bu_material_type set price = #{idPriceMap.price}
+            where id = #{idPriceMap.id}
+        </foreach>
+    </update>
+
+    <!--    <select id="selectMaterialTypePage" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">-->
+    <!--        select-->
+    <!--        t.*,-->
+    <!--        t.category2 as extAttr,-->
+    <!--        t1.lead,-->
+    <!--        (-->
+    <!--        <choose>-->
+    <!--            <when test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--                and a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--            </when>-->
+    <!--            <otherwise>-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--            </otherwise>-->
+    <!--        </choose>-->
+    <!--        ) as amount-->
+    <!--        from bu_material_type t-->
+    <!--        left join bu_material_type_attr t1 on t1.material_type_id = t.id-->
+    <!--        <where>-->
+    <!--            <if test="queryVO.type != null">-->
+    <!--                and t.kind = #{queryVO.type}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.attr != null">-->
+    <!--                and t.category2 = #{queryVO.attr}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+    <!--                and ( t.name like concat('%',#{queryVO.searchText},'%') or-->
+    <!--                t.code like concat('%',#{queryVO.searchText},'%') )-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.category1 != null and queryVO.category1 != ''">-->
+    <!--                and t.category1 = #{queryVO.category1}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                and t.id in (-->
+    <!--                select a1.material_type_id from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--                )-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--        order by t.code-->
+    <!--    </select>-->
+    <select id="selectMaterialTypePage" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select
+        t.*,
+        t.category2 as extAttr,
+        t1.lead,
+        t2.can_replace
+        from bu_material_type t
+        left join bu_material_type_attr t1 on t1.material_type_id = t.id
+        left join bu_material_type_replace t2 on t2.id = t.id
+        <where>
+            <if test="queryVO.type != null">
+                and t.kind = #{queryVO.type}
+            </if>
+            <if test="queryVO.attr != null">
+                and t.category2 = #{queryVO.attr}
+            </if>
+            <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+            <!--                and (-->
+            <!--                t.name like concat('%',#{queryVO.searchText},'%')-->
+            <!--                or-->
+            <!--                t.code like concat('%',#{queryVO.searchText},'%')-->
+            <!--                )-->
+            <!--            </if>-->
+            <if test="queryVO.searchMaterialTypeIdList != null and queryVO.searchMaterialTypeIdList.size > 0">
+                and t.id in
+                <foreach collection="queryVO.searchMaterialTypeIdList" item="materialTypeId" open="(" separator=","
+                         close=")">
+                    #{materialTypeId}
+                </foreach>
+            </if>
+            <if test="queryVO.category1List != null and queryVO.category1List.size > 0">
+                and (
+                <foreach collection="queryVO.category1List" item="category1Item" separator=" or " open="(" close=")">
+                    t.category1 = #{category1Item}
+                </foreach>
+                )
+            </if>
+            <if test="queryVO.materialTypeCodeList != null and queryVO.materialTypeCodeList.size > 0">
+                and t.code in
+                <foreach collection="queryVO.materialTypeCodeList" item="materialTypeCode" separator="," open="("
+                         close=")">
+                    #{materialTypeCode}
+                </foreach>
+            </if>
+        </where>
+        order by t.code
+    </select>
+
+    <!--    <select id="selectMaterialTypeToolPage" resultType="org.jeecg.modules.material.material.bean.BuMaterialTypeTool">-->
+    <!--        select-->
+    <!--        t.*,-->
+    <!--        t.category2 as extAttr,-->
+    <!--        t1.lead,-->
+    <!--        (-->
+    <!--        <choose>-->
+    <!--            <when test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--                and a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--            </when>-->
+    <!--            <otherwise>-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--            </otherwise>-->
+    <!--        </choose>-->
+    <!--        ) as amount-->
+    <!--        from bu_material_type t-->
+    <!--        left join bu_material_type_attr t1 on t1.material_type_id = t.id-->
+    <!--        <where>-->
+    <!--            <if test="queryVO.type != null">-->
+    <!--                and t.kind = #{queryVO.type}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.attr != null">-->
+    <!--                and t.category2 = #{queryVO.attr}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+    <!--                and ( t.name like concat('%',#{queryVO.searchText},'%') or-->
+    <!--                t.code like concat('%',#{queryVO.searchText},'%') )-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.category1 != null and queryVO.category1 != ''">-->
+    <!--                and t.category1 = #{queryVO.category1}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                and t.id in (-->
+    <!--                select a1.material_type_id from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--                )-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--        order by t.code-->
+    <!--    </select>-->
+    <select id="selectMaterialTypeToolPage" resultType="org.jeecg.modules.material.material.bean.BuMaterialTypeTool">
+        select
+        t.*,
+        t.category2 as extAttr,
+        t1.lead,
+        t2.can_replace
+        from bu_material_type t
+        left join bu_material_type_attr t1 on t1.material_type_id = t.id
+        left join bu_material_type_replace t2 on t2.id = t.id
+        <where>
+            <if test="queryVO.type != null">
+                and t.kind = #{queryVO.type}
+            </if>
+            <if test="queryVO.attr != null">
+                and t.category2 = #{queryVO.attr}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and (
+                t.name like concat('%',#{queryVO.searchText},'%')
+                or
+                t.code like concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.category1List != null and queryVO.category1List.size > 0">
+                and (
+                <foreach collection="queryVO.category1List" item="category1Item" separator=" or " open="(" close=")">
+                    t.category1 = #{category1Item}
+                </foreach>
+                )
+            </if>
+            <if test="queryVO.materialTypeCodeList != null and queryVO.materialTypeCodeList.size > 0">
+                and t.code in
+                <foreach collection="queryVO.materialTypeCodeList" item="materialTypeCode" separator="," open="("
+                         close=")">
+                    #{materialTypeCode}
+                </foreach>
+            </if>
+        </where>
+        order by t.code
+    </select>
+
+    <!--    <select id="selectMustMaterialTypePage" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">-->
+    <!--        select-->
+    <!--        t.*,-->
+    <!--        t.category2 as extAttr,-->
+    <!--        t1.lead,-->
+    <!--        (-->
+    <!--        <choose>-->
+    <!--            <when test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--                and a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--            </when>-->
+    <!--            <otherwise>-->
+    <!--                select sum(a1.amount) from bu_material_stock a1-->
+    <!--                where a1.material_type_id = t.id-->
+    <!--            </otherwise>-->
+    <!--        </choose>-->
+    <!--        ) as amount-->
+    <!--        from bu_material_type t-->
+    <!--        left join bu_material_type_attr t1 on t1.material_type_id = t.id-->
+    <!--        <where>-->
+    <!--            and t.category1 = 1-->
+    <!--            <if test="queryVO.type != null">-->
+    <!--                and t.kind = #{queryVO.type}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.attr != null">-->
+    <!--                and t.category2 = #{queryVO.attr}-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+    <!--                and ( t.name like concat('%',#{queryVO.searchText},'%') or-->
+    <!--                t.code like concat('%',#{queryVO.searchText},'%') )-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.warehouseId != null and queryVO.warehouseId != ''">-->
+    <!--                and t.id in (-->
+    <!--                select a1.material_type_id from bu_material_stock a1-->
+    <!--                left join bu_mtr_warehouse a2 on a2.id = a1.warehouse_id-->
+    <!--                where a2.wbs like concat((select wbs from bu_mtr_warehouse where id = #{queryVO.warehouseId}),'%')-->
+    <!--                )-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--        order by t.code-->
+    <!--    </select>-->
+    <select id="selectMustMaterialTypePage" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select
+        t.*,
+        t.category2 as extAttr,
+        t1.lead,
+        t2.can_replace
+        from bu_material_type t
+        left join bu_material_type_attr t1 on t1.material_type_id = t.id
+        left join bu_material_type_replace t2 on t2.id = t.id
+        <where>
+            and t.category1 = 1
+            <if test="queryVO.type != null">
+                and t.kind = #{queryVO.type}
+            </if>
+            <if test="queryVO.attr != null">
+                and t.category2 = #{queryVO.attr}
+            </if>
+            <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+            <!--                and (-->
+            <!--                t.name like concat('%',#{queryVO.searchText},'%')-->
+            <!--                or-->
+            <!--                t.code like concat('%',#{queryVO.searchText},'%')-->
+            <!--                )-->
+            <!--            </if>-->
+            <if test="queryVO.searchMaterialTypeIdList != null and queryVO.searchMaterialTypeIdList.size > 0">
+                and t.id in
+                <foreach collection="queryVO.searchMaterialTypeIdList" item="materialTypeId" open="(" separator=","
+                         close=")">
+                    #{materialTypeId}
+                </foreach>
+            </if>
+            <if test="queryVO.materialTypeCodeList != null and queryVO.materialTypeCodeList.size > 0">
+                and t.code in
+                <foreach collection="queryVO.materialTypeCodeList" item="materialTypeCode" separator="," open="("
+                         close=")">
+                    #{materialTypeCode}
+                </foreach>
+            </if>
+        </where>
+        order by t.code
+    </select>
+
+    <select id="selectMaterialTypeById" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select t.*,
+               t.category2                                                                        as extAttr,
+               t1.lead,
+               (select sum(a1.amount) from bu_material_stock a1 where a1.material_type_id = t.id) as amount,
+               t2.can_replace
+        from bu_material_type t
+                 left join bu_material_type_attr t1 on t1.material_type_id = t.id
+                 left join bu_material_type_replace t2 on t2.id = t.id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectSysIdByPartId" resultType="java.lang.String">
+        select id
+        from bu_train_asset_type
+        where struct_type = 1
+          and locate(wbs, (select wbs
+                           from bu_train_asset_type
+                           where id = (select asset_type_id from bu_train_structure_detail where id = #{id}))) > 0;
+    </select>
+
+    <select id="selectAll" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select t.id, t.code
+        from bu_material_type t
+    </select>
+
+    <insert id="saveTypeList" parameterType="java.util.List">
+        insert into bu_material_type
+        (
+        <include refid="Base_Column_List"/>
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectListByCode" resultMap="BaseResultMap">
+        select id,code from bu_material_type
+        <where>
+            <if test="list != null and list.size > 0">
+                code in
+                <foreach collection="list" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectRepeatMaterialTypeList" resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select *
+        from bu_material_type
+        where code in (select code from bu_material_type group by code having COUNT(1) > 1)
+        order by code
+    </select>
+
+    <select id="selectCodeIdNotEqualsMaterialTypeList"
+            resultType="org.jeecg.modules.material.material.bean.BuMaterialType">
+        select *
+        from bu_material_type
+        where code != id
+        order by code
+    </select>
+
+</mapper>

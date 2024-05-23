@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.summary.mapper.BuOutsourceOutinDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.summary.bean.outsource.BuOutsourceOutinDetail">
+        <id column="id" property="id"/>
+        <result column="outin_id" property="outinId"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="amount" property="amount"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="turnover_asset_id" property="turnoverAssetId"/>
+        <result column="facade_status" property="facadeStatus"/>
+        <result column="facade_desc" property="facadeDesc"/>
+        <result column="mixtool_status" property="mixtoolStatus"/>
+        <result column="mixtool_desc" property="mixtoolDesc"/>
+        <result column="fault" property="fault"/>
+        <result column="return_status" property="returnStatus"/>
+        <result column="return_time" property="returnTime"/>
+        <result column="delay_reason" property="delayReason"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, outin_id, asset_no, asset_name, amount, asset_type_id, train_no, turnover_asset_id,
+        facade_status, facade_desc, mixtool_status, mixtool_desc, fault, return_status,
+        return_time, delay_reason, remark
+    </sql>
+
+
+    <select id="selectOutInDetailListByPlanId"
+            resultType="org.jeecg.modules.produce.summary.bean.outsource.BuOutsourceOutinDetail">
+        select t.outin_id,
+               t.id,
+               t.asset_no,
+               t.asset_name,
+               t.amount,
+               t.asset_type_id,
+               t.train_no,
+               t.turnover_asset_id,
+               t.facade_status,
+               t.facade_desc,
+               t.mixtool_status,
+               t.mixtool_desc,
+               t.fault,
+               t.return_status,
+               t.return_time,
+               t.delay_reason,
+               t.remark,
+               t3.need_day                  as contractDays,
+               t1.transfer_date,
+               case
+                   when t3.need_day is not null and t1.transfer_date is not null then
+                       t1.transfer_date + t3.need_day
+                   else t.return_time
+                   end
+                                            as returnTime,
+               t.delay_reason               as delayReason,
+               t.return_status              as returnStatus,
+               (select MAX(return_time)
+                from bu_outsource_outin_detail
+                where out_detail_id = t.id) as actReturnTime,
+               t.out_detail_id              as outDetailId
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t.outin_id = t1.id
+                 left join bu_mtr_line t2 on t1.line_id = t2.line_id
+                 left join bu_contract_info t3 on t1.contract_id = t3.id
+                 left join bu_outsource_supervise t4 on t.id = t4.outin_detail_id
+                 left join bu_base_supplier t5 on t5.id = t3.supplier_id
+                 left join bu_mtr_workshop_group t6 on t6.id = t1.send_group_id
+                 left join sys_user t7 on t7.id = t4.dispatch_user_id
+                 left join bu_work_order t8 on t8.id = t1.work_order_id
+        where t1.bill_type = 0
+          and t.outin_id in (
+            select id
+            from bu_outsource_outin
+            where bill_type = #{type}
+              and work_order_id in (
+                select id
+                from bu_work_order
+                where plan_id = #{planId}
+            )
+        )
+        order by t8.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="selectProblemPart" resultType="org.jeecg.modules.produce.summary.bean.outsource.BuOutsourceOutinDetail">
+        select t.outin_id,
+               t.id,
+               t.asset_no,
+               t.asset_name,
+               t.amount,
+               t.asset_type_id,
+               t.train_no,
+               t.turnover_asset_id,
+               t.facade_status,
+               t.facade_desc,
+               t.mixtool_status,
+               t.mixtool_desc,
+               t.fault,
+               t.return_status,
+               t.return_time,
+               t.delay_reason,
+               t.remark,
+               t3.need_day                                                                         as contractDays,
+               t1.transfer_date,
+               t.delay_reason                                                                      as delayReason,
+               t.return_status                                                                     as returnStatus,
+               (select MAX(return_time) from bu_outsource_outin_detail where out_detail_id = t.id) as actReturnTime,
+               t.out_detail_id                                                                     as outDetailId
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t.outin_id = t1.id
+                 left join bu_mtr_line t2 on t1.line_id = t2.line_id
+                 left join bu_contract_info t3 on t1.contract_id = t3.id
+                 left join bu_outsource_supervise t4 on t.id = t4.outin_detail_id
+                 left join bu_base_supplier t5 on t5.id = t3.supplier_id
+                 left join bu_mtr_workshop_group t6 on t6.id = t1.send_group_id
+                 left join sys_user t7 on t7.id = t4.dispatch_user_id
+                 left join bu_work_order t8 on t8.id = t1.work_order_id
+        where t1.bill_type = 0
+          and facade_status = 1
+          and t.outin_id in (
+            select id
+            from bu_outsource_outin
+            where work_order_id in (
+                select id
+                from bu_work_order
+                where plan_id in (
+                    select id from bu_repair_plan where line_id = #{lineId} and repair_program_id = #{repairProgramId}
+                )
+            )
+        )
+        order by t8.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="selectOutInCount" resultType="int">
+        select count(*)
+        from bu_outsource_outin
+        where work_order_id in (
+            select id
+            from bu_work_order
+            where plan_id in (
+                select id
+                from bu_repair_plan
+                where line_id = #{lineId}
+                  and repair_program_id = #{repairProgramId}
+                  and act_finish &lt;= #{actFinish}
+            )
+        )
+    </select>
+
+</mapper>

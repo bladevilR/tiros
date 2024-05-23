@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.workstation.mapper.BuMtrWorkstationBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.workstation.bean.BuMtrWorkstation">
+        <id column="id" property="id"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="name" property="name"/>
+        <result column="location" property="location"/>
+        <result column="content" property="content"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="station_no" property="stationNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, workshop_id, name, location, content, status, remark,
+        create_time, create_by, update_time, update_by, station_no, company_id, line_id
+    </sql>
+
+    <select id="selectWorkstationVOListByCondition"
+            resultType="org.jeecg.modules.board.workstation.bean.vo.BuWorkstationVO">
+        SELECT
+        t.id AS workstationId,
+        t.name AS workstationName,
+        t3.id AS groupId,
+        t3.group_name AS groupName
+        FROM bu_mtr_workstation t
+        LEFT JOIN bu_mtr_workshop t1 ON t1.id = t.workshop_id
+        LEFT JOIN bu_group_workstation t2 ON t2.workstation_id = t.id
+        LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t2.group_id
+        <where>
+            <if test="queryVO.filterGroupRelated != null and queryVO.filterGroupRelated">
+                AND t3.id IS NOT NULL AND t3.id != ''
+            </if>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t1.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                AND t.workshop_id = #{queryVO.workshopId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWorkstationVOById"
+            resultType="org.jeecg.modules.board.workstation.bean.vo.BuWorkstationVO">
+        SELECT t.id          AS workstationId,
+               t.name        AS workstationName,
+               t3.id         AS groupId,
+               t3.group_name AS groupName
+        FROM bu_mtr_workstation t
+                 LEFT JOIN bu_mtr_workshop t1 ON t1.id = t.workshop_id
+                 LEFT JOIN bu_group_workstation t2 ON t2.workstation_id = t.id
+                 LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t2.group_id
+        WHERE t.id = #{workstationId}
+          AND t3.id = #{groupId}
+    </select>
+
+    <select id="selectTodayTaskListByGroupIdAndWorkstationId"
+            resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT t.id,
+               t.task_status
+        FROM bu_work_order_task t
+                 LEFT JOIN bu_work_order_task_workstation t1 ON t1.order_task_id = t.id
+                 LEFT JOIN bu_work_order t2 ON t2.id = t.order_id
+        WHERE t2.order_status != 0
+          AND (TO_CHAR(SYSDATE, 'yyyy-mm-dd') BETWEEN TO_CHAR(t2.start_time, 'yyyy-mm-dd') and TO_CHAR(t2.finish_time, 'yyyy-mm-dd'))
+          AND t2.group_id = #{queryVO.groupId}
+          AND t1.workstation_id = #{queryVO.workstationId}
+        order by t2.order_code, t.task_no
+    </select>
+
+    <select id="selectTodayDelayTaskListByGroupIdAndWorkstationId"
+            resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT t.id,
+               t.task_status
+        FROM bu_work_order_task t
+                 LEFT JOIN bu_work_order_task_workstation t1 ON t1.order_task_id = t.id
+                 LEFT JOIN bu_work_order t2 ON t2.id = t.order_id
+        WHERE t2.order_status != 0
+          AND t2.work_status != 2
+          AND t.task_status != 2
+          AND (TO_CHAR(SYSDATE, 'yyyy-mm-dd') > TO_CHAR(t2.finish_time, 'yyyy-mm-dd'))
+          AND t2.group_id = #{queryVO.groupId}
+          AND t1.workstation_id = #{queryVO.workstationId}
+        order by t2.order_code, t.task_no
+    </select>
+
+    <select id="selectTodayMustMaterialListByGroupIdAndWorkstationId" resultType="java.util.Map">
+        select t.id          as "orderMaterialId",
+               t.amount      as "amount",
+               t1.id         as "orderMaterialActId",
+               t1.act_amount as "actAmount"
+        from bu_work_order_material t
+                 left join bu_work_order_material_acts t1 on t1.order_material_id = t.id
+                 left join bu_work_order t2 on t2.id = t.order_id
+                 left join bu_work_order_task_workstation t3 on t3.order_task_id = t.order_task_id
+        where t2.order_status != 0
+          AND t.use_category = 1
+          AND (TO_CHAR(SYSDATE, 'yyyy-mm-dd') BETWEEN TO_CHAR(t2.start_time, 'yyyy-mm-dd') and TO_CHAR(t2.finish_time, 'yyyy-mm-dd'))
+          AND t2.group_id = #{queryVO.groupId}
+          AND t3.workstation_id = #{queryVO.workstationId}
+        order by t2.order_code, t.material_type_id
+    </select>
+
+    <select id="selectTodayFaultListByByGroupIdAndWorkstationId"
+            resultType="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        SELECT t.id,
+               t.status
+        FROM bu_fault_info t
+        WHERE (TO_CHAR(SYSDATE, 'yyyy-mm-dd') = TO_CHAR(t.report_time, 'yyyy-mm-dd'))
+          AND t.report_group_id = #{queryVO.groupId}
+          AND t.work_station_id = #{queryVO.workstationId}
+    </select>
+
+    <select id="selectTodayStaffRequireListByGroupIdAndWorkstationId"
+            resultType="org.jeecg.modules.board.workstation.bean.BuRepairTaskStaffRequire">
+        SELECT t.id,
+               t.task_id,
+               t.amount
+        FROM bu_repair_task_staff_require t
+                 LEFT JOIN bu_repair_plan_task t1 ON t1.id = t.task_id
+                 LEFT JOIN bu_repair_task_workstation t2 ON t2.task_id = t.task_id
+        WHERE (TO_CHAR(SYSDATE, 'yyyy-mm-dd') BETWEEN TO_CHAR(t1.start_time, 'yyyy-mm-dd') and TO_CHAR(t1.finish_time, 'yyyy-mm-dd'))
+          AND t1.work_group_id = #{queryVO.groupId}
+          AND t2.workstation_id = #{queryVO.workstationId}
+    </select>
+
+    <select id="countTodayStaffArrangeByGroupIdAndWorkstationId" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT t.user_id)
+        FROM bu_repair_task_staff_arrange t
+                 LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+                 LEFT JOIN bu_work_order_task_workstation t2 ON t2.id = t.ord_tsk_wk_station_id
+        WHERE t1.order_status != 0
+          AND (TO_CHAR(SYSDATE, 'yyyy-mm-dd') BETWEEN TO_CHAR(t1.start_time, 'yyyy-mm-dd') and TO_CHAR(t1.finish_time, 'yyyy-mm-dd'))
+          AND t1.group_id = #{queryVO.groupId}
+          AND t2.workstation_id = #{queryVO.workstationId}
+    </select>
+
+</mapper>

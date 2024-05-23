@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.sparepart.mapper.BuMaterialSparePartGroupMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.sparepart.bean.BuMaterialSparePart">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="name" property="name"/>
+        <result column="model" property="model"/>
+        <result column="brand" property="brand"/>
+        <result column="leave_factory" property="leaveFactory"/>
+        <result column="expir_date" property="expirDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="price" property="price"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="status" property="status"/>
+        <result column="line_id" property="lineId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="out_date" property="outDate"/>
+        <result column="out_order_no" property="outOrderNo"/>
+        <result column="current_location" property="currentLocation"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, material_code, asset_code, manuf_no, name, model, brand, leave_factory, expir_date, supplier_id, price, system_id, asset_type_id, status, line_id, workshop_id, warehouse_id, group_id, out_date, out_order_no, current_location, create_time, create_by, update_time, update_by
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.group.sparepart.bean.BuMaterialSparePart">
+        SELECT
+        t1.*,
+        t2.realname AS dutyUserName,
+        t3.group_name AS groupName,
+        t5.name AS systemName,
+        t6.line_name AS lineName,
+        t7.name AS workshopName,
+        t8.name AS assetTypeName
+        FROM bu_material_spare_part t1
+        LEFT JOIN sys_user t2 ON t2.id = t1.duty_user_id
+        LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t1.group_id
+        LEFT JOIN bu_material_type_attr t4 ON t4.material_type_id = t1.material_type_id
+        LEFT JOIN bu_train_asset_type t5 ON t5.id = t4.system_id
+        LEFT JOIN bu_mtr_line t6 ON t6.line_id = t1.line_id
+        LEFT JOIN bu_mtr_workshop t7 ON t7.id = t1.workshop_id
+        LEFT JOIN bu_train_asset_type t8 ON t8.id = t1.asset_type_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND
+                (
+                t1.name LIKE '%'||#{queryVO.searchText}||'%'
+                OR
+                t1.material_code LIKE '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.assetCode != null and queryVO.assetCode != ''">
+                AND
+                (
+                t1.asset_code LIKE '%'||#{queryVO.assetCode}||'%'
+                OR
+                t1.manuf_no LIKE '%'||#{queryVO.assetCode}||'%'
+                )
+            </if>
+            <if test="queryVO.status != null">
+                AND t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t1.line_id = #{queryVO.lineId}
+            </if>
+        </where>
+        ORDER BY t1.leave_factory DESC
+    </select>
+
+    <select id="getById" resultType="org.jeecg.modules.group.sparepart.bean.BuMaterialSparePart">
+        SELECT
+        t1.*,
+        t2.realname AS dutyUserName,
+        t3.group_name AS groupName,
+        t5.name AS systemName,
+        t6.line_name AS lineName,
+        t7.name AS workshopName,
+        t8.name AS assetTypeName
+        FROM bu_material_spare_part t1
+        LEFT JOIN sys_user t2 ON t2.id = t1.duty_user_id
+        LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t1.group_id
+        LEFT JOIN bu_material_type_attr t4 ON t4.material_type_id = t1.material_type_id
+        LEFT JOIN bu_train_asset_type t5 ON t5.id = t1.system_id
+        LEFT JOIN bu_mtr_line t6 ON t6.line_id = t1.line_id
+        LEFT JOIN bu_mtr_workshop t7 ON t7.id = t1.workshop_id
+        LEFT JOIN bu_train_asset_type t8 ON t8.id = t1.asset_type_id
+        WHERE t1.id = #{id}
+    </select>
+
+</mapper>

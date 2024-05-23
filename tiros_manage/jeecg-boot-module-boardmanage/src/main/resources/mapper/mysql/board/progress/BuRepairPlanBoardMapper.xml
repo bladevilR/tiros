@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuRepairPlanBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuRepairPlan">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="plan_name" property="planName"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="mileage" property="mileage"/>
+        <result column="plan_template_id" property="planTemplateId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="duration" property="duration"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="progress_status" property="progressStatus"/>
+        <result column="progress" property="progress"/>
+        <result column="act_duration" property="actDuration"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="suspend_time" property="suspendTime"/>
+        <result column="activate_time" property="activateTime"/>
+        <result column="suspended_progress_status" property="suspendedProgressStatus"/>
+        <result column="company_id" property="companyId"/>
+        <result column="history_data" property="historyData"/>
+    </resultMap>
+
+    <!-- 列计划_计划任务 查询映射结果 -->
+    <resultMap id="ResultMap_BuRepairPlan_WithTask" type="org.jeecg.modules.board.progress.bean.BuRepairPlan">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="plan_name" property="planName"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="mileage" property="mileage"/>
+        <result column="plan_template_id" property="planTemplateId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="duration" property="duration"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="progress_status" property="progressStatus"/>
+        <result column="progress" property="progress"/>
+        <result column="act_duration" property="actDuration"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="suspend_time" property="suspendTime"/>
+        <result column="activate_time" property="activateTime"/>
+        <result column="suspended_progress_status" property="suspendedProgressStatus"/>
+        <result column="company_id" property="companyId"/>
+        <result column="history_data" property="historyData"/>
+        <result column="repairProgramName" property="repairProgramName"/>
+        <collection property="tasks" column="id"
+                    ofType="org.jeecg.modules.board.progress.bean.BuRepairPlanTask"
+                    select="selectTasks"/>
+    </resultMap>
+    <select id="selectTasks" resultType="org.jeecg.modules.board.progress.bean.BuRepairPlanTask">
+        SELECT t.*
+        FROM bu_repair_plan_task t
+        WHERE t.plan_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, plan_name, depot_id, line_id, repair_program_id, exchange_id, train_no, mileage,
+        plan_template_id, start_date, finish_date, act_start, act_finish, duration, status, remark,
+        create_time, create_by, update_time, update_by, progress_status, progress, act_duration,
+        train_index, fd_project, fd_task, fd_cost_type, workshop_id, suspend_time, suspend_time,
+        suspended_progress_status, company_id, history_data
+    </sql>
+
+    <select id="selectNotFinishRepairPlanList" resultMap="ResultMap_BuRepairPlan_WithTask">
+        SELECT t.*,
+               t1.name                          AS depotName,
+               t2.line_name                     AS lineName,
+               t3.name                          AS repairProgramName,
+               t4.tp_name                       AS planTemplateName,
+               t5.name                          AS reguName,
+               IFNULL(t6.process_status, '未发起') AS wfStatus,
+               t6.process_candidate
+        FROM bu_repair_plan t
+                 LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+                 LEFT JOIN bu_tp_repair_plan t4 ON t4.id = t.plan_template_id
+                 LEFT JOIN bu_repair_regu_info t5 ON t5.id = t.regu_id
+                 LEFT JOIN wf_biz_status t6 ON t6.business_key = t.id
+        WHERE t.status = 2 AND t.progress_status IN (0, 1, 2)
+        ORDER BY t.start_date
+    </select>
+
+    <select id="selectNotFinishRepairPlanListNoTask" resultMap="BaseResultMap">
+        SELECT t.*,
+               t1.name                          AS depotName,
+               t2.line_name                     AS lineName,
+               t3.name                          AS repairProgramName,
+               t4.tp_name                       AS planTemplateName,
+               t5.name                          AS reguName,
+               IFNULL(t6.process_status, '未发起') AS wfStatus,
+               t6.process_candidate
+        FROM bu_repair_plan t
+                 LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+                 LEFT JOIN bu_tp_repair_plan t4 ON t4.id = t.plan_template_id
+                 LEFT JOIN bu_repair_regu_info t5 ON t5.id = t.regu_id
+                 LEFT JOIN wf_biz_status t6 ON t6.business_key = t.id
+        WHERE t.status = 2 AND t.progress_status IN (0, 1, 2)
+        ORDER BY t.start_date
+    </select>
+
+    <select id="selectRepairPlanListByYearAndCondition"
+            resultType="org.jeecg.modules.board.progress.bean.BuRepairPlan">
+        SELECT
+        t.*,
+        t1.name AS repairProgramName
+        FROM bu_repair_plan t
+        LEFT JOIN bu_repair_program t1 ON t1.id = t.repair_program_id
+        WHERE YEAR(t.start_date) = #{year} AND YEAR(t.finish_date) = #{year}
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t.line_id = #{queryVO.lineId}
+        </if>
+    </select>
+
+</mapper>

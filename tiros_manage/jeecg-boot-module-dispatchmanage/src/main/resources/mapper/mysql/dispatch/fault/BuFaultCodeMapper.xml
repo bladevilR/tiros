@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.fault.mapper.BuFaultCodeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.fault.bean.BuFaultCode">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="fault_code" property="faultCode"/>
+        <result column="fault_desc" property="faultDesc"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, category_id, fault_code, fault_desc
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.fault.bean.BuFaultCode">
+        select t.* from bu_fault_code t
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and
+                (
+                t.fault_code like concat('%',#{queryVO.searchText},'%')
+                or
+                t.fault_desc like concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.categoryId != null and queryVO.categoryId != ''">
+                and t.category_id = #{queryVO.categoryId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

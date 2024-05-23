@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxInvbalancesOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxInvbalancesOut">
+        <result column="BINNUM" property="binnum"/>
+        <result column="CONDITIONCODE" property="conditioncode"/>
+        <result column="CURBAL" property="curbal"/>
+        <result column="C_AVGCOST" property="cAvgcost"/>
+        <result column="INVBALANCESID" property="invbalancesid"/>
+        <result column="ITEMNUM" property="itemnum"/>
+        <result column="ITEMSETID" property="itemsetid"/>
+        <result column="LOCATION" property="location"/>
+        <result column="LOTNUM" property="lotnum"/>
+        <result column="ORGID" property="orgid"/>
+        <result column="SITEID" property="siteid"/>
+        <result column="C_CONVERSION" property="cConversion"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="IN19" property="in19"/>
+        <result column="IN20" property="in20"/>
+        <result column="IN21" property="in21"/>
+        <result column="ISSUEUNIT" property="issueunit"/>
+        <result column="ORDERUNIT" property="orderunit"/>
+        <result column="STATUS" property="status"/>
+        <result column="STATUSDATE" property="statusdate"/>
+        <result column="C_INVENTORYORG" property="cInventoryorg"/>
+        <result column="TRANSID" property="transid"/>
+        <result column="TRANSSEQ" property="transseq"/>
+        <result column="INSERTDATE" property="insertdate"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        BINNUM, CONDITIONCODE, CURBAL, C_AVGCOST, INVBALANCESID, ITEMNUM, ITEMSETID, LOCATION,
+        LOTNUM, ORGID, SITEID, C_CONVERSION, DESCRIPTION, IN19, IN20, IN21, ISSUEUNIT, ORDERUNIT,
+        STATUS, STATUSDATE, C_INVENTORYORG, TRANSID, TRANSSEQ, INSERTDATE
+    </sql>
+
+    <select id="selectWarehouseList" resultType="org.jeecg.modules.third.maximo.bean.JdxInvbalancesOut">
+        select DISTINCT BINNUM, LOCATION
+        from JDX_INVBALANCES_OUT
+        order by LOCATION, BINNUM
+    </select>
+
+    <select id="pageJdxInvbalancesOut" resultType="org.jeecg.modules.third.maximo.bean.JdxInvbalancesOut">
+        select *
+        from (
+                 select BINNUM,
+                        CONDITIONCODE,
+                        CURBAL,
+                        C_AVGCOST,
+                        INVBALANCESID,
+                        ITEMNUM,
+                        ITEMSETID,
+                        LOCATION,
+                        LOTNUM,
+                        ORGID,
+                        SITEID,
+                        C_CONVERSION,
+                        DESCRIPTION,
+                        IN19,
+                        IN20,
+                        IN21,
+                        ISSUEUNIT,
+                        ORDERUNIT,
+                        STATUS,
+                        STATUSDATE,
+                        C_INVENTORYORG,
+                        TRANSID,
+                        TRANSSEQ,
+                        NVL(INSERTDATE, TO_DATE('1900-01-01 00:00:00', 'yyyy-mm-dd hh24:mi:ss')) as INSERTDATE
+                 from jdx_invbalances_out
+             )
+        order by INSERTDATE, TRANSID, TRANSSEQ
+    </select>
+
+    <select id="selectListByTransIdList" resultType="org.jeecg.modules.third.maximo.bean.JdxInvbalancesOut">
+        SELECT *
+        FROM (
+        SELECT a.*, ROW_NUMBER() OVER (PARTITION BY insertdate ORDER BY lastInsertDate DESC) AS seqnum
+        FROM (
+        SELECT t.*,
+        t1.insertdate AS lastInsertDate,
+        IFNULL(t1.CURBAL, 0) AS lastStock
+        FROM jdx_invbalances_out t
+        LEFT JOIN jdx_invbalances_out t1 ON t1.invbalancesid = t.invbalancesid AND t1.insertdate &lt; t.insertdate
+        where t.transid
+        <choose>
+            <when test="transIdList != null and transIdList.size > 0">
+                in
+                <foreach collection="transIdList" item="transId" separator="," open="(" close=")">
+                    #{transId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        ORDER BY t.insertdate, t.transseq, t1.insertdate DESC
+        ) a
+        )
+        WHERE seqnum = 1
+        ORDER BY insertdate
+    </select>
+
+    <select id="selectSiteByLocation" resultType="java.lang.String">
+        select t.SITEID
+        from (
+                 select t.SITEID,
+                        row_number() over (order by t.TRANSID desc) as seqnum
+                 from JDX_INVBALANCES_OUT t
+                 where t.LOCATION = #{location}
+             ) t
+        where t.seqnum = 1
+    </select>
+
+    <select id="selectPrice" resultType="org.jeecg.modules.third.maximo.bean.JdxInvbalancesOut">
+        select *
+        from JDX_INVBALANCES_OUT
+        where C_INVENTORYORG = 'AJ1'
+          and ITEMNUM = #{priceZero.materialTypeId}
+          and LOTNUM = #{priceZero.tradeNo}
+          and BINNUM = #{priceZero.ebsWhChildCode}
+          and LOCATION = #{priceZero.ebsWhCode}
+        order by INVBALANCESID, INSERTDATE desc, TRANSID desc
+    </select>
+
+</mapper>

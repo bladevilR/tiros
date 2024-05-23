@@ -1,0 +1,134 @@
+package org.jeecg.modules.basemanage.tpplan.bean;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import org.jeecg.common.aspect.annotation.Dict;
+
+import java.io.Serializable;
+
+/**
+ * <p>
+ * 任务规程关联
+ * </p>
+ *
+ * @author youGen
+ * @since 2020-08-03
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@ApiModel(value = "BuTpRepairPlanReguInfo对象", description = "任务规程关联")
+@TableName("bu_tp_repair_plan_regu_info")
+public class BuTpRepairPlanReguInfo extends Model<BuTpRepairPlanReguInfo> {
+    private static final long serialVersionUID = 1L;
+
+    @TableId(value = "id", type = IdType.UUID)
+    private String id;
+
+    @ApiModelProperty(value = "任务id")
+    private String taskId;
+
+    @ApiModelProperty(value = "规程id", required = true)
+    private String reguId;
+
+    @ApiModelProperty(value = "规程明细id", required = true)
+    private String reguDetailId;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
+
+    @ApiModelProperty(value = "任务名称")
+    @TableField(exist = false)
+    private String taskName;
+
+    @ApiModelProperty(value = "工班id")
+    @TableField(exist = false)
+    private String workGroupId;
+
+    @ApiModelProperty(value = "工班名称")
+    @TableField(exist = false)
+    private String workGroupName;
+
+    @ApiModelProperty(value = "规程明细--序号")
+    @TableField(exist = false)
+    private String no;
+
+    @ApiModelProperty(value = "规程明细--名称")
+    @TableField(exist = false)
+    private String title;
+
+    @ApiModelProperty(value = "规程明细--类型")
+    @Dict(dicCode = "bu_regu_type")
+    @TableField(exist = false)
+    private Integer type;
+
+    @ApiModelProperty(value = "规程明细--安全提示")
+    @TableField(exist = false)
+    private String safeNotice;
+
+//    @ApiModelProperty(value = "规程明细上级id")
+//    @TableField(exist = false)
+//    private String parentId;
+
+    @ApiModelProperty(value = "规程明细--是否委外  字典dictCode=bu_state")
+    @Dict(dicCode = "bu_state")
+    @TableField(exist = false)
+    private Integer outsource;
+
+    @ApiModelProperty(value = "规程明细--是否重要工序  字典dictCode=bu_state")
+    @Dict(dicCode = "bu_state")
+    @TableField(exist = false)
+    private Integer important;
+
+    @ApiModelProperty(value = "规程明细--维保手段  字典dictCode=bu_state")
+    @Dict(dicCode = "bu_regu_method")
+    @TableField(exist = false)
+    private String method;
+
+    @ApiModelProperty(value = "规程明细--质量等级  字典dictCode=bu_regu_quality_level")
+    @Dict(dicCode = "bu_regu_quality_level")
+    @TableField(exist = false)
+    private String qualityLevel;
+
+    @ApiModelProperty(value = "规程明细--设备类型id")
+    @TableField(exist = false)
+    private String assetTypeId;
+
+    @ApiModelProperty(value = "规程明细--所需工时")
+    @TableField(exist = false)
+    private Float workTime;
+
+    @ApiModelProperty(value = "规程明细--技术要求")
+    @TableField(exist = false)
+    private String requirement;
+
+    @ApiModelProperty(value = "规程明细--是否是必换件  字典dictCode=bu_state")
+    @Dict(dicCode = "bu_state")
+    @TableField(exist = false)
+    private Integer mustReplace;
+
+    @ApiModelProperty(value = "规程明细--是否需要测量  字典dictCode=bu_state")
+    @Dict(dicCode = "bu_state")
+    @TableField(exist = false)
+    private Integer measure;
+
+    @ApiModelProperty(value = "规程明细--设备名称")
+    @TableField(exist = false)
+    private String assetTypeName;
+
+
+    @Override
+    protected Serializable pkVal() {
+        return this.id;
+    }
+
+}

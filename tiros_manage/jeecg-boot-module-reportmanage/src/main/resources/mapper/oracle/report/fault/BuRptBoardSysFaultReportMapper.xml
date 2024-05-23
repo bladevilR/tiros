@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.fault.mapper.BuRptBoardSysFaultReportMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.fault.bean.BuRptBoardSysFault">
+        <id column="id" property="id"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_period" property="repairPeriod"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="program_id" property="programId"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sum1" property="sum1"/>
+        <result column="sum2" property="sum2"/>
+        <result column="sum3" property="sum3"/>
+        <result column="sum4" property="sum4"/>
+        <result column="sum5" property="sum5"/>
+        <result column="sum6" property="sum6"/>
+        <result column="sum7" property="sum7"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, line_id, repair_period, train_id, train_no,
+        repair_index, year, month, program_id, sys_id,
+        sum1, sum2, sum3, sum4, sum5, sum6, sum7, company_id, workshop_id
+    </sql>
+
+
+    <select id="selectListByFaultCountQueryVO" resultType="org.jeecg.modules.report.fault.bean.BuRptBoardSysFault">
+        select t.*,
+        t1.name as depotName,
+        t2.name as programName,
+        t2.pro_type as programType
+        from bu_rpt_board_sys_fault t
+        left join bu_mtr_depot t1 on t1.id = t.depot_id
+        left join bu_repair_program t2 on t2.id = t.program_id
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                and t.depot_id = #{queryVO.depotId}
+            </if>
+            <choose>
+                <when test="queryVO.yearMonthList != null and queryVO.yearMonthList.size > 0">
+                    and (
+                    <foreach collection="queryVO.yearMonthList" item="yearMonth" separator=" or ">
+                        (t.year = #{yearMonth.year} and t.month = #{yearMonth.month})
+                    </foreach>
+                    )
+                </when>
+                <otherwise>
+                    and (t.year = -1 and t.month = -1)
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+</mapper>

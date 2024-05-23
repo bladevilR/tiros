@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.org.mapper.BuUserMapper">
+
+    <resultMap id="ResultMap_CompanyTree" type="org.jeecg.modules.basemanage.workstation.entity.CompanyTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.workstation.entity.DepotTree"
+                    select="selectDepotTree"/>
+    </resultMap>
+    <select id="selectDepotTree" resultMap="ResultMap_DepotTree">
+        SELECT id,
+               name,
+               2 AS type
+        FROM bu_mtr_depot
+        WHERE company_id = #{id}
+        ORDER BY code
+    </select>
+    <resultMap id="ResultMap_DepotTree" type="org.jeecg.modules.basemanage.workstation.entity.DepotTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.workstation.entity.WorkshopTree"
+                    select="selectWorkshopTree"/>
+    </resultMap>
+    <select id="selectWorkshopTree" resultMap="ResultMap_WorkshopTree">
+        SELECT id,
+               name,
+               3 AS type
+        FROM bu_mtr_workshop
+        WHERE depot_id = #{id}
+        ORDER BY code
+    </select>
+    <resultMap id="ResultMap_WorkshopTree" type="org.jeecg.modules.basemanage.workstation.entity.WorkshopTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.workstation.entity.WorkGroupTree"
+                    select="selectWorkGroupTree"/>
+    </resultMap>
+    <select id="selectWorkGroupTree" resultType="org.jeecg.modules.basemanage.workstation.entity.WorkGroupTree">
+        SELECT id,
+               group_name AS name,
+               4          AS type
+        FROM bu_mtr_workshop_group
+        WHERE workshop_id = #{id}
+        ORDER BY group_name
+    </select>
+
+    <resultMap id="ResultMap_BuUser_Collection" type="org.jeecg.modules.basemanage.org.bean.BuUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="realname" property="realname"/>
+        <result column="work_no" property="workNo"/>
+        <result column="avatar" property="avatar"/>
+        <result column="org_code" property="orgCode"/>
+        <result column="sex" property="sex"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="positionId" property="positionId"/>
+        <result column="positionName" property="positionName"/>
+        <result column="positionWages" property="positionWages"/>
+        <result column="groupId" property="groupId"/>
+        <result column="groupName" property="groupName"/>
+        <collection property="tagTitleList" column="id"
+                    ofType="java.lang.String"
+                    select="selectTagTitleListByUserId"/>
+        <collection property="certList" column="id"
+                    ofType="org.jeecg.modules.basemanage.org.bean.BuUserCert"
+                    select="selectCertListByUserId"/>
+        <collection property="trainingList" column="id"
+                    ofType="org.jeecg.modules.basemanage.org.bean.BuTraining"
+                    select="selectTrainingListByUserId"/>
+        <collection property="skillList" column="id"
+                    ofType="org.jeecg.modules.basemanage.org.bean.BuUserSkill"
+                    select="selectSkillListByUserId"/>
+        <collection property="postionInfoList" column="id"
+                    ofType="org.jeecg.modules.basemanage.org.bean.BuPostionInfo"
+                    select="selectPositionListByUserId"/>
+        <collection property="departBOList" column="id"
+                    ofType="org.jeecg.modules.basemanage.org.bean.bo.BuDepartBO"
+                    select="selectDepartBOListByUserId"/>
+    </resultMap>
+    <select id="selectTagTitleListByUserId" resultType="java.lang.String">
+        select t.tag_title
+        from sys_user_tag t
+        where t.user_id = #{id}
+        order by t.tag_title
+    </select>
+    <select id="selectCertListByUserId" resultType="org.jeecg.modules.basemanage.org.bean.BuUserCert">
+        select t.*
+        from bu_user_cert t
+        where t.user_id = #{id}
+        order by t.cert_no
+    </select>
+    <select id="selectTrainingListByUserId" resultType="org.jeecg.modules.basemanage.org.bean.BuTraining">
+        select t.*
+        from bu_training t
+                 left join bu_traiining_attend t1 on t1.training_id = t.id
+        where t1.user_id = #{id}
+        order by t.train_time desc
+    </select>
+    <select id="selectSkillListByUserId" resultType="org.jeecg.modules.basemanage.org.bean.BuUserSkill">
+        select t.*
+        from bu_user_skill t
+        where t.user_id = #{id}
+        order by t.skill_name
+    </select>
+    <select id="selectPositionListByUserId" resultType="org.jeecg.modules.basemanage.org.bean.BuPostionInfo">
+        select t.*
+        from bu_postion_info t
+                 left join bu_user_extend t1 on t1.postion_id = t.id
+        where t1.user_id = #{id}
+        order by t.position_name
+    </select>
+    <select id="selectDepartBOListByUserId" resultType="org.jeecg.modules.basemanage.org.bean.bo.BuDepartBO">
+        select t.id,
+               t.depart_name,
+               t.org_category,
+               t.org_code
+        from sys_depart t
+                 left join sys_user_depart t1 on t1.dep_id = t.id
+        where t1.user_id = #{id}
+        order by t.org_code
+    </select>
+
+
+    <select id="selectCompanyTree" resultMap="ResultMap_CompanyTree">
+        SELECT id,
+               name,
+               1 AS type
+        FROM bu_mtr_company
+        ORDER BY code
+    </select>
+
+    <!--    <select id="selectUserPage" resultMap="ResultMap_BuUser_Collection">-->
+    <!--        select t.id,-->
+    <!--        t.username,-->
+    <!--        t.realname,-->
+    <!--        t.work_no,-->
+    <!--        t.avatar,-->
+    <!--        t.org_code,-->
+    <!--        t.sex,-->
+    <!--        t.phone,-->
+    <!--        t.email,-->
+    <!--        t.status-->
+    <!--        from sys_user t-->
+    <!--        <where>-->
+    <!--            <if test="queryVO.searchText != null and queryVO.searchText != ''">-->
+    <!--                and-->
+    <!--                (-->
+    <!--                t.realname like concat('%',#{queryVO.searchText},'%')-->
+    <!--                or-->
+    <!--                t.work_no like concat('%',#{queryVO.searchText},'%')-->
+    <!--                )-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.groupId != null and queryVO.groupId != ''">-->
+    <!--                and t.id in (select user_id from sys_user_depart where dep_id = #{queryVO.groupId})-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">-->
+    <!--                and t.id in (select user_id from sys_user_depart where dep_id in-->
+    <!--                (select id from bu_mtr_workshop_group where workshop_id = #{queryVO.workshopId}))-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.depotId != null and queryVO.depotId != ''">-->
+    <!--                and t.id in (select user_id from sys_user_depart where dep_id in-->
+    <!--                (select id from bu_mtr_workshop_group where workshop_id in-->
+    <!--                (select id from bu_mtr_workshop where depot_id = #{queryVO.depotId})))-->
+    <!--            </if>-->
+    <!--            <if test="queryVO.companyId != null and queryVO.companyId != ''">-->
+    <!--                and t.id in (select user_id from sys_user_depart where dep_id in-->
+    <!--                (select id from bu_mtr_workshop_group where workshop_id in-->
+    <!--                (select id from bu_mtr_workshop where depot_id in-->
+    <!--                (select id from bu_mtr_depot where company_id = #{queryVO.companyId}))))-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--        order by t.work_no-->
+    <!--    </select>-->
+    <select id="selectUserPage" resultType="org.jeecg.modules.basemanage.org.bean.BuUser">
+        select t.id,
+        t.username,
+        t.realname,
+        t.work_no,
+        t.avatar,
+        t.org_code,
+        t.sex,
+        t.phone,
+        t.email,
+        t.status,
+        t.telephone,
+
+        (select t1.monitor from bu_mtr_workshop_group t1 where t1.monitor = t.id) as monitor,
+        (select t1.monitor2 from bu_mtr_workshop_group t1 where t1.monitor2 = t.id) as monitor2
+
+        from sys_user t
+        where  t.DEL_FLAG=0  and t.work_no !='00001'
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and
+                (
+                t.realname like '%'||#{queryVO.searchText}||'%'
+                or
+                t.work_no like '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t.id in (select user_id from sys_user_depart where dep_id = #{queryVO.groupId})
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                and
+                (
+                t.id in (select user_id from sys_user_depart where dep_id in
+                (select id from bu_mtr_workshop_group where workshop_id = #{queryVO.workshopId}))
+                or
+                t.id in (select user_id from sys_user_depart where dep_id = #{queryVO.workshopId})
+                )
+            </if>
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                and
+                (
+                t.id in (select user_id from sys_user_depart where dep_id in
+                (select id from bu_mtr_workshop_group where workshop_id in
+                (select id from bu_mtr_workshop where depot_id = #{queryVO.depotId})))
+                or
+                t.id in (select user_id from sys_user_depart where dep_id = #{queryVO.depotId})
+                )
+            </if>
+            <if test="queryVO.companyId != null and queryVO.companyId != ''">
+                and
+                (
+                t.id in (select user_id from sys_user_depart where dep_id in
+                (select id from bu_mtr_workshop_group where workshop_id in
+                (select id from bu_mtr_workshop where depot_id in
+                (select id from bu_mtr_depot where company_id = #{queryVO.companyId}))))
+                or
+                t.id in (select user_id from sys_user_depart where dep_id = #{queryVO.companyId})
+                )
+            </if>
+            <if test="queryVO.roleId != null and queryVO.roleId != ''">
+                and t.id in (select user_id from sys_user_role where role_id = #{queryVO.roleId})
+            </if>
+        order by t.work_no
+    </select>
+
+    <select id="selectUserById" resultMap="ResultMap_BuUser_Collection">
+        select t.id,
+               t.username,
+               t.realname,
+               t.work_no,
+               t.password,
+               t.salt,
+               t.avatar,
+               t.org_code,
+               t.sex,
+               t.phone,
+               t.email,
+               t.status,
+               ''               as address,
+               t2.id            as positionId,
+               t2.position_name as positionName,
+               t2.wages         as positionWages,
+               t3.id            as groupId,
+               t3.depart_name   as groupName
+        from sys_user t
+                 left join bu_user_extend t1 on t1.user_id = t.id
+                 left join bu_postion_info t2 on t2.id = t1.postion_id
+                 left join sys_depart t3 on t3.org_code = t.org_code
+        where t.id = #{id}
+    </select>
+
+    <select id="selectTagTitleListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.SysUserTag">
+        select t.*
+        from sys_user_tag t
+        where t.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.tag_title
+    </select>
+
+    <select id="selectCertListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.BuUserCert">
+        select t.*
+        from bu_user_cert t
+        where t.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.cert_no
+    </select>
+
+    <select id="selectTrainingListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.BuTraining">
+        select t.*
+        from bu_training t
+        left join bu_traiining_attend t1 on t1.training_id = t.id
+        where t1.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.train_time desc
+    </select>
+
+    <select id="selectSkillListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.BuUserSkill">
+        select t.*
+        from bu_user_skill t
+        where t.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.skill_name
+    </select>
+
+    <select id="selectPositionListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.BuPostionInfo">
+        select t.*,
+        t1.user_id
+        from bu_postion_info t
+        left join bu_user_extend t1 on t1.postion_id = t.id
+        where t1.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.position_name
+    </select>
+
+    <select id="selectDepartBOListByUserIdList" resultType="org.jeecg.modules.basemanage.org.bean.bo.BuDepartBO">
+        select t.id,
+        t.depart_name,
+        t.org_category,
+        t.org_code,
+        t1.user_id
+        from sys_depart t
+        left join sys_user_depart t1 on t1.dep_id = t.id
+        where t1.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.org_code
+    </select>
+
+    <select id="selectUserIdRoleNameListByUserIdList" resultType="java.util.Map">
+        select t.user_id as "userId",
+        t1.role_name as "roleName"
+        from sys_user_role t
+        left join sys_role t1 on t1.id = t.role_id
+        where t.user_id
+        <choose>
+            <when test="userIdList != null and userIdList.size > 0">
+                in
+                <foreach collection="userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.user_id, t1.role_code
+    </select>
+
+    <update id="updateUserById">
+        update sys_user
+        set username = #{user.username, jdbcType=VARCHAR},
+            realname = #{user.realname, jdbcType=VARCHAR},
+            work_no  = #{user.workNo, jdbcType=VARCHAR},
+            avatar   = #{user.avatar, jdbcType=VARCHAR},
+            sex      = #{user.sex, jdbcType=NUMERIC},
+            phone    = #{user.phone, jdbcType=VARCHAR},
+            email    = #{user.email, jdbcType=VARCHAR},
+            status   = #{user.status, jdbcType=NUMERIC}
+        where id = #{user.id, jdbcType=VARCHAR}
+    </update>
+
+</mapper>

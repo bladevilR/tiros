@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuRptPlanGroupStatisticMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuRptPlanGroupStatistic">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="group_id" property="groupId"/>
+        <result column="task_total" property="taskTotal"/>
+        <result column="task_issued" property="taskIssued"/>
+        <result column="task_suspended" property="taskSuspended"/>
+        <result column="task_closed" property="taskClosed"/>
+        <result column="task_submitted" property="taskSubmitted"/>
+        <result column="task_finish_percent" property="taskFinishPercent"/>
+        <result column="group_task_need_write" property="groupTaskNeedWrite"/>
+        <result column="group_task_wrote" property="groupTaskWrote"/>
+        <result column="group_task_suspended" property="groupTaskSuspended"/>
+        <result column="group_task_closed" property="groupTaskClosed"/>
+        <result column="group_task_finish_percent" property="groupTaskFinishPercent"/>
+        <result column="fault_found" property="faultFound"/>
+        <result column="fault_handled" property="faultHandled"/>
+        <result column="group_fault_found" property="groupFaultFound"/>
+        <result column="group_fault_handled" property="groupFaultHandled"/>
+        <result column="remark" property="remark"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, train_no, group_id, task_total, task_issued, task_suspended, task_closed, task_submitted,
+        task_finish_percent, group_task_need_write, group_task_wrote, group_task_suspended, group_task_closed,
+        group_task_finish_percent, fault_found, fault_handled, group_fault_found, group_fault_handled, remark,
+        company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.planId},
+            #{item.trainNo},
+            #{item.groupId},
+            #{item.taskTotal},
+            #{item.taskIssued},
+            #{item.taskSuspended},
+            #{item.taskClosed},
+            #{item.taskSubmitted},
+            #{item.taskFinishPercent},
+            #{item.groupTaskNeedWrite},
+            #{item.groupTaskWrote},
+            #{item.groupTaskSuspended},
+            #{item.groupTaskClosed},
+            #{item.groupTaskFinishPercent},
+            #{item.faultFound},
+            #{item.faultHandled},
+            #{item.groupFaultFound},
+            #{item.groupFaultHandled},
+            #{item.remark},
+            #{item.companyId},
+            #{item.workshopId},
+            #{item.lineId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_rpt_plan_group_statistic
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByQueryVO" resultType="org.jeecg.modules.board.progress.bean.BuRptPlanGroupStatistic">
+        select t.*,
+        t1.plan_name,
+        t1.start_date as planStartDate,
+        t1.progress_status as planProgressStatus,
+        t1.progress as planProgress,
+        t2.group_name
+        from bu_rpt_plan_group_statistic t
+        left join bu_repair_plan t1 on t1.id = t.plan_id
+        left join bu_mtr_workshop_group t2 on t2.id = t.group_id
+        <where>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and t.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                and t.group_id = #{queryVO.groupId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

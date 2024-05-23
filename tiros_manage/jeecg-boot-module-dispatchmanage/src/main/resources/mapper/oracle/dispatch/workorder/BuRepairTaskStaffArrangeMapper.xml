@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuRepairTaskStaffArrangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuRepairTaskStaffArrange">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="ord_tsk_wk_station_id" property="ordTskWkStationId"/>
+        <result column="user_id" property="userId"/>
+        <result column="work_time" property="workTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, ord_tsk_wk_station_id, user_id, work_time
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.orderId, jdbcType=VARCHAR},
+            #{item.ordTskWkStationId, jdbcType=VARCHAR},
+            #{item.userId, jdbcType=VARCHAR},
+            #{item.workTime, jdbcType=DECIMAL}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_repair_task_staff_arrange
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <delete id="deleteByOrderIdList">
+        delete
+        from bu_repair_task_staff_arrange
+        where order_id in
+        <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+            #{orderId}
+        </foreach>
+    </delete>
+
+    <select id="selectListByOrderTaskId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuRepairTaskStaffArrange">
+        select t.*,
+               t4.order_name,
+               t1.order_task_id,
+               t5.task_name  as orderTaskName,
+               t1.workstation_id,
+               t2.station_no as workstationNo,
+               t2.name       as workstationName,
+               t3.realname   as userName,
+               t1.work_time  as planWorkTime
+        from bu_repair_task_staff_arrange t
+                 left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+                 left join bu_mtr_workstation t2 on t2.id = t1.workstation_id
+                 left join sys_user t3 on t3.id = t.user_id
+                 left join bu_work_order t4 on t4.id = t1.order_id
+                 left join bu_work_order_task t5 on t5.id = t1.order_task_id
+        where t1.order_task_id = #{taskId}
+    </select>
+
+    <select id="selectListByOrderId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuRepairTaskStaffArrange">
+        select t.*,
+               t4.order_name,
+               t1.order_task_id,
+               t5.task_name  as orderTaskName,
+               t1.workstation_id,
+               t2.station_no as workstationNo,
+               t2.name       as workstationName,
+               t3.realname   as userName,
+               t1.work_time  as planWorkTime
+        from bu_repair_task_staff_arrange t
+                 left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+                 left join bu_mtr_workstation t2 on t2.id = t1.workstation_id
+                 left join sys_user t3 on t3.id = t.user_id
+                 left join bu_work_order t4 on t4.id = t1.order_id
+                 left join bu_work_order_task t5 on t5.id = t1.order_task_id
+        where t.order_id = #{orderId}
+    </select>
+
+    <select id="selectListForMaximoByOrderIdList"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuRepairTaskStaffArrange">
+        select t.*,
+        t4.order_code,
+        t4.line_id,
+        t4.fd_project,
+        t6.code as fdProjectCode,
+        t6.name as fdProjectName,
+        t4.fd_task,
+        t7.code as fdTaskCode,
+        t7.name as fdTaskName,
+        t4.fd_cost_type,
+        t3.work_no,
+        t3.realname as userName,
+        t5.task_start,
+        t5.task_finish
+        from bu_repair_task_staff_arrange t
+        left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+        left join sys_user t3 on t3.id = t.user_id
+        left join bu_work_order t4 on t4.id = t1.order_id
+        left join bu_work_order_task t5 on t5.id = t1.order_task_id
+        left join bu_maximo_finance_item t6 on t6.id = t4.fd_project
+        left join bu_maximo_finance_item t7 on t7.id = t4.fd_task
+        where t.order_id
+        <choose>
+            <when test="orderIdList != null and orderIdList.size > 0">
+                in
+                <foreach collection="orderIdList" item="orderId" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListForRptByOrderId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuRepairTaskStaffArrange">
+        select t.*,
+               t4.depot_id,
+               t3.company_id,
+               t3.workshop_id,
+               t3.line_id,
+               t3.group_id,
+               t5.group_name,
+               t6.realname as userName,
+               t6.work_no,
+               t3.plan_id,
+               t2.task_finish,
+               t2.task_type
+        from bu_repair_task_staff_arrange t
+                 left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+                 left join bu_work_order_task t2 on t2.id = t1.order_task_id
+                 left join bu_work_order t3 on t3.id = t1.order_id
+                 left join bu_mtr_workshop t4 on t4.id = t3.workshop_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t3.group_id
+                 left join sys_user t6 on t6.id = t.user_id
+        where t.order_id = #{orderId}
+          and t2.task_finish is not null
+    </select>
+
+</mapper>

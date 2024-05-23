@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.plan.mapper.BuRepairPlanFarDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFarDetail">
+        <id column="id" property="id"/>
+        <result column="long_plan_id" property="longPlanId"/>
+        <result column="title" property="title"/>
+        <result column="line_id" property="lineId"/>
+        <result column="middle_repair" property="middleRepair"/>
+        <result column="hight_repair" property="hightRepair"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, long_plan_id, title, line_id, middle_repair, hight_repair
+    </sql>
+
+    <!-- 根据远期规划id查询远期规划明细列表 -->
+    <select id="selectListByPlanFarId" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanFarDetail">
+        SELECT
+        t1.*,
+        t2.line_name AS lineName
+        FROM bu_repair_plan_far_detail t1
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+        WHERE t1.long_plan_id = #{planFarId}
+        ORDER BY t1.middle_repair
+    </select>
+
+</mapper>

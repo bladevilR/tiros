@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.information.mapper.BuGroupWorkstationMapper">
+
+    <!-- 根据班组id分页查询班组已关联工位 -->
+    <select id="pageWorkstationByGroupId" resultType="org.jeecg.modules.group.information.bean.BuMtrWorkstation">
+        SELECT t1.*
+        FROM bu_mtr_workstation t1
+                 LEFT JOIN bu_group_workstation t2 ON t2.workstation_id = t1.id
+        WHERE t2.group_id = #{groupId}
+        <if test="name!=null and name!=''">
+          and  (t1.name like '%'||#{name}||'%' or t1.station_no like  '%'||#{name}||'%')
+        </if>
+        <if test="position!=null and position!=''">
+            and t1.location like '%'||#{position}||'%'
+        </if>
+        ORDER BY CAST(t1.station_no AS int)
+    </select>
+
+    <!-- 根据班组id查询班组未关联工位 -->
+    <select id="pageUnrelatedWorkstationByGroupId"
+            resultType="org.jeecg.modules.group.information.bean.BuMtrWorkstation">
+        SELECT t.*
+        FROM bu_mtr_workstation t
+        WHERE t.id NOT IN (SELECT workstation_id FROM bu_group_workstation WHERE group_id = #{groupId})
+          and t.workshop_id = (select workshop_id from bu_mtr_workshop_group where id = #{groupId})
+        ORDER BY CAST(station_no AS int)
+    </select>
+
+</mapper>

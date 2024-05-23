@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainHistoryFaultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        <id column="id" property="id"/>
+        <result column="fault_sn" property="faultSn"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_code_name" property="faultCodeName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="line_name" property="lineName"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="fault_asset_name" property="faultAssetName"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="order_task_name" property="orderTaskName"/>
+        <result column="work_station_id" property="workStationId"/>
+        <result column="phase" property="phase"/>
+        <result column="fault_level" property="faultLevel"/>
+        <result column="f_online" property="faultOnline"/>
+        <result column="has_duty" property="hasDuty"/>
+        <result column="outsource" property="outsource"/>
+        <result column="report_group" property="reportGroup"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="duty_engineer" property="dutyEngineer"/>
+        <result column="status" property="status"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="handle_time" property="handleTime"/>
+        <result column="handle_group" property="handleGroup"/>
+        <result column="handle_user" property="handleUser"/>
+        <result column="remark" property="remark"/>
+        <result column="ex_location" property="exLocation"/>
+        <result column="ex_fault_detail" property="exFaultDetail"/>
+        <result column="ex_fault_type" property="exFaultType"/>
+        <result column="ex_effect" property="exEffect"/>
+        <result column="ex_typical" property="exTypical"/>
+        <result column="archive_type" property="archiveType"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap_BuTrainHistoryFault_WithHandleRecords"
+               type="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        <id column="id" property="id"/>
+        <result column="fault_sn" property="faultSn"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_code_name" property="faultCodeName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="line_name" property="lineName"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="fault_asset_name" property="faultAssetName"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="order_task_name" property="orderTaskName"/>
+        <result column="work_station_id" property="workStationId"/>
+        <result column="phase" property="phase"/>
+        <result column="fault_level" property="faultLevel"/>
+        <result column="f_online" property="faultOnline"/>
+        <result column="has_duty" property="hasDuty"/>
+        <result column="outsource" property="outsource"/>
+        <result column="report_group" property="reportGroup"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="duty_engineer" property="dutyEngineer"/>
+        <result column="status" property="status"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="handle_time" property="handleTime"/>
+        <result column="handle_group" property="handleGroup"/>
+        <result column="handle_user" property="handleUser"/>
+        <result column="ex_location" property="exLocation"/>
+        <result column="ex_fault_detail" property="exFaultDetail"/>
+        <result column="ex_fault_type" property="exFaultType"/>
+        <result column="ex_effect" property="exEffect"/>
+        <result column="ex_typical" property="exTypical"/>
+        <result column="archive_type" property="archiveType"/>
+        <collection property="handleRecordList" column="id"
+                    ofType="org.jeecg.modules.produce.fault.bean.BuFaultHandleRecord"
+                    select="selectFaultHandleRecordList"/>
+    </resultMap>
+    <select id="selectFaultHandleRecordList" resultType="org.jeecg.modules.produce.fault.bean.BuFaultHandleRecord">
+        select *
+        from bu_fault_handle_record
+        where fault_info_id = #{id}
+        order by solution_time desc
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, fault_sn, fault_desc, category_id, category_name, fault_code_id, fault_code_name, line_id, line_name,
+        train_id, train_name, sys_id, sys_name, sub_sys_id, sub_sys_name, fault_asset_id, fault_asset_name,
+        happen_time, work_order_id, work_order_name, order_task_id, order_task_name, work_station_id, phase, fault_level,
+        f_online, has_duty, outsource, report_group, report_user_id, report_time, duty_engineer, status, handle_status,
+        handle_time, handle_group, handle_user, remark, ex_location, ex_fault_detail, ex_fault_type, ex_effect, ex_typical,
+        archive_type
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.faultSn, jdbcType=VARCHAR},
+            #{item.faultDesc, jdbcType=VARCHAR},
+            #{item.categoryId, jdbcType=VARCHAR},
+            #{item.categoryName, jdbcType=VARCHAR},
+            #{item.faultCodeId, jdbcType=VARCHAR},
+            #{item.faultCodeName, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.lineName, jdbcType=VARCHAR},
+            #{item.trainId, jdbcType=VARCHAR},
+            #{item.trainName, jdbcType=VARCHAR},
+            #{item.sysId, jdbcType=VARCHAR},
+            #{item.sysName, jdbcType=VARCHAR},
+            #{item.subSysId, jdbcType=VARCHAR},
+            #{item.subSysName, jdbcType=VARCHAR},
+            #{item.faultAssetId, jdbcType=VARCHAR},
+            #{item.faultAssetName, jdbcType=VARCHAR},
+            #{item.happenTime, jdbcType=DATE},
+            #{item.workOrderId, jdbcType=VARCHAR},
+            #{item.workOrderName, jdbcType=VARCHAR},
+            #{item.orderTaskId, jdbcType=VARCHAR},
+            #{item.orderTaskName, jdbcType=VARCHAR},
+            #{item.workStationId, jdbcType=VARCHAR},
+            #{item.phase, jdbcType=INTEGER},
+            #{item.faultLevel, jdbcType=INTEGER},
+            #{item.faultOnline, jdbcType=INTEGER},
+            #{item.hasDuty, jdbcType=INTEGER},
+            #{item.outsource, jdbcType=INTEGER},
+            #{item.reportGroup, jdbcType=VARCHAR},
+            #{item.reportUserId, jdbcType=VARCHAR},
+            #{item.reportTime, jdbcType=DATE},
+            #{item.dutyEngineer, jdbcType=VARCHAR},
+            #{item.status, jdbcType=INTEGER},
+            #{item.handleStatus, jdbcType=INTEGER},
+            #{item.handleTime, jdbcType=DATE},
+            #{item.handleGroup, jdbcType=VARCHAR},
+            #{item.handleUser, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.exLocation, jdbcType=VARCHAR},
+            #{item.exFaultDetail, jdbcType=VARCHAR},
+            #{item.exFaultType, jdbcType=VARCHAR},
+            #{item.exEffect, jdbcType=VARCHAR},
+            #{item.exTypical, jdbcType=VARCHAR},
+            #{item.archiveType, jdbcType=INTEGER}
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_fault
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        select t.*
+        from bu_train_history_fault t
+        <where>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_name = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                and t.fault_asset_id in
+                (select id from bu_maximo_train_asset
+                where  parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId})||'%')
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and (
+                t.fault_sn like '%'||#{queryVO.searchText}||'%'
+                or
+                t.fault_desc like'%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.happenTime != null">
+                and to_char(t.report_time,'yyyy-mm-dd') = to_char(#{queryVO.happenTime},'yyyy-mm-dd')
+            </if>
+        </where>
+        order by t.report_time desc
+    </select>
+
+    <select id="selectSimpleListByCondition"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        select t.id,
+        t.happen_time,
+        t.sys_id,
+        t.sys_name,
+        t.fault_code_name
+        from bu_train_history_fault t
+        where (t.report_time &gt;= #{queryVO.startTime} and t.report_time &lt;= #{queryVO.endTime})
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.train_name = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.assetId != null and queryVO.assetId != ''">
+            and t.fault_asset_id in
+            (select id from bu_maximo_train_asset
+            where  parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId})||'%')
+        </if>
+        order by t.report_time desc
+    </select>
+
+    <select id="selectListNeedCollect" resultMap="ResultMap_BuTrainHistoryFault_WithHandleRecords">
+        select t.id,
+               t.fault_sn,
+               t.fault_desc,
+               t.category_id,
+               t1.category_code  as category_name,
+               t.fault_code_id,
+               t2.flt_code     as faultCode_name,
+               t.line_id,
+               t.train_no        as train_name,
+               t.sys_id,
+               t.sub_sys_id,
+               t.fault_asset_id,
+               t5.asset_name     as fault_asset_name,
+               t.happen_time,
+               t.work_order_id,
+               t3.order_name     as workOrder_name,
+               t.order_task_id,
+               t4.task_name      as orderTask_name,
+               t.work_station_id,
+               t.phase,
+               t.fault_level,
+               t.f_online,
+               t.has_duty,
+               t.outsource,
+               t.report_group_id as report_group,
+               t.report_user_id,
+               t.report_time,
+               t.duty_engineer,
+               t.status,
+               t.handle_status
+        from bu_fault_info t
+                 left join bu_fault_category t1 on t1.id = t.category_id
+                 left join bu_fault_code_new t2 on t2.flt_code = t.fault_code_id
+                 left join bu_work_order t3 on t3.id = t.work_order_id
+                 left join bu_work_order_task t4 on t4.id = t.order_task_id
+                 left join bu_train_asset t5 on t5.id = t.fault_asset_id
+        where t.submit_status != 2
+          and t.report_time &gt;= #{date}
+    </select>
+
+    <select id="selectFaultNeedCollectByFaultIdList" resultMap="ResultMap_BuTrainHistoryFault_WithHandleRecords">
+        select t.id,
+        t.fault_sn,
+        t.fault_desc,
+        t.category_id,
+        t1.category_code as category_name,
+        t.fault_code_id,
+        t2.flt_code as faultCode_name,
+        t.line_id,
+        t5.line_name,
+        t6.id as trainId,
+        t.train_no as train_name,
+        t.sys_id,
+        t7.name as sysName,
+        t.sub_sys_id,
+        t8.name as subSysName,
+        t.fault_asset_id,
+        t9.asset_name as faultAssetName,
+        t.happen_time,
+        t.work_order_id,
+        t3.order_name as workOrder_name,
+        t.order_task_id,
+        t4.task_name as orderTask_name,
+        t10.name as workStationId,
+        t.phase,
+        t.fault_level,
+        t.f_online,
+        t.has_duty,
+        t.outsource,
+        t.report_group_id as report_group,
+        t.report_user_id as reportUserId,
+        t.report_time,
+        t.duty_engineer as dutyEngineer,
+        t.status,
+        t.handle_status
+        from bu_fault_info t
+        left join bu_fault_category t1 on t1.id = t.category_id
+        left join bu_fault_code_new t2 on t2.flt_code = t.fault_code_id
+        left join bu_work_order t3 on t3.id = t.work_order_id
+        left join bu_work_order_task t4 on t4.id = t.order_task_id
+        left join bu_mtr_line t5 on t5.line_id = t.line_id
+        left join bu_train_info t6 on t6.train_no = t.train_no
+        left join bu_train_asset_type t7 on t7.id = t.sys_id
+        left join bu_train_asset_type t8 on t8.id = t.sub_sys_id
+        left join bu_train_asset t9 on t9.id = t.fault_asset_id
+        left join bu_mtr_workstation t10 on t10.id = t.work_station_id
+        where t.id
+        <choose>
+            <when test="faultIdList != null and faultIdList.size > 0">
+                in
+                <foreach collection="faultIdList" item="faultId" open="(" separator="," close=")">
+                    #{faultId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectMaximoSimpleListByBuFaultTimeEffectQueryVO"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        select
+        t.id,
+        t.happen_time,
+        t.sys_id,
+        t.sys_name
+        from bu_train_history_fault t
+        where t.archive_type = 1
+        and (t.report_time &gt;= #{queryVO.startTime} and t.report_time &lt;= #{queryVO.endTime})
+        <if test="queryVO.sysId != null and queryVO.sysId != ''">
+            and t.sys_id = #{queryVO.sysId}
+        </if>
+        <if test="queryVO.level != null">
+            and t.fault_level = #{queryVO.level}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.train_name = #{queryVO.trainNo}
+        </if>
+    </select>
+
+    <select id="selectJdxSimpleListByBuFaultTimeEffectQueryVO"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryFault">
+        select
+        t.id,
+        t.happen_time,
+        t.sys_id,
+        t.sys_name
+        from bu_train_history_fault t
+        where t.archive_type = 0
+        and t.report_time &gt;= #{queryVO.startTime}
+        <if test="queryVO.endTime != null">
+            and t.report_time &lt;= #{queryVO.endTime}
+        </if>
+        <if test="queryVO.sysId != null and queryVO.sysId != ''">
+            and t.sys_id = #{queryVO.sysId}
+        </if>
+        <if test="queryVO.level != null">
+            and t.fault_level = #{queryVO.level}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.train_name = #{queryVO.trainNo}
+        </if>
+    </select>
+
+</mapper>

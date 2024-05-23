@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxRealassetOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxRealassetOut">
+        <result column="ASSETNUM" property="assetnum" />
+        <result column="CALLASTDATE" property="callastdate" />
+        <result column="CALPERIOD" property="calperiod" />
+        <result column="CENTER" property="center" />
+        <result column="CUSTODIAN" property="custodian" />
+        <result column="DESCRIPTION" property="description" />
+        <result column="ISSUEUNIT" property="issueunit" />
+        <result column="ITEMNUM" property="itemnum" />
+        <result column="LINENUM" property="linenum" />
+        <result column="LOCATION" property="location" />
+        <result column="PERSONGROUP" property="persongroup" />
+        <result column="PURCHASEDATE" property="purchasedate" />
+        <result column="PURCHASEPRICE" property="purchaseprice" />
+        <result column="REALASSETNUM" property="realassetnum" />
+        <result column="REALASSETTYPE" property="realassettype" />
+        <result column="RECEIVEDATE" property="receivedate" />
+        <result column="RECEIVER" property="receiver" />
+        <result column="SITEID" property="siteid" />
+        <result column="STATUS" property="status" />
+        <result column="STATUSDATE" property="statusdate" />
+        <result column="WORKSHOP" property="workshop" />
+        <result column="TRANSID" property="transid" />
+        <result column="TRANSSEQ" property="transseq" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ASSETNUM, CALLASTDATE, CALPERIOD, CENTER, CUSTODIAN, DESCRIPTION, ISSUEUNIT, ITEMNUM, LINENUM, LOCATION, PERSONGROUP, PURCHASEDATE, PURCHASEPRICE, REALASSETNUM, REALASSETTYPE, RECEIVEDATE, RECEIVER, SITEID, STATUS, STATUSDATE, WORKSHOP, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

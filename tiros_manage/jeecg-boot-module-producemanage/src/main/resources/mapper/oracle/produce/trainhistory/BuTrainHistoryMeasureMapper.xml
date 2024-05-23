@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainHistoryMeasureMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryMeasure">
+        <id column="id" property="id"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="train_asset_name" property="trainAssetName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="measure_id" property="measureId"/>
+        <result column="measure_name" property="measureName"/>
+        <result column="work_group" property="workGroup"/>
+        <result column="work_user" property="workUser"/>
+        <result column="work_time" property="workTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="m_values" property="mValues"/>
+        <result column="is_alert" property="isAlert"/>
+        <result column="alert_message" property="alertMessage"/>
+        <result column="thresholds" property="thresholds"/>
+        <result column="fix_values" property="fixValues"/>
+        <result column="alert_reason" property="alertReason"/>
+        <result column="tools" property="tools"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuTrainHistoryMeasure_Collection"
+               type="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryMeasure">
+        <id column="id" property="id"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="train_asset_name" property="trainAssetName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="measure_id" property="measureId"/>
+        <result column="measure_name" property="measureName"/>
+        <result column="work_group" property="workGroup"/>
+        <result column="work_user" property="workUser"/>
+        <result column="work_time" property="workTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="m_values" property="mValues"/>
+        <result column="is_alert" property="isAlert"/>
+        <result column="alert_message" property="alertMessage"/>
+        <result column="thresholds" property="thresholds"/>
+        <result column="fix_values" property="fixValues"/>
+        <result column="alert_reason" property="alertReason"/>
+        <result column="tools" property="tools"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="remark" property="remark"/>
+        <collection property="workUserIdList" column="{taskId=order_task_id}"
+                    ofType="java.lang.String"
+                    select="selectWorkUserIdList"/>
+        <collection property="toolIdList" column="{taskId=order_task_id}"
+                    ofType="java.lang.String"
+                    select="selectToolIdList"/>
+    </resultMap>
+    <select id="selectWorkUserIdList" resultType="java.lang.String">
+        select t1.user_id
+        from bu_work_order_task_workstation t
+                 left join bu_repair_task_staff_arrange t1 on t1.ord_tsk_wk_station_id = t.id
+        where t.order_task_id = #{taskId}
+    </select>
+    <select id="selectToolIdList" resultType="java.lang.String">
+        select t.tool_id
+        from bu_work_order_tool t
+        where t.order_task_id = #{taskId}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_id, train_name, train_asset_id, train_asset_name, sys_id, sys_name, sub_sys_id, sub_sys_name,
+        measure_id, measure_name, work_group, work_user, work_time, work_order_id, work_order_name, m_values,
+        is_alert, alert_message, thresholds, fix_values, alert_reason, tools, archive_type, remark
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.trainId, jdbcType=VARCHAR},
+            #{item.trainName, jdbcType=VARCHAR},
+            #{item.trainAssetId, jdbcType=VARCHAR},
+            #{item.trainAssetName, jdbcType=VARCHAR},
+            #{item.sysId, jdbcType=VARCHAR},
+            #{item.sysName, jdbcType=VARCHAR},
+            #{item.subSysId, jdbcType=VARCHAR},
+            #{item.subSysName, jdbcType=VARCHAR},
+            #{item.measureId, jdbcType=VARCHAR},
+            #{item.measureName, jdbcType=VARCHAR},
+            #{item.workGroup, jdbcType=VARCHAR},
+            #{item.workUser, jdbcType=VARCHAR},
+            #{item.workTime, jdbcType=DATE},
+            #{item.workOrderId, jdbcType=VARCHAR},
+            #{item.workOrderName, jdbcType=VARCHAR},
+            #{item.mValues, jdbcType=VARCHAR},
+            #{item.isAlert, jdbcType=INTEGER},
+            #{item.alertMessage, jdbcType=VARCHAR},
+            #{item.thresholds, jdbcType=VARCHAR},
+            #{item.fixValues, jdbcType=VARCHAR},
+            #{item.alertReason, jdbcType=VARCHAR},
+            #{item.tools, jdbcType=VARCHAR},
+            #{item.archiveType, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_measure
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryMeasure">
+        select t.*
+        from bu_train_history_measure t
+        <where>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_name = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                and t.train_asset_id in
+                (select id from bu_maximo_train_asset
+                where parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId})||'%')
+            </if>
+            <if test="queryVO.measureName != null and queryVO.measureName != ''">
+                and t.measure_name like '%'||#{queryVO.measureName}||'%'
+            </if>
+        </where>
+        order by t.work_time desc
+    </select>
+
+    <select id="selectListNeedCollect" resultMap="ResultMap_BuTrainHistoryMeasure_Collection">
+        select t2.train_no            as train_name,
+               t1.train_asset_id,
+               t4.asset_name          as train_asset_name,
+               t1.asset_type_id,
+               t.measure_threshold_id as measure_id,
+               t3.item_name           as measure_name,
+               t.group_id             as work_group,
+               t1.task_finish         as work_time,
+               t2.id                  as work_order_id,
+               t2.order_name          as work_order_name,
+               t.alert_value          as m_values,
+               t.alert_happen         as is_alert,
+               t.alert_message,
+               t3.template            as thresholds,
+               t.fixed_value          as fix_values,
+               t.alert_message        as alert_reason,
+               t.order_task_id
+        from bu_pl_data_record_value t
+                 left join bu_work_order_task t1 on t1.id = t.order_task_id
+                 left join bu_work_order t2 on t2.id = t1.order_id
+                 left join bu_work_measure_item t3 on t3.id = t.measure_threshold_id
+                 left join bu_train_asset t4 on t4.id = t1.train_asset_id
+        where t.alert_time &gt;= #{date}
+    </select>
+
+</mapper>

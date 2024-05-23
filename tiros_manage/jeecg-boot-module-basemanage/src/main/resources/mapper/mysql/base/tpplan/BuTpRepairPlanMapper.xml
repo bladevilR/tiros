@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.tpplan.mapper.BuTpRepairPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlan">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="tp_name" property="tpName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="group_quantity" property="groupQuantity"/>
+        <result column="duration" property="duration"/>
+        <result column="base_date" property="baseDate"/>
+        <result column="status" property="status"/>
+        <result column="default_tp" property="defaultTp"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, tp_name, line_id, train_type_id, repair_program_id, group_quantity, duration,
+        base_date, status, default_tp, remark, create_time, create_by, update_time, update_by, regu_id,
+        fd_project, fd_task, fd_cost_type, company_id, workshop_id
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlan">
+        select t.*,
+        t1.line_name as lineName,
+        t2.name as trainTypeName,
+        t3.name as repairProgramName,
+        t4.name as reguName,
+        t5.code as fdProjectCode,
+        t5.name as fdProjectName,
+        t6.code as fdTaskCode,
+        t6.name as fdTaskName
+        from bu_tp_repair_plan t
+        left join bu_mtr_line t1 on t.line_id = t1.line_id
+        left join bu_train_type t2 on t.train_type_id = t2.id
+        left join bu_repair_program t3 on t.repair_program_id = t3.id
+        left join bu_repair_regu_info t4 on t4.id = t.regu_id
+        left join bu_maximo_finance_item t5 on t5.id = t.fd_project
+        left join bu_maximo_finance_item t6 on t6.id = t.fd_task
+        <where>
+            <if test="queryVO.searchContent != null and queryVO.searchContent != ''">
+                and (
+                t.code like CONCAT('%',#{queryVO.searchContent},'%')
+                or
+                t.tp_name like CONCAT('%',#{queryVO.searchContent},'%')
+                )
+            </if>
+            <if test="queryVO.status != null">
+                and t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                and t.repair_program_id = #{queryVO.repairProgramId}
+            </if>
+            <if test="queryVO.trainTypeId != null and queryVO.trainTypeId != ''">
+                and t.train_type_id = #{queryVO.trainTypeId}
+            </if>
+        </where>
+        order by t.code
+    </select>
+
+    <select id="selectPlanByPlanId" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlan">
+        SELECT t.*,
+               t1.line_name AS lineName,
+               t2.name      AS trainTypeName,
+               t3.name      AS repairProgramName,
+               t4.name      AS reguName,
+               t5.code as fdProjectCode,
+               t5.name as fdProjectName,
+               t6.code as fdTaskCode,
+               t6.name as fdTaskName
+        FROM bu_tp_repair_plan t
+                 LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+                 LEFT JOIN bu_train_type t2 ON t2.id = t.train_type_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+                 LEFT JOIN bu_repair_regu_info t4 ON t4.id = t.regu_id
+                 left join bu_maximo_finance_item t5 on t5.id = t.fd_project
+                 left join bu_maximo_finance_item t6 on t6.id = t.fd_task
+        WHERE t.id = #{planId}
+    </select>
+
+    <select id="noRelevanceCount" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_repair_regu_detail t
+        WHERE t.regu_id = #{reguId}
+          AND t.type = 2
+          AND t.id NOT IN (
+            SELECT regu_detail_id
+            FROM bu_tp_repair_plan_regu_info
+            WHERE task_id IN (
+                SELECT id
+                FROM bu_tp_repair_plan_task
+                WHERE plan_id = #{planId}
+            )
+        )
+    </select>
+
+    <select id="noRelevanceDetail" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        SELECT t.*,
+               t1.name  AS assetTypeName,
+               t2.title AS parentName
+        FROM bu_repair_regu_detail t
+                 LEFT JOIN bu_train_asset_type t1 ON t1.id = t.asset_type_id
+                 LEFT JOIN bu_repair_regu_detail t2 ON t2.id = t.parent_id
+        WHERE t.regu_id = #{reguId}
+          AND t.type = 2
+          AND t.id NOT IN (
+            SELECT regu_detail_id
+            FROM bu_tp_repair_plan_regu_info
+            WHERE task_id IN (
+                SELECT id
+                FROM bu_tp_repair_plan_task
+                WHERE plan_id = #{planId}
+            )
+        )
+        order by t.no
+    </select>
+
+    <select id="selectMaxTaskNoByParentId" resultType="java.lang.Integer">
+        SELECT
+        MAX(t.task_no)
+        FROM bu_tp_repair_plan_task t
+        <where>
+            <choose>
+                <when test="parentId != null and parentId != ''">
+                    and t.parent_id = #{parentId}
+                </when>
+                <otherwise>
+                    and (t.parent_id is null)
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+</mapper>

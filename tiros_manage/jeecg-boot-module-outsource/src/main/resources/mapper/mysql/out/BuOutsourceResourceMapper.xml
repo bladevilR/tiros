@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuOutsourceResourceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuOutsourceResource">
+        <id column="id" property="id" />
+        <result column="contract_id" property="contractId" />
+        <result column="file_type" property="fileType" />
+        <result column="name" property="name" />
+        <result column="upload_date" property="uploadDate" />
+        <result column="file_size" property="fileSize" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, outin_detail_id, file_type, file_name, upload_date, file_size, remark, create_time, create_by, update_time, update_by
+    </sql>
+    <select id="resourcePage" resultType="org.jeecg.modules.outsource.bean.BuOutsourceResource">
+        select t.*
+        from  bu_outsource_resource t
+        <where>
+            <if test="resource.contractId!=null and resource.contractId!=''">
+                t.contract_id=#{resource.contractId}
+            </if>
+            <if test="resource.fileType!=null">
+               and  t.file_type=#{resource.fileType}
+            </if>
+            <if test="resource.fileName!=null and resource.fileName!=''">
+              and  t.name like concat('%',#{resource.fileName},'%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

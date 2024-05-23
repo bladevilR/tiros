@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuOutsourceOutinMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutin">
+        <id column="id" property="id"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="bill_no" property="billNo"/>
+        <result column="bill_type" property="billType"/>
+        <result column="send_group_id" property="sendGroupId"/>
+        <result column="transfer_date" property="transferDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="contract_id" property="contractId"/>
+        <result column="transfer_user_id" property="transferUserId"/>
+        <result column="receive_user" property="receiveUser"/>
+        <result column="engineer_id" property="engineerId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="remark" property="remark"/>
+        <result column="outin_name" property="outinName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuOutsourceOutin_Detail" type="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutin">
+        <id column="id" property="id"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="bill_no" property="billNo"/>
+        <result column="bill_type" property="billType"/>
+        <result column="send_group_id" property="sendGroupId"/>
+        <result column="transfer_date" property="transferDate"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="contract_id" property="contractId"/>
+        <result column="transfer_user_id" property="transferUserId"/>
+        <result column="receive_user" property="receiveUser"/>
+        <result column="engineer_id" property="engineerId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="remark" property="remark"/>
+        <result column="outin_name" property="outinName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="receiveUserName" property="receiveUserName"/>
+        <result column="transferUserName" property="transferUserName"/>
+        <result column="lineName" property="lineName"/>
+        <result column="sendGroupName" property="sendGroupName"/>
+        <result column="supplierName" property="supplierName"/>
+        <result column="contractName" property="contractName"/>
+        <result column="needDay" property="needDay"/>
+        <collection property="outinDetails" column="id"
+                    ofType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail"
+                    select="selectOutinDetails"/>
+    </resultMap>
+    <select id="selectOutinDetails" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select t.*,
+               t1.line_id   as lineId,
+               t2.line_name as lineName
+        from bu_outsource_outin_detail t
+                 left join bu_train_info t1 on t.train_no = t1.train_no
+                 left join bu_mtr_line t2 on t1.line_id = t2.line_id
+        where t.outin_id = #{id}
+        order by t.asset_no
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, line_id, train_no, bill_no, bill_type, send_group_id, transfer_date,
+        supplier_id, contract_id, transfer_user_id, receive_user, engineer_id,
+        create_time, create_by, update_time, update_by, work_order_id, remark,
+        outin_name, order_task_id, company_id, workshop_id
+    </sql>
+
+    <update id="settingDelayReason">
+        update bu_outsource_outin_detail
+        set delay_reason = #{delayReason.delayReason}
+        where id = #{delayReason.id}
+    </update>
+
+    <update id="updateContractCurTrain">
+        <if test="billType==0">
+            update bu_contract_info
+            set cur_train = #{trainNo}
+            where id = #{contractId}
+        </if>
+        <if test="billType==1">
+            update bu_contract_info
+            set cur_train = '',
+            finish_amount = finish_amount + 1
+            where id = #{contractId}
+        </if>
+    </update>
+
+    <select id="selectOutinPage" resultMap="ResultMap_BuOutsourceOutin_Detail">
+        select
+        t.*,
+        t1.line_name as lineName,
+        t2.order_code as workOrderNo,
+        t3.realname as engineerName,
+        t4.group_name as sendGroupName,
+        DECODE(t.bill_type,0,(select realname from sys_user where id = t.transfer_user_id),t.transfer_user_id) as
+        transferUserName,
+        DECODE(t.bill_type,1,(select realname from sys_user where id = t.receive_user), t.receive_user) as
+        receiveUserName,
+        t5.name as supplierName,
+        t6.contract_name as contractName,
+        t6.need_day as needDay
+        from bu_outsource_outin t
+        left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_work_order t2 on t.work_order_id = t2.id
+        left join sys_user t3 on t.engineer_id = t3.id
+        left join bu_mtr_workshop_group t4 on t.send_group_id = t4.id
+        left join bu_base_supplier t5 on t5.id = t.supplier_id
+        left join bu_contract_info t6 on t6.id = t.contract_id
+        <where>
+            <if test="outin.lineId != null and outin.lineId != ''">
+                and t.line_id = #{outin.lineId}
+            </if>
+            <if test="outin.trainId != null and outin.trainId != ''">
+                and (
+                t.train_no =
+                (select train_no from bu_train_info where id = #{outin.trainId})
+                or
+                t.train_no = #{outin.trainId}
+                )
+            </if>
+            <if test="outin.assetSearchText != null and outin.assetSearchText != ''">
+                and t.id in (
+                select outin_id from bu_outsource_outin_detail
+                where
+                asset_no like CONCAT('%',#{outin.assetSearchText},'%')
+                or
+                asset_name like CONCAT('%',#{outin.assetSearchText},'%')
+                )
+            </if>
+            <if test="outin.billSearchText != null and outin.billSearchText != ''">
+                and (
+                t.bill_no like CONCAT('%',#{outin.billSearchText},'%')
+                or
+                t.outin_name like CONCAT('%',#{outin.billSearchText},'%')
+                or
+                t2.order_code like CONCAT('%',#{outin.billSearchText},'%')
+                )
+            </if>
+        </where>
+        order by t2.group_id, t.bill_type, t.bill_no desc
+    </select>
+
+    <select id="selectOutinDetailPage" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select
+        t.*,
+        t1.contract_id as contractId,
+        t2.contract_no as contractNo,
+        t3.line_name as lineName,
+        t1.line_id as lineId,
+        t1.train_no as trainNo,
+        t1.bill_no as outinNo,
+        t1.supplier_id as supplierId,
+        t4.name as supplierName,
+        t4.contact_phone as supplierPhone,
+        t4.address as supplierAddress
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t.outin_id = t1.id
+        left join bu_contract_info t2 on t1.contract_id = t2.id
+        left join bu_mtr_line t3 on t3.line_id = t1.line_id
+        left join bu_base_supplier t4 on t4.id = t1.supplier_id
+        left join bu_work_order t5 on t5.id = t1.work_order_id
+        <where>
+            <if test="outin.lineId != null and outin.lineId != ''">
+                and t1.line_id = #{outin.lineId}
+            </if>
+            <if test="outin.trainId != null and outin.trainId != ''">
+                and (
+                t.train_no =
+                (select train_no from bu_train_info where id = #{outin.trainId})
+                or
+                t.train_no = #{outin.trainId}
+                )
+            </if>
+            <if test="outin.assetSearchText != null and outin.assetSearchText != ''">
+                and (
+                t.asset_no like CONCAT('%',#{outin.assetSearchText},'%')
+                or
+                t.asset_name like CONCAT('%',#{outin.assetSearchText},'%')
+                )
+            </if>
+            <if test="outin.billSearchText != null and outin.billSearchText != ''">
+                and (
+                t1.bill_no like CONCAT('%',#{outin.billSearchText},'%')
+                or
+                t1.outin_name like CONCAT('%',#{outin.billSearchText},'%')
+                )
+            </if>
+            <if test="outin.id != null and outin.id != ''">
+                and t.id = #{outin.id}
+            </if>
+            <if test="outin.billType != null">
+                and t1.bill_type = #{outin.billType}
+            </if>
+        </where>
+        order by t5.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="repairRecordPage" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceRepairRecord">
+        select
+        t.id,
+        t.asset_name as assetName,
+        t.asset_type_id as assetTypeId,
+        t1.train_no as trainNo,
+        t2.line_name as lineName,
+        t5.name as supplierName,
+        t1.contract_id as contractId,
+        t3.contract_name as contractName,
+        t6.group_name as sendGroupName,
+        t1.transfer_date as transferDate,
+        t7.realname as supervisor,
+        case when t3.need_day is not null and t1.transfer_date is not null then t1.transfer_date+ t3.need_day
+        else t.return_time end as returnTime,
+        t.delay_reason as delayReason,
+        t.return_status as returnStatus,
+        (select MAX(transfer_date) from bu_outsource_outin where id = (select outin_id from bu_outsource_outin_detail
+        where out_detail_id=t.id)) as actReturnTime,
+        (select id from bu_outsource_outin_detail where out_detail_id=t.id) as outDetailId,
+        t1.train_no as curTrain,
+        (t3.finish_amount + 1) as trainIndex
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t.outin_id = t1.id
+        left join bu_mtr_line t2 on t1.line_id = t2.line_id
+        left join bu_contract_info t3 on t1.contract_id = t3.id
+        left join bu_outsource_supervise t4 on t.id = t4.outin_detail_id
+        left join bu_base_supplier t5 on t5.id = t3.supplier_id
+        left join bu_mtr_workshop_group t6 on t6.id = t1.send_group_id
+        left join sys_user t7 on t7.id = t4.dispatch_user_id
+        left join bu_work_order t8 on t8.id = t1.work_order_id
+        where t1.bill_type = 0
+        <!--        <if test="perform.contactId!=null and perform.contactId!=''">-->
+        <!--            and t1.contract_id=#{perform.contactId}-->
+        <!--        </if>-->
+        <if test="perform.contractIdList != null and perform.contractIdList.size > 0">
+            and t1.contract_id in
+            <foreach collection="perform.contractIdList" item="contractId" separator="," open="(" close=")">
+                #{contractId}
+            </foreach>
+        </if>
+        <if test="perform.id != null and perform.id != ''">
+            and t.id = #{perform.id}
+        </if>
+        <if test="perform.searchText != null and perform.searchText != ''">
+            and
+            (
+            t.asset_name like concat('%',#{perform.searchText},'%')
+            or
+            t.asset_no like concat('%',#{perform.searchText},'%')
+            )
+        </if>
+        <if test="perform.lineId != null and perform.lineId != ''">
+            and t1.line_id = #{perform.lineId}
+        </if>
+        <if test="perform.trainNo != null and perform.trainNo != ''">
+            and t1.train_no = #{perform.trainNo}
+        </if>
+        <if test="perform.status != null">
+            <!--  <if test="perform.status == 0">
+                  and ( t.return_time is null or t.return_time='')
+              </if>
+              <if test="perform.status == 1">
+                  and (t.out_detail_id is null or t.out_detail_id='')
+                  and (t.return_time is not null or t.return_time !='')
+              </if>
+              <if test="perform.status == 3">
+                  and t.return_status=1
+              </if>
+              <if test="perform.status == 4">
+                  and t.out_detail_id is not null and t.return_status=1
+              </if>
+              <if test="perform.status == 5">
+                  and t.out_detail_id is not null and t.return_status=1
+              </if>-->
+            <if test="perform.status==0 or perform.status==1 or perform.status == 4 or perform.status == 3">
+                and t.return_status=-1
+            </if>
+            <if test="perform.status == 2">
+                and not exists(select id from bu_outsource_outin_detail where out_detail_id=t.id)
+            </if>
+            <if test="perform.status == 5">
+                and exists(select id from bu_outsource_outin_detail where out_detail_id=t.id)
+                and (t1.transfer_date + t3.need_day) &gt;=
+                (select return_time from bu_outsource_outin_detail where out_detail_id=t.id)
+            </if>
+            <if test="perform.status == 6">
+                and (t1.transfer_date+ t3.need_day) &lt;
+                (select return_time from bu_outsource_outin_detail where out_detail_id=t.id)
+            </if>
+        </if>
+        <if test="perform.supplierId != null and perform.supplierId!= ''">
+            and t3.supplier_id= #{perform.supplierId}
+        </if>
+        order by t8.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="selectListByOrderTaskId" resultMap="ResultMap_BuOutsourceOutin_Detail">
+        select t.*,
+               t1.line_name     as lineName,
+               t2.group_name    as sendGroupName,
+               t3.name          as supplierName,
+               t4.contract_name as contractName,
+               t4.need_day      as needDay
+        from bu_outsource_outin t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_mtr_workshop_group t2 on t2.id = t.send_group_id
+                 left join bu_base_supplier t3 on t3.id = t.supplier_id
+                 left join bu_contract_info t4 on t4.id = t.contract_id
+                 left join bu_work_order t5 on t5.id = t.work_order_id
+        where t.order_task_id = #{orderTaskId}
+        order by t5.group_id, t.bill_type, t.bill_no desc
+    </select>
+
+</mapper>
+

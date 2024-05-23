@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialStockUseThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialStockUse">
+        <id column="id" property="id"/>
+        <result column="stock_type" property="stockType"/>
+        <result column="stock_id" property="stockId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="use_time" property="useTime"/>
+        <result column="use_reason" property="useReason"/>
+        <result column="use_type" property="useType"/>
+        <result column="use_amount" property="useAmount"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="assign_detail_id" property="assignDetailId"/>
+        <result column="order_material_act_id" property="orderMaterialActId"/>
+        <result column="operation_user" property="operationUser"/>
+        <result column="remark" property="remark"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, stock_type, stock_id, warehouse_id, material_type_id, trade_no, use_time, use_reason, use_type,
+        use_amount, train_no, order_code, assign_detail_id, order_material_act_id, operation_user, remark,
+        company_id, workshop_id, line_id
+    </sql>
+
+</mapper>

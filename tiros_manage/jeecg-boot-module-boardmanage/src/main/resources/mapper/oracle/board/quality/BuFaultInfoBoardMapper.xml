@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.quality.mapper.BuFaultInfoBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_sn" property="faultSn"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="phase" property="phase"/>
+        <result column="fault_level" property="faultLevel"/>
+        <result column="f_online" property="faultOnline"/>
+        <result column="has_duty" property="hasDuty"/>
+        <result column="outsource" property="outsource"/>
+        <result column="report_group_id" property="reportGroupId"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="duty_engineer" property="dutyEngineer"/>
+        <result column="status" property="status"/>
+        <result column="close_user_id" property="closeUserId"/>
+        <result column="close_time" property="closeTime"/>
+        <result column="submit_status" property="submitStatus"/>
+        <result column="work_station_id" property="workStationId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_type" property="createType"/>
+        <result column="train_structure_id" property="trainStructureId"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="handle_order_id" property="handleOrderId"/>
+        <result column="out_supplier_id" property="outSupplierId"/>
+        <result column="form_value_id" property="formValueId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="track_message" property="trackMessage"/>
+        <result column="from_type" property="fromType"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_Collection -->
+    <resultMap id="ResultMap_BuFaultInfo_Collection" type="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_sn" property="faultSn"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="phase" property="phase"/>
+        <result column="fault_level" property="faultLevel"/>
+        <result column="f_online" property="faultOnline"/>
+        <result column="has_duty" property="hasDuty"/>
+        <result column="outsource" property="outsource"/>
+        <result column="report_group_id" property="reportGroupId"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="duty_engineer" property="dutyEngineer"/>
+        <result column="status" property="status"/>
+        <result column="close_user_id" property="closeUserId"/>
+        <result column="close_time" property="closeTime"/>
+        <result column="submit_status" property="submitStatus"/>
+        <result column="work_station_id" property="workStationId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="create_type" property="createType"/>
+        <result column="train_structure_id" property="trainStructureId"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="handle_order_id" property="handleOrderId"/>
+        <result column="out_supplier_id" property="outSupplierId"/>
+        <result column="form_value_id" property="formValueId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="track_message" property="trackMessage"/>
+        <result column="from_type" property="fromType"/>
+        <result column="outSupplierName" property="outSupplierName"/>
+        <collection property="handleRecordList" column="id"
+                    ofType="org.jeecg.modules.board.quality.bean.BuFaultHandleRecord"
+                    select="selectHandleRecordListByFaultId"/>
+        <collection property="annexList" column="id" ofType="org.jeecg.modules.board.quality.bean.BuFaultInfoAnnex"
+                    select="selectAnnexListByFaultId"/>
+    </resultMap>
+    <!-- 根据故障id查询处理记录列表 -->
+    <select id="selectHandleRecordListByFaultId" resultType="org.jeecg.modules.board.quality.bean.BuFaultHandleRecord">
+        SELECT t1.*,
+               t2.group_name    AS solutionGroupName,
+               t3.realname      AS solutionUserName,
+               t4.reason_code   AS faultReasonCode,
+               t5.solution_code AS faultSolutionCode
+        FROM bu_fault_handle_record t1
+                 LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t1.solution_group_id
+                 LEFT JOIN sys_user t3 ON t3.id = t1.solution_user_id
+                 LEFT JOIN bu_fault_reason t4 ON t4.id = t1.fault_reason_id
+                 LEFT JOIN bu_fault_solution t5 ON t5.id = t1.fault_solution_id
+        WHERE t1.fault_info_id = #{id}
+        ORDER BY t1.solution_time DESC
+    </select>
+    <!-- 根据故障id查询附件列表 -->
+    <select id="selectAnnexListByFaultId" resultType="org.jeecg.modules.board.quality.bean.BuFaultInfoAnnex">
+        SELECT t1.*
+        FROM bu_fault_info_annex t1
+        WHERE t1.fault_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, category_id, fault_code_id, fault_sn, fault_desc, sys_id, sub_sys_id, fault_asset_id, happen_time,
+        work_order_id, order_task_id, line_id, train_no, phase, fault_level, f_online, has_duty, outsource, report_group_id,
+        report_user_id, report_time, duty_engineer, status, close_user_id, close_time, submit_status, work_station_id,
+        create_time, create_by, update_time, update_by, create_type, train_structure_id, handle_status, handle_order_id,
+        out_supplier_id, form_value_id, plan_id, company_id, workshop_id, track_message, from_type
+    </sql>
+
+    <select id="selectListByCondition" resultType="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        SELECT
+        t.*,
+        t3.group_name AS reportGroupName,
+        t4.name AS sysName,
+        t5.name as workstationName,
+        t1.plan_name
+        FROM bu_fault_info t
+        LEFT JOIN bu_repair_plan t1 ON t1.id = t.plan_id
+        LEFT JOIN bu_repair_program t2 ON t2.id = t1.repair_program_id
+        LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t.report_group_id
+        LEFT JOIN bu_train_asset_type t4 ON t4.id = t.sys_id
+        LEFT JOIN bu_mtr_workstation t5 ON t5.id = t.work_station_id
+        <where>
+            AND t.report_time &gt;= #{queryVO.startDate}
+            AND t.report_time &lt;= #{queryVO.endDate}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                <if test="queryVO.lineId == null or queryVO.lineId == ''">
+                    AND t.line_id IN (SELECT line_id FROM bu_mtr_depot_line WHERE depot_id = #{queryVO.depotId})
+                </if>
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                AND t2.pro_type = #{queryVO.programType}
+            </if>
+            <if test="queryVO.fromType != null">
+                AND t.from_type = #{queryVO.fromType}
+            </if>
+        </where>
+        ORDER BY t.report_time DESC
+    </select>
+
+    <select id="selectOutsourceListByCondition" resultType="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        SELECT
+        t.*,
+        t3.asset_name AS faultAssetName,
+        t4.name as workstationName,
+        t5.plan_name
+        FROM bu_fault_info t
+        LEFT JOIN bu_repair_plan t1 ON t1.id = t.plan_id
+        LEFT JOIN bu_repair_program t2 ON t2.id = t1.repair_program_id
+        LEFT JOIN bu_train_asset t3 ON t3.id = t.fault_asset_id
+        LEFT JOIN bu_mtr_workstation t4 ON t4.id = t.work_station_id
+        LEFT JOIN bu_repair_plan t5 ON t5.id = t.plan_id
+        <where>
+            AND t.outsource = 1
+            AND t.report_time &gt;= #{queryVO.startDate}
+            AND t.report_time &lt;= #{queryVO.endDate}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                <if test="queryVO.lineId == null or queryVO.lineId == ''">
+                    AND t.line_id IN (SELECT line_id FROM bu_mtr_depot_line WHERE depot_id = #{queryVO.depotId})
+                </if>
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                AND t2.pro_type = #{queryVO.programType}
+            </if>
+            <if test="queryVO.fromType != null">
+                AND t.from_type = #{queryVO.fromType}
+            </if>
+        </where>
+        ORDER BY t.report_time DESC
+    </select>
+
+    <select id="listLatestFaultByNum" resultType="org.jeecg.modules.board.quality.bean.BuFaultInfo">
+        select t.*
+        from (SELECT t.id,
+                     t.fault_desc,
+                     t1.group_name                 AS reportGroupName,
+                     t.report_time,
+                     t2.name                       AS sysName,
+                     t.status,
+                     NVL(t3.process_status, '未发起') AS wfStatus,
+                     t3.process_candidate
+              FROM bu_fault_info t
+                       LEFT JOIN bu_mtr_workshop_group t1 ON t1.id = t.report_group_id
+                       LEFT JOIN bu_train_asset_type t2 ON t2.id = t.sys_id
+                       LEFT JOIN wf_biz_status t3 ON t3.business_key = t.id
+              WHERE t.submit_status != 2
+                and t.report_time is not null
+              ORDER BY t.report_time DESC) t
+        where ROWNUM &lt;= #{num}
+    </select>
+
+    <!-- 根据id查询故障详细信息 -->
+    <select id="selectById" resultMap="ResultMap_BuFaultInfo_Collection">
+        SELECT t.*,
+               t1.line_name                  AS lineName,
+               t2.name                       AS sysName,
+               t3.asset_name                 AS faultAssetName,
+               t4.group_name                 AS reportGroupName,
+               t5.name                       as outSupplierName,
+               t6.plan_name,
+               NVl(t7.process_status, '未发起') AS wfStatus,
+               t7.process_candidate
+        FROM bu_fault_info t
+                 LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+                 LEFT JOIN bu_train_asset_type t2 ON t2.id = t.sys_id
+                 LEFT JOIN bu_train_asset t3 ON t3.id = t.fault_asset_id
+                 LEFT JOIN bu_mtr_workshop_group t4 ON t4.id = t.report_group_id
+                 LEFT JOIN bu_base_supplier t5 ON t5.id = t.out_supplier_id
+                 LEFT JOIN bu_repair_plan t6 ON t6.id = t.plan_id
+                 LEFT JOIN wf_biz_status t7 ON t7.business_key = t.id
+        WHERE t.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.exchange.mapper.BuRepairExchangLeaveMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchangLeave">
+        <result column="id" property="id"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="leave_content" property="leaveContent"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="operation" property="operation"/>
+        <result column="reason" property="reason"/>
+        <result column="plan_handle" property="planHandle"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="last_handle" property="lastHandle"/>
+        <result column="fault_id" property="faultId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, exchange_id, leave_content, asset_type_id, operation, reason, plan_handle, handle_status,
+        last_handle, fault_id, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 分页查询交接车开口项记录 -->
+    <select id="selectExchangLeavePage" resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchangLeave">
+        SELECT
+        t.*,
+        t1.name AS assetTypeName
+        FROM bu_repair_exchang_leave t
+        LEFT JOIN bu_train_asset_type t1 ON t1.id = t.asset_type_id
+        <where>
+            <if test="exchangeId != null and exchangeId != ''">
+                AND t.exchange_id = #{exchangeId}
+            </if>
+        </where>
+        ORDER BY t.create_time desc
+    </select>
+
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuMaterialApplyDetailDispatchMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuMaterialApplyDetail">
+        <id column="id" property="id"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="receive" property="receive"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="status" property="status"/>
+        <result column="confirm_user" property="confirmUser"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="send_user" property="sendUser"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="order_material_id" property="orderMaterialId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuMaterialApplyDetail_WithAssign"
+               type="org.jeecg.modules.dispatch.workorder.bean.BuMaterialApplyDetail">
+        <id column="id" property="id"/>
+        <result column="apply_id" property="applyId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="receive" property="receive"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="status" property="status"/>
+        <result column="confirm_user" property="confirmUser"/>
+        <result column="confirm_time" property="confirmTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="send_user" property="sendUser"/>
+        <result column="send_time" property="sendTime"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="order_material_id" property="orderMaterialId"/>
+        <collection property="assignDetailList" column="id"
+                    ofType="org.jeecg.modules.dispatch.workorder.bean.BuMaterialAssignDetail"
+                    select="selectAssignDetailList"/>
+    </resultMap>
+    <select id="selectAssignDetailList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuMaterialAssignDetail">
+        select t.*,
+               t1.name as palletName
+        from bu_material_assign_detail t
+                 left join bu_material_pallet t1 on t1.id = t.pallet_id
+        where t.apply_detail_id = #{id}
+        order by t.material_type_id, t.ebs_wh_code, t.ebs_wh_child_code, t.location_wbs
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_id, material_type_id, amount, receive, entry_detail_id, status, confirm_user, confirm_time,
+        create_time, create_by, update_time, update_by, send_user, send_time, unit_price, use_category, order_material_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.applyId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DECIMAL},
+            #{item.receive, jdbcType=DECIMAL},
+            #{item.entryDetailId, jdbcType=VARCHAR},
+            #{item.status, jdbcType=INTEGER},
+            #{item.confirmUser, jdbcType=VARCHAR},
+            #{item.confirmTime, jdbcType=DATE},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.sendUser, jdbcType=VARCHAR},
+            #{item.sendTime, jdbcType=DATE},
+            #{item.unitPrice, jdbcType=DECIMAL},
+            #{item.useCategory, jdbcType=INTEGER},
+            #{item.orderMaterialId, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_apply_detail
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <delete id="deleteByOrderId">
+        delete
+        from bu_material_apply_detail
+        where apply_id in (select id from bu_material_apply where work_order_id = #{orderId})
+    </delete>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuMaterialApplyDetail">
+        select t.*
+        from bu_material_apply_detail t
+                 left join bu_material_apply t1 on t1.id = t.apply_id
+        where t1.work_order_id = #{orderId}
+    </select>
+
+    <select id="selectListWithAssignByOrderMaterialIdList" resultMap="ResultMap_BuMaterialApplyDetail_WithAssign">
+        select t.*
+        from bu_material_apply_detail t
+        where t.order_material_id
+        <choose>
+            <when test="orderMaterialIdList != null and orderMaterialIdList.size > 0">
+                in
+                <foreach collection="orderMaterialIdList" item="orderMaterialId" separator="," open="(" close=")">
+                    #{orderMaterialId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.status desc, t.material_type_id, t.confirm_time desc
+    </select>
+
+    <select id="selectReceivedListWithAssignByOrderIdAndMaterialTypeId"
+            resultMap="ResultMap_BuMaterialApplyDetail_WithAssign">
+        select t.*
+        from bu_material_apply_detail t
+                 left join bu_material_apply t1 on t1.id = t.apply_id
+        where t1.status != 0
+          and t.status = 2
+          and t1.work_order_id = #{orderId}
+          and t.material_type_id = #{materialTypeId}
+        order by t1.code desc, t.status desc, t.material_type_id, t.confirm_time desc
+    </select>
+
+    <select id="selectMaterialOrderApplyDetailListWithAssign" resultMap="ResultMap_BuMaterialApplyDetail_WithAssign">
+        select t.*,
+               t3.realname as sendUserName
+        from bu_material_apply_detail t
+                 left join bu_material_apply t1 on t1.id = t.apply_id
+                 left join bu_work_order t2 on t2.id = t1.work_order_id
+                 left join sys_user t3 on t3.id = t.send_user
+        where t2.order_type in (4, 5)
+          and t2.plan_id = #{planId}
+          and t2.group_id = #{groupId}
+          and t.material_type_id = #{materialTypeId}
+        order by t.status desc
+    </select>
+
+</mapper>

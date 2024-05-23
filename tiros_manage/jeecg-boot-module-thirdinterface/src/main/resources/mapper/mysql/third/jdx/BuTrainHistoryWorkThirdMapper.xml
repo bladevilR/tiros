@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuTrainHistoryWorkThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuTrainHistoryWork">
+        <id column="id" property="id"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="order_name" property="orderName"/>
+        <result column="order_type" property="orderType"/>
+        <result column="generate" property="generate"/>
+        <result column="program_type" property="programType"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_Name" property="planName"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="duration" property="duration"/>
+        <result column="group_id" property="groupId"/>
+        <result column="group_name" property="groupName"/>
+        <result column="monitor" property="monitor"/>
+        <result column="monitor_name" property="monitorName"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="depot_name" property="depotName"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="workshop_name" property="workshopName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="line_name" property="lineName"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="train_asset_name" property="trainAssetName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="work_status" property="workStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="issuing_time" property="issuingTime"/>
+        <result column="remark" property="remark"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="ex_location" property="exLocation"/>
+        <result column="ex_period" property="exPeriod"/>
+        <result column="ex_check_level" property="exCheckLevel"/>
+        <result column="archive_type" property="archiveType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_code, order_name, order_type, generate, program_type, plan_id, plan_Name, start_time, finish_time,
+        duration, group_id, group_name, monitor, monitor_name, depot_id, depot_name, workshop_id, workshop_name,
+        line_id, line_name, train_id, train_name, train_asset_id, train_asset_name, sys_id, sys_name, sub_sys_id,
+        sub_sys_name, act_start, act_finish, order_status, work_status, create_time, issuing_time, remark, fd_project,
+        fd_task, fd_cost_type, ex_location, ex_period, ex_check_level, archive_type
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.orderCode},
+            #{item.orderName},
+            #{item.orderType},
+            #{item.generate},
+            #{item.programType},
+            #{item.planId},
+            #{item.planName},
+            #{item.startTime},
+            #{item.finishTime},
+            #{item.duration},
+            #{item.groupId},
+            #{item.groupName},
+            #{item.monitor},
+            #{item.monitorName},
+            #{item.depotId},
+            #{item.depotName},
+            #{item.workshopId},
+            #{item.workshopName},
+            #{item.lineId},
+            #{item.lineName},
+            #{item.trainId},
+            #{item.trainName},
+            #{item.trainAssetId},
+            #{item.trainAssetName},
+            #{item.sysId},
+            #{item.sysName},
+            #{item.subSysId},
+            #{item.subSysName},
+            #{item.actStart},
+            #{item.actFinish},
+            #{item.orderStatus},
+            #{item.workStatus},
+            #{item.createTime},
+            #{item.issuingTime},
+            #{item.remark},
+            #{item.fdProject},
+            #{item.fdTask},
+            #{item.fdCostType},
+            #{item.exLocation},
+            #{item.exPeriod},
+            #{item.exCheckLevel},
+            #{item.archiveType},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_work
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.fault.mapper.BuFaultHandleRecordQualityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.fault.bean.BuFaultHandleRecord">
+        <id column="id" property="id" />
+        <result column="fault_info_id" property="faultInfoId" />
+        <result column="fault_reason_id" property="faultReasonId" />
+        <result column="reason_desc" property="reasonDesc" />
+        <result column="fault_solution_id" property="faultSolutionId" />
+        <result column="solution_desc" property="solutionDesc" />
+        <result column="solution_time" property="solutionTime" />
+        <result column="solution_group_id" property="solutionGroupId" />
+        <result column="solution_user_id" property="solutionUserId" />
+        <result column="result" property="result" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, fault_info_id, fault_reason_id, reason_desc, fault_solution_id, solution_desc, solution_time, solution_group_id, solution_user_id, result
+    </sql>
+
+</mapper>

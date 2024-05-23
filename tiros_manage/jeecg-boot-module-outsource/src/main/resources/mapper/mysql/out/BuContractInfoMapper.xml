@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.mapper.BuContractInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.bean.BuContractInfo">
+        <id column="id" property="id"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="amount" property="amount"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="status" property="status"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="sign_date" property="signDate"/>
+        <result column="deposit" property="deposit"/>
+        <result column="behind_money" property="behindMoney"/>
+        <result column="line_id" property="lineId"/>
+        <result column="expiration" property="expiration"/>
+        <result column="attention" property="attention"/>
+        <result column="remark" property="remark"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="need_day" property="needDay"/>
+        <result column="deposit_type" property="depositType"/>
+        <result column="quality_deposit_percent" property="qualityDepositPercent"/>
+        <result column="advance_payment" property="advancePayment"/>
+        <result column="asset_amount" property="assetAmount"/>
+        <result column="execute_tax_rate" property="executeTaxRate"/>
+        <result column="train_amount" property="trainAmount"/>
+        <result column="finish_amount" property="finishAmount"/>
+        <result column="cur_train" property="curTrain"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="quality_deposit_type" property="qualityDepositType"/>
+        <result column="pay_interval" property="payInterval"/>
+        <result column="pay_begin" property="payBegin"/>
+        <result column="warranty_start_date" property="warrantyStartDate"/>
+        <result column="warranty_finish_date" property="warrantyFinishDate"/>
+        <result column="has_refunded" property="hasRefunded"/>
+        <result column="need_remind_refund" property="needRemindRefund"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuContractInfo_WithExtInfo" type="org.jeecg.modules.outsource.bean.BuContractInfo">
+        <id column="id" property="id"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="amount" property="amount"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="status" property="status"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="sign_date" property="signDate"/>
+        <result column="deposit" property="deposit"/>
+        <result column="behind_money" property="behindMoney"/>
+        <result column="line_id" property="lineId"/>
+        <result column="expiration" property="expiration"/>
+        <result column="attention" property="attention"/>
+        <result column="remark" property="remark"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="need_day" property="needDay"/>
+        <result column="deposit_type" property="depositType"/>
+        <result column="quality_deposit_percent" property="qualityDepositPercent"/>
+        <result column="advance_payment" property="advancePayment"/>
+        <result column="asset_amount" property="assetAmount"/>
+        <result column="execute_tax_rate" property="executeTaxRate"/>
+        <result column="lineName" property="lineName"/>
+        <result column="supplierName" property="supplierName"/>
+        <result column="assetTypeName" property="assetTypeName"/>
+        <result column="progress" property="progress"/>
+        <result column="sumProgress" property="sumProgress"/>
+        <result column="train_amount" property="trainAmount"/>
+        <result column="finish_amount" property="finishAmount"/>
+        <result column="cur_train" property="curTrain"/>
+        <result column="repair_Program_id" property="repairProgramId"/>
+        <result column="repairProgramName" property="repairProgramName"/>
+        <result column="quality_deposit_type" property="qualityDepositType"/>
+        <result column="pay_interval" property="payInterval"/>
+        <result column="pay_begin" property="payBegin"/>
+        <result column="warranty_start_date" property="warrantyStartDate"/>
+        <result column="warranty_finish_date" property="warrantyFinishDate"/>
+        <result column="has_refunded" property="hasRefunded"/>
+        <result column="need_remind_refund" property="needRemindRefund"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <association property="extInfo" column="id" select="selectExtInfo">
+        </association>
+    </resultMap>
+    <select id="selectExtInfo" resultType="org.jeecg.modules.outsource.bean.BuContractExtInfo">
+        select *
+        from bu_contract_ext_info
+        where contract_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, contract_no, contract_name, supplier_id, amount, tax_rate, status, start_date, finish_date,
+        sign_date, deposit, behind_money, line_id, expiration, attention, remark, asset_type_id,
+        create_time, create_by, update_time, update_by, need_day, deposit_type, quality_deposit_percent,
+        advance_payment, asset_amount, execute_tax_rate, train_amount, finish_amount, cur_train, repair_program_id,
+        quality_deposit_type, pay_interval, pay_begin, warranty_start_date, warranty_finish_date, has_refunded,
+        need_remind_refund, company_id, workshop_id
+    </sql>
+
+
+    <update id="updateListFinishAmount">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" separator=";">
+                update bu_contract_info
+                set finish_amount = #{item.finishAmount}
+                where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListWarranty">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" open="begin" close=";end;" separator=";">
+                update bu_contract_info
+                set warranty_start_date = #{item.warrantyStartDate},
+                warranty_finish_date = #{item.warrantyFinishDate}
+                where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <!--  if(t.finish_amount is not null  and t.finish_amount !=0,t.finish_amount/t.train_amount*100,0)-->
+    <select id="selectPageByCondition" resultMap="ResultMap_BuContractInfo_WithExtInfo">
+        select t.*,t1.line_name as lineName,t2.name as supplierName,t3.name as assetTypeName,t5.name as
+        repairProgramName,
+        t4.train_no as progress,if(t.finish_amount is not null and t.finish_amount
+        !=0,t.finish_amount/t.train_amount*100,0) as sumProgress
+        from bu_contract_info t left join bu_mtr_line t1 on t.line_id=t1.line_id
+        left join bu_base_supplier t2 on t.supplier_id=t2.id
+        left join bu_train_asset_type t3 on t.asset_type_id=t3.id
+        left join (select t.contract_id, t.train_no from bu_outsource_outin t left join bu_outsource_outin_detail t1 on
+        t.id = t1.outin_id
+        where t.bill_type=0 and t1.return_status=0 and (t1.out_detail_id is null or t1.out_detail_id='')
+        order by t.create_time desc LIMIT 1) t4 on t4.contract_id=t.id
+        left join bu_repair_program t5 on t5.id=t.repair_program_id
+        <where>
+            <if test="contractInfo.id!=null and contractInfo.id!=''">
+                t.id=#{contractInfo.id}
+            </if>
+            <if test="contractInfo.lineId!=null and contractInfo.lineId!=''">
+                and t.line_id=#{contractInfo.lineId}
+            </if>
+            <if test="contractInfo.supplierId!=null and contractInfo.supplierId!=''">
+                and t.supplier_id=#{contractInfo.supplierId}
+            </if>
+            <if test="contractInfo.status!=null">
+                and t.status=#{contractInfo.status}
+            </if>
+            <if test="contractInfo.searchText!=null and contractInfo.searchText!=''">
+                and (t.contract_name like concat('%',#{contractInfo.searchText},'%')
+                or t.contract_no like concat('%',#{contractInfo.searchText},'%') )
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSumPay" resultType="java.math.BigDecimal">
+        select sum(amount)
+        from bu_contract_pay
+        where contract_id = #{id}
+    </select>
+
+    <select id="selectSumBak" resultType="java.math.BigDecimal">
+        select sum(amount)
+        from bu_contract_bak_money
+        where contract_id = #{id}
+    </select>
+
+    <select id="qualityPage" resultType="org.jeecg.modules.outsource.bean.BuOutsourceQuality">
+        select
+        t.id,
+        if(t1.bill_type=1,(select realname from sys_user where id=t1.receive_user),t1.receive_user) as acceptanceGroup,
+        t.asset_type_id as assetId,t.asset_no as assetNo,t.asset_name as assetName,
+        t2.line_name as lineName,t3.name as supplier,
+        t5.current_location as currentPosition,
+        t1.bill_type as billType,
+        t.out_detail_id as outDetailId,
+        t.train_no as trainNo,
+        t.remark,
+        t6.check_date as checkDate,
+        t6.start_date as startDate,
+        t6.end_date as endDate,
+        t6.day_count as dayCount
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t1.id=t.outin_id
+        left join bu_mtr_line t2 on t1.line_id=t2.line_id
+        left join bu_base_supplier t3 on t3.id=t1.supplier_id
+        left join bu_material_spare_part t5 on t5.id=t.turnover_asset_id
+        left join bu_outsource_outin_quality t6 on t6.detail_id =t.id
+        where t1.bill_type=1
+        <if test="quality.lineId!=null and quality.lineId!=''">
+            and t1.line_id=#{quality.lineId}
+        </if>
+        <if test="quality.trainNo!=null and quality.trainNo!=''">
+            and t1.train_no=#{quality.trainNo}
+        </if>
+        <if test="quality.searchText!=null and quality.searchText!=''">
+            and ( t.asset_name like concat('%',#{quality.searchText},'%')
+            or t.asset_no like concat('%',#{quality.searchText},'%') )
+        </if>
+        <if test="quality.assetTypeId!=null and quality.assetTypeId!=''">
+            and (t.asset_type_id=#{quality.assetTypeId}
+            or t.asset_type_id in (select parent_id from bu_train_asset_type where id=#{quality.assetTypeId})
+            )
+        </if>
+        order by dayCount desc
+    </select>
+
+    <select id="partsPage" resultType="org.jeecg.modules.outsource.bean.BuOutsourceAsset">
+        select a.*,b.returnAmount,c.failedAmount
+        from
+        (select t.asset_name as assetName, count(t.asset_no) as sendAmount,any_value(t.facade_desc) assetDesc,
+        any_value((select name from bu_train_asset_type where struct_type=1 and locate(wbs,(select wbs from
+        bu_train_asset_type where id=t.asset_type_id)))) as sysName
+        from bu_outsource_outin_detail t left join
+        bu_outsource_outin t1 on t1.id=t.outin_id
+        where t1.bill_type=0
+        <if test="asset.lineId!=null and asset.lineId!=''">
+            and t1.line_id=#{asset.lineId}
+        </if>
+        <if test="asset.trainNo!=null and asset.trainNo!=''">
+            and t.train_no=#{asset.trainNo}
+        </if>
+        <if test="asset.startDate != null and asset.endDate != null">
+            AND t1.transfer_date BETWEEN #{asset.startDate} AND #{asset.endDate}
+        </if>
+        group by t.asset_name
+        ) a
+        left join
+        (
+        select t.asset_name, count(t.asset_no) as returnAmount
+        from bu_outsource_outin_detail t left join
+        bu_outsource_outin t1 on t1.id=t.outin_id
+        where t1.bill_type=1
+        group by t.asset_name
+        ) b
+        on a.assetName=b.asset_name
+        left join
+        (
+        select t1.asset_name, count(t1.asset_no) as failedAmount
+        from bu_material_spare_part t
+        left join bu_outsource_outin_detail t1 on t.id=t1.turnover_asset_id
+        left join bu_outsource_outin t2 on t2.id=t1.outin_id
+        where t2.bill_type=0 and t.status=4
+        group by t1.asset_name
+        ) c
+        on a.assetName=c.asset_name
+    </select>
+
+    <select id="getAssetTypeNeedDay" resultType="java.lang.Integer">
+        select if(
+                           (select count(*) from bu_contract_info where asset_type_id = #{assetTypeId}) > 1,
+                           need_day,
+                           (select need_day from bu_contract_info where asset_type_id = #{assetTypeId})
+                   ) as needDay
+        from bu_contract_info
+        where asset_type_id = #{assetTypeId}
+        order by start_date desc limit 1
+    </select>
+
+    <select id="selectUnFinishListByLineAndProgramAndDate" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+               t1.name as supplierName,
+               t2.line_name,
+               t3.name as repairProgramName
+        from bu_contract_info t
+                 left join bu_base_supplier t1 on t1.id = t.supplier_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_repair_program t3 on t3.id = t.repair_program_id
+        where t.finish_amount &lt; t.train_amount
+          and t.line_id = #{lineId}
+          and t.repair_program_id = #{programId}
+          and #{date} between t.start_date and t.finish_date
+    </select>
+
+    <select id="selectListNeedRemindRefund" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+               t1.name as supplierName,
+               t2.line_name,
+               t3.name as repairProgramName
+        from bu_contract_info t
+                 left join bu_base_supplier t1 on t1.id = t.supplier_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_repair_program t3 on t3.id = t.repair_program_id
+        where t.has_refunded = 0
+          and t.need_remind_refund = 1
+          and t.warranty_finish_date &lt;= #{date}
+    </select>
+
+    <select id="selectListByDate" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+               t1.name as supplierName,
+               t2.line_name,
+               t3.name as repairProgramName
+        from bu_contract_info t
+                 left join bu_base_supplier t1 on t1.id = t.supplier_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_repair_program t3 on t3.id = t.repair_program_id
+        where t.status = 1
+          and #{date} between start_date and finish_date
+    </select>
+
+    <select id="selectLineGroup" resultType="int">
+        select group_num
+        from bu_mtr_line
+        where line_id = #{lineId}
+    </select>
+
+    <select id="selectListByLineIdAndRepairProId" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+               t1.name as supplierName,
+               t2.line_name,
+               t3.name as repairProgramName,
+               t4.name as assetTypeName
+        from bu_contract_info t
+                 left join bu_base_supplier t1 on t1.id = t.supplier_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_repair_program t3 on t3.id = t.repair_program_id
+                 left join bu_train_asset_type t4 on t4.id=t.asset_type_id
+        where t.line_id = #{lineId}
+          and t.repair_program_id = #{repairProgramId}
+
+    </select>
+    <select id="selectListByLineId" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+        t1.name as supplierName,
+        t2.line_name,
+        t3.name as repairProgramName,
+        t4.name as assetTypeName
+        from bu_contract_info t
+        left join bu_base_supplier t1 on t1.id = t.supplier_id
+        left join bu_mtr_line t2 on t2.line_id = t.line_id
+        left join bu_repair_program t3 on t3.id = t.repair_program_id
+        left join bu_train_asset_type t4 on t4.id=t.asset_type_id
+        <where >
+            <if test="lineId!=null and lineId!=''">
+                t.line_id=#{lineId}
+            </if>
+        </where>
+        order by t.sign_date ASC
+    </select>
+
+    <select id="selectAssetList" resultType="org.jeecg.modules.outsource.bean.OutsourceAsset">
+        select distinct t.asset_type_id as id,
+                        t1.name as assetName
+        from bu_contract_info t
+                 left join bu_train_asset_type t1 on t1.id=t.asset_type_id
+    </select>
+
+    <select id="selectListByAssetId" resultType="org.jeecg.modules.outsource.bean.BuContractInfo">
+        select t.*,
+               t1.name as supplierName,
+               t2.line_name,
+               t3.name as repairProgramName,
+               t4.name as assetTypeName
+        from bu_contract_info t
+                 left join bu_base_supplier t1 on t1.id = t.supplier_id
+                 left join bu_mtr_line t2 on t2.line_id = t.line_id
+                 left join bu_repair_program t3 on t3.id = t.repair_program_id
+                 left join bu_train_asset_type t4 on t4.id=t.asset_type_id
+        where t.asset_type_id=#{assetId}
+        order by t.sign_date ASC
+    </select>
+
+</mapper>

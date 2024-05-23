@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.check.mapper.BuWorkOrderRecordCheckQualityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.check.bean.BuWorkOrderRecordCheck">
+        <id column="id" property="id"/>
+        <result column="record_detail_id" property="recordDetailId"/>
+        <result column="check_type" property="checkType"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="check_time" property="checkTime"/>
+        <result column="result" property="result"/>
+        <result column="result_desc" property="resultDesc"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, record_detail_id, check_type, check_user_id, check_time, result, result_desc
+    </sql>
+
+    <update id="writeCheckResultToRecordDetail">
+        UPDATE
+        bu_work_order_record_detail
+        SET result = #{recordDetailResult, jdbcType=NUMERIC}
+        WHERE id = #{recordDetailId, jdbcType=VARCHAR}
+    </update>
+
+</mapper>

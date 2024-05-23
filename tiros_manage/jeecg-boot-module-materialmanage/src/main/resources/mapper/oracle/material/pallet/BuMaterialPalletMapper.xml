@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.pallet.mapper.BuMaterialPalletMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.pallet.bean.BuMaterialPallet">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="p_size" property="palletSize"/>
+        <result column="texture" property="texture"/>
+        <result column="material_types" property="materialTypes"/>
+        <result column="use_status" property="useStatus"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, p_size, texture, material_types, use_status, status, remark, company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.code, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.palletSize, jdbcType=VARCHAR},
+            #{item.texture, jdbcType=VARCHAR},
+            #{item.materialTypes, jdbcType=VARCHAR},
+            #{item.useStatus, jdbcType=INTEGER},
+            #{item.status, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_material_pallet
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateListUseStatus">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_pallet set use_status = #{item.useStatus, jdbcType=NUMERIC} where id =
+                #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectPageBySearchText" resultMap="BaseResultMap">
+        select *
+        from bu_material_pallet
+        <where>
+            <if test="searchText != null and searchText != ''">
+                and
+                (
+                code like '%'||#{searchText}||'%'
+                or
+                name like '%'||#{searchText}||'%'
+                )
+            </if>
+            <if test="typeId != null and typeId != ''">
+                and material_types like '%'||#{typeId}||'%'
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="useStatus != null and useStatus != ''">
+                and use_status = #{useStatus}
+            </if>
+        </where>
+        order by code
+    </select>
+
+</mapper>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuTrainHistoryChangeThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuTrainHistoryChange">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_name" property="orderName"/>
+        <result column="duty_user" property="dutyUser"/>
+        <result column="work_user" property="workUser"/>
+        <result column="exchange_no" property="exchangeNo"/>
+        <result column="method" property="method"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="train_asset_name" property="trainAssetName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_type_name" property="assetTypeName"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_type_name" property="materialTypeName"/>
+        <result column="down_asset_id" property="downAssetId"/>
+        <result column="down_asset_name" property="downAssetName"/>
+        <result column="down_asset_sn" property="downAssetSn"/>
+        <result column="up_asset_id" property="upAssetId"/>
+        <result column="up_asset_name" property="upAssetName"/>
+        <result column="up_asset_sn" property="upAssetSn"/>
+        <result column="exchange_time" property="exchangeTime"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_name, duty_user, work_user, exchange_no, method, train_id, train_name, train_asset_id,
+        train_asset_name, sys_id, sys_name, sub_sys_id, sub_sys_name, asset_type_id, asset_type_name, material_type_id,
+        material_type_name, down_asset_id, down_asset_name, down_asset_sn, up_asset_id, up_asset_name, up_asset_sn,
+        exchange_time, archive_type, remark
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.orderId, jdbcType=VARCHAR},
+            #{item.orderName, jdbcType=VARCHAR},
+            #{item.dutyUser, jdbcType=VARCHAR},
+            #{item.workUser, jdbcType=VARCHAR},
+            #{item.exchangeNo, jdbcType=VARCHAR},
+            #{item.method, jdbcType=VARCHAR},
+            #{item.trainId, jdbcType=VARCHAR},
+            #{item.trainName, jdbcType=VARCHAR},
+            #{item.trainAssetId, jdbcType=VARCHAR},
+            #{item.trainAssetName, jdbcType=VARCHAR},
+            #{item.sysId, jdbcType=VARCHAR},
+            #{item.sysName, jdbcType=VARCHAR},
+            #{item.subSysId, jdbcType=VARCHAR},
+            #{item.subSysName, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.assetTypeName, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.materialTypeName, jdbcType=VARCHAR},
+            #{item.downAssetId, jdbcType=VARCHAR},
+            #{item.downAssetName, jdbcType=VARCHAR},
+            #{item.downAssetSn, jdbcType=VARCHAR},
+            #{item.upAssetId, jdbcType=VARCHAR},
+            #{item.upAssetName, jdbcType=VARCHAR},
+            #{item.upAssetSn, jdbcType=VARCHAR},
+            #{item.exchangeTime, jdbcType=DATE},
+            #{item.archiveType, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_change
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+</mapper>

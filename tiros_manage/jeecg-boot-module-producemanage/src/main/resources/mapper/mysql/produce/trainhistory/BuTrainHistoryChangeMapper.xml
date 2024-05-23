@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.BuTrainHistoryChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryChange">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_name" property="orderName"/>
+        <result column="duty_user" property="dutyUser"/>
+        <result column="work_user" property="workUser"/>
+        <result column="exchange_no" property="exchangeNo"/>
+        <result column="method" property="method"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="train_asset_name" property="trainAssetName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="asset_type_name" property="assetTypeName"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="material_type_name" property="materialTypeName"/>
+        <result column="down_asset_id" property="downAssetId"/>
+        <result column="down_asset_name" property="downAssetName"/>
+        <result column="down_asset_sn" property="downAssetSn"/>
+        <result column="up_asset_id" property="upAssetId"/>
+        <result column="up_asset_name" property="upAssetName"/>
+        <result column="up_asset_sn" property="upAssetSn"/>
+        <result column="exchange_time" property="exchangeTime"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="archive_type" property="archiveType"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_name, duty_user, work_user, exchange_no, method, train_id, train_name, train_asset_id,
+        train_asset_name, sys_id, sys_name, sub_sys_id, sub_sys_name, asset_type_id, asset_type_name, material_type_id,
+        material_type_name, down_asset_id, down_asset_name, down_asset_sn, up_asset_id, up_asset_name, up_asset_sn,
+        exchange_time, archive_type, remark
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.orderId},
+            #{item.orderName},
+            #{item.dutyUser},
+            #{item.workUser},
+            #{item.exchangeNo},
+            #{item.method},
+            #{item.trainId},
+            #{item.trainName},
+            #{item.trainAssetId},
+            #{item.trainAssetName},
+            #{item.sysId},
+            #{item.sysName},
+            #{item.subSysId},
+            #{item.subSysName},
+            #{item.assetTypeId},
+            #{item.assetTypeName},
+            #{item.materialTypeId},
+            #{item.materialTypeName},
+            #{item.downAssetId},
+            #{item.downAssetName},
+            #{item.downAssetSn},
+            #{item.upAssetId},
+            #{item.upAssetName},
+            #{item.upAssetSn},
+            #{item.exchangeTime},
+            #{item.archiveType},
+            #{item.remark},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_change
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryChange">
+        select t.*
+        from bu_train_history_change t
+        <where>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_name = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                and t.train_asset_id in
+                (select id from bu_maximo_train_asset
+                where  parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId})||'%')
+            </if>
+            <if test="queryVO.assetName != null and queryVO.assetName != ''">
+                and t.train_asset_name like concat('%',#{queryVO.assetName},'%')
+            </if>
+            <if test="queryVO.sysId != null and queryVO.sysId != ''">
+                and t.sys_id = #{queryVO.sysId}
+            </if>
+            <if test="queryVO.changeDate != null">
+                and TO_DAYS(t.exchange_time) = TO_DAYS(#{queryVO.changeDate})
+            </if>
+        </where>
+        order by t.exchange_time desc
+    </select>
+
+    <select id="selectSimpleListByCondition"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryChange">
+        select t.id,
+        t.exchange_time,
+        t.sys_name
+        from bu_train_history_change t
+        <where>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                and t.train_name = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.assetId != null and queryVO.assetId != ''">
+                and t.train_asset_id in
+                (select id from bu_maximo_train_asset
+                where  parent_code like (select code from bu_maximo_train_asset where id = #{queryVO.assetId})||'%')
+            </if>
+            and (t.exchange_time &gt;= #{queryVO.startTime} and t.exchange_time &lt;= #{queryVO.endTime})
+        </where>
+        order by t.exchange_time desc
+    </select>
+
+    <select id="selectListNeedCollect" resultType="org.jeecg.modules.produce.trainhistory.bean.BuTrainHistoryChange">
+        select t.order_id,
+               t1.order_name,
+               t.user_id          as dutyUser,
+               t.user_id          as workUser,
+               t.change_type      as method,
+               t.train_no         as trainName,
+               t.down_turnover_id as trainAssetId,
+               t4.asset_name      as trainAssetName,
+               t2.asset_type_id,
+               t2.material_type_id,
+               t3.name            as materialTypeName,
+               t.down_turnover_id as downAssetId,
+               t4.asset_name      as downAssetName,
+               t4.manuf_no        as downAssetSn,
+               t.up_turnover_id   as upAssetId,
+               t5.asset_name      as upAssetName,
+               t5.manuf_no        as upAssetSn,
+               t.change_date      as exchangeTime
+        from bu_work_turnover_change t
+                 left join bu_work_order t1 on t1.id = t.order_id
+                 left join bu_train_asset t2 on t2.id = t.down_turnover_id
+                 left join bu_material_type t3 on t3.id = t2.material_type_id
+                 left join bu_train_asset t4 on t4.id = t.down_turnover_id
+                 left join bu_train_asset t5 on t5.id = t.up_turnover_id
+        where t.change_date &gt;= #{date}
+        order by t.change_date desc
+    </select>
+
+    <select id="selectAssetUseRecordVOPage"
+            resultType="org.jeecg.modules.produce.trainhistory.bean.vo.BuTrainAssetUseRecordVO">
+        select t.id,
+        t.order_id,
+        t.order_name,
+        t.train_id,
+        t.train_name,
+        t1.id as assetId,
+        t1.asset_name,
+        t1.asset_no,
+        t1.material_code,
+        t1.asset_code,
+        t1.manuf_no,
+        t.sys_id,
+        t.sys_name,
+        t.sub_sys_id,
+        t.sub_sys_name,
+        t.asset_type_id,
+        t.asset_type_name,
+        t.material_type_id,
+        t.material_type_name,
+        t.exchange_time,
+        t.down_asset_id,
+        t.up_asset_id
+        from bu_train_history_change t
+        left join bu_train_asset t1 on t1.id =t.train_asset_id
+        where
+        (
+        t.down_asset_id = #{queryVO.assetId}
+        or
+        t.up_asset_id = #{queryVO.assetId}
+        or
+        t.train_asset_id=#{queryVO.assetId}
+        )
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t.train_name = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.changeDate != null">
+            and TO_DAYS(t.exchange_time) = TO_DAYS(#{queryVO.changeDate})
+        </if>
+        order by t.exchange_time desc
+    </select>
+
+</mapper>

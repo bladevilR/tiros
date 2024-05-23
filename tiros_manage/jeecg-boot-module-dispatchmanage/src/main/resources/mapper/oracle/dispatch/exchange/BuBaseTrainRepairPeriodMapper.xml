@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.exchange.mapper.BuBaseTrainRepairPeriodMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.exchange.bean.BuBaseTrainRepairPeriod">
+        <id column="id" property="id"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end" property="end"/>
+        <result column="life_date" property="lifeDate"/>
+        <result column="year" property="year"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="repair_program" property="repairProgram"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_id, train_no, start_time, end, life_date, year, repair_index, repair_program,
+        company_id, workshop_id, line_id
+    </sql>
+
+
+<!--    <select id="selectLastTrainPeriod" resultType="org.jeecg.modules.dispatch.exchange.bean.BuBaseTrainRepairPeriod">-->
+<!--        select t.*-->
+<!--        from (-->
+<!--                 select t.*,-->
+<!--                        row_number() over (order by t.start_time desc) as seqnum-->
+<!--                 from bu_base_train_repair_period t-->
+<!--                 WHERE t.train_no = #{trainNo}-->
+<!--             ) t-->
+<!--        where t.seqnum = 1-->
+<!--    </select>-->
+
+</mapper>

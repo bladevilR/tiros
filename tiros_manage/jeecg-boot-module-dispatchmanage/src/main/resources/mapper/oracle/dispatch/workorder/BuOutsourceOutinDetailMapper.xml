@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuOutsourceOutinDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        <id column="id" property="id"/>
+        <result column="outin_id" property="outinId"/>
+        <result column="asset_no" property="assetNo"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="amount" property="amount"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="turnover_asset_id" property="turnoverAssetId"/>
+        <result column="facade_status" property="facadeStatus"/>
+        <result column="facade_desc" property="facadeDesc"/>
+        <result column="mixtool_status" property="mixtoolStatus"/>
+        <result column="mixtool_desc" property="mixtoolDesc"/>
+        <result column="fault" property="fault"/>
+        <result column="return_status" property="returnStatus"/>
+        <result column="return_time" property="returnTime"/>
+        <result column="delay_reason" property="delayReason"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, outin_id, asset_no, asset_name, amount, asset_type_id, train_no, turnover_asset_id,
+        facade_status, facade_desc, mixtool_status, mixtool_desc, fault, return_status,
+        return_time, delay_reason, remark
+    </sql>
+
+    <select id="selectOutDetailListByTrainNoAndAssetTypeId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select
+        t.*,
+        t1.contract_id as contractId,
+        t2.contract_no as contractNo,
+        t2.contract_name as contractName,
+        t3.line_name as lineName,
+        t1.line_id as lineId,
+        t1.train_no as trainNo,
+        t1.bill_no as outinNo,
+        t1.outin_name as outinName,
+        t1.supplier_id as supplierId,
+        t4.name as supplierName,
+        t4.contact_phone as supplierPhone,
+        t4.address as supplierAddress,
+        t1.transfer_date,
+        t2.need_day
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t.outin_id = t1.id
+        left join bu_contract_info t2 on t2.id = t1.contract_id
+        left join bu_mtr_line t3 on t3.line_id = t1.line_id
+        left join bu_base_supplier t4 on t4.id = t1.supplier_id
+        left join bu_work_order t5 on t5.id = t1.work_order_id
+        where t1.bill_type = 0
+        <if test="trainNo != null and trainNo != ''">
+            and t.train_no = #{trainNo}
+        </if>
+        <if test="assetTypeId != null and assetTypeId != ''">
+            and t.asset_type_id = #{assetTypeId}
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and t.asset_name = #{assetName}
+        </if>
+        order by t5.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="selectInDetailListByTrainNoAndAssetTypeId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select t.*
+        from bu_outsource_outin_detail t
+        left join bu_outsource_outin t1 on t1.id = t.outin_id
+        left join bu_work_order t2 on t2.id = t1.work_order_id
+        where t1.bill_type = 1
+        <if test="trainNo != null and trainNo != ''">
+            and t.train_no = #{trainNo}
+        </if>
+        <if test="assetTypeId != null and assetTypeId != ''">
+            and t.asset_type_id = #{assetTypeId}
+        </if>
+        <if test="assetName != null and assetName != ''">
+            and t.asset_name = #{assetName}
+        </if>
+        order by t2.group_id, t1.bill_type, t1.bill_no desc, t.asset_no
+    </select>
+
+    <select id="selectInDetailListByOrderTaskId"
+            resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select t.*
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t1.id = t.outin_id
+        where t1.bill_type = 1
+          and t1.order_task_id = #{orderTaskId}
+    </select>
+
+    <select id="selectListByIdList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuOutsourceOutinDetail">
+        select t.*
+        from bu_outsource_outin_detail t
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                where t.id in
+                <foreach collection="idList" item="id" index="index" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                where t.id = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByContractId" resultType="java.util.Map">
+        select finish_date as finishDate,
+               expiration  as expiration
+        from bu_contract_info
+        where id = #{contractId}
+    </select>
+
+</mapper>

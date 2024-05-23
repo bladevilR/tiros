@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.specassetplan.mapper.BuSpecAssetPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.specassetplan.bean.BuSpecAssetPlan">
+        <id column="id" property="id"/>
+        <result column="spec_asset_id" property="specAssetId"/>
+        <result column="plan_type" property="planType"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, spec_asset_id, plan_type, start_time, end_time, remark, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.specAssetId},
+            #{item.planType},
+            #{item.startTime},
+            #{item.endTime},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_spec_asset_plan
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.specassetplan.bean.BuSpecAssetPlan">
+        SELECT t.*,
+        t1.name,
+        t1.asset_code,
+        t1.status,
+        t1.line_id,
+        t2.line_name,
+        t1.workshop_id,
+        t3.name as workshopName,
+        t1.manuf_no,
+        t1.leave_factory,
+        t1.use_date,
+        t1.group_id,
+        t4.depart_name as groupName,
+        t1.duty_user_id,
+        t5.realname as dutyUserName
+        FROM bu_spec_asset_plan t
+        LEFT JOIN bu_spec_assets t1 ON t1.id = t.spec_asset_id
+        left join bu_mtr_line t2 on t2.line_id = t1.line_id
+        left join bu_mtr_workshop t3 on t3.id = t1.workshop_id
+        left join sys_depart t4 on t4.id = t1.group_id
+        left join sys_user t5 on t5.id = t1.duty_user_id
+        <where>
+            <if test="queryVO.planType != null">
+                AND t.plan_type = #{queryVO.planType}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND (
+                t1.name LIKE CONCAT('%',#{queryVO.searchText},'%')
+                OR
+                t1.asset_code LIKE CONCAT('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.status != null">
+                AND t1.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.startDate != null and queryVO.endDate != null">
+                AND (
+                (t.start_time BETWEEN #{queryVO.startDate} AND #{queryVO.endDate})
+                OR
+                (t.end_time BETWEEN #{queryVO.startDate} AND #{queryVO.endDate})
+                )
+            </if>
+        </where>
+        ORDER BY t.start_time
+    </select>
+
+    <select id="selectSpecAssetPlanById" resultType="org.jeecg.modules.dispatch.specassetplan.bean.BuSpecAssetPlan">
+        SELECT t.*,
+               t1.name,
+               t1.asset_code,
+               t1.status,
+               t1.line_id,
+               t2.line_name,
+               t1.workshop_id,
+               t3.name        as workshopName,
+               t1.manuf_no,
+               t1.leave_factory,
+               t1.use_date,
+               t1.group_id,
+               t4.depart_name as groupName,
+               t1.duty_user_id,
+               t5.realname    as dutyUserName
+        FROM bu_spec_asset_plan t
+                 LEFT JOIN bu_spec_assets t1 ON t1.id = t.spec_asset_id
+                 left join bu_mtr_line t2 on t2.line_id = t1.line_id
+                 left join bu_mtr_workshop t3 on t3.id = t1.workshop_id
+                 left join sys_depart t4 on t4.id = t1.group_id
+                 left join sys_user t5 on t5.id = t1.duty_user_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectConflictToolPlanList" resultType="org.jeecg.modules.dispatch.specassetplan.bean.BuSpecAssetPlan">
+        SELECT
+        *
+        FROM
+        bu_spec_asset_plan
+        WHERE
+        spec_asset_id = #{checkVO.specAssetId}
+        <if test="checkVO.startTime != null and checkVO.endTime != null">
+            AND
+            (
+            (#{checkVO.startTime} BETWEEN start_time AND end_time)
+            OR
+            (#{checkVO.endTime} BETWEEN start_time AND end_time)
+            )
+        </if>
+        <if test="checkVO.startTime == null and checkVO.endTime == null">
+            AND
+            (#{checkVO.nowTime} BETWEEN start_time AND end_time)
+        </if>
+    </select>
+
+    <select id="selectListBySpecAssetIdAndTime"
+            resultType="org.jeecg.modules.dispatch.specassetplan.bean.BuSpecAssetPlan">
+        SELECT
+        *
+        FROM
+        bu_spec_asset_plan
+        WHERE
+        spec_asset_id = #{specAssetId}
+        <if test="startTime != null and endTime != null">
+            AND
+            (
+            (start_time BETWEEN #{startTime} AND #{endTime})
+            OR
+            (end_time BETWEEN #{startTime} AND #{endTime})
+            )
+        </if>
+    </select>
+
+</mapper>

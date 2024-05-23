@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.traininfo.mapper.BuTrainTypeMapper">
+
+    <select id="selectTrainTypePage" resultType="org.jeecg.modules.basemanage.traininfo.entity.BuTrainType">
+        SELECT
+        *
+        FROM bu_train_type
+        <where>
+            <if test="trainType.status!=null">
+                AND status=#{trainType.status}
+            </if>
+            <if test="trainType.searchName">
+                AND
+                (
+                NAME LIKE CONCAT('%',#{trainType.searchName},'%')
+                OR
+                code LIKE CONCAT('%',#{trainType.searchName},'%')
+                )
+            </if>
+        </where>
+        ORDER BY code
+    </select>
+</mapper>

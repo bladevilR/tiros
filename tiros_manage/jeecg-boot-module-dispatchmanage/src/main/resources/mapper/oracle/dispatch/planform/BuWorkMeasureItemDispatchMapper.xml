@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuWorkMeasureItemDispatchMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuWorkMeasureItem">
+        <id column="id" property="id"/>
+        <result column="custom_id" property="customId"/>
+        <result column="item_name" property="itemName"/>
+        <result column="link_domain" property="linkDomain"/>
+        <result column="operator" property="operator"/>
+        <result column="threshold" property="threshold"/>
+        <result column="template" property="template"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="gen_alert" property="genAlert"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="row1" property="row1"/>
+        <result column="row2" property="row2"/>
+        <result column="col1" property="col1"/>
+        <result column="col2" property="col2"/>
+        <result column="operator2" property="operator2"/>
+        <result column="threshold2" property="threshold2"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, custom_id, item_name, link_domain, operator, threshold, template, asset_type_id,
+        supplier_id, gen_alert, create_time, create_by, update_time, update_by,
+        row1, row2, col1, col2, operator2, threshold2
+    </sql>
+
+</mapper>

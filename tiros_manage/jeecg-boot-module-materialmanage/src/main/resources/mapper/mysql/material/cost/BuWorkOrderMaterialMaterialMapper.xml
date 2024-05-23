@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.cost.mapper.BuWorkOrderMaterialMaterialMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="is_verify" property="isVerify"/>
+        <result column="op_type" property="opType"/>
+        <result column="is_gen_order" property="isGenOrder"/>
+        <result column="plan_amount" property="planAmount"/>
+        <result column="need_dispatchin" property="needDispatchin"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_task_id, material_type_id, amount, act_amount, remark, use_category,
+        is_verify, op_type, is_gen_order, plan_amount, need_dispatchin, system_id, workstation_id
+    </sql>
+
+
+    <select id="selectNotMaterialApplyOrderListByGroupIdAndOrderStatus"
+            resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.train_no,
+        t1.order_code,
+        t1.order_status
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_type not in (4, 5)
+        and t1.group_id = #{groupId}
+        and t1.order_status in
+        <foreach collection="orderStatusList" item="orderStatus" open="(" separator="," close=")">
+            #{orderStatus}
+        </foreach>
+    </select>
+
+    <select id="selectListForCostCompare" resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.order_code,
+        t1.order_name,
+        t1.order_type,
+        t1.order_status,
+        t1.line_id,
+        t3.line_name,
+        t1.train_no,
+        t1.plan_id,
+        t7.plan_name,
+        t1.group_id,
+        t4.group_name,
+        t2.code as materialTypeCode,
+        t2.name as materialTypeName,
+        t2.spec as materialTypeSpec,
+        t2.unit as materialTypeUnit,
+        t5.name as systemName,
+        t6.station_no as workstationNo,
+        t6.name as workstationName,
+        t8.name as repairProName
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        left join bu_material_type t2 on t2.id = t.material_type_id
+        left join bu_mtr_line t3 on t3.line_id = t1.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t1.group_id
+        left join bu_train_asset_type t5 on t5.id = t.system_id
+        left join bu_mtr_workstation t6 on t6.id = t.workstation_id
+        left join bu_repair_plan t7 on t7.id = t1.plan_id
+        left join bu_repair_program t8 on t8.id = t7.repair_program_id
+        where t.amount > 0
+        and t1.order_type not in (4, 5)
+        and t1.order_status = 4
+        and t1.plan_id = #{queryVO.planId}
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t1.group_id = #{queryVO.groupId}
+        </if>
+        <!--        <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">-->
+        <!--            and-->
+        <!--            (-->
+        <!--            t2.name like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            or-->
+        <!--            t2.code like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            )-->
+        <!--        </if>-->
+        <if test="queryVO.useCategory != null">
+            and t.use_category = #{queryVO.useCategory}
+        </if>
+        order by t3.line_num, t1.train_no, t1.group_id, t.use_category, t.material_type_id, t5.sort_num, t6.station_no
+    </select>
+
+    <select id="selectListOfNotCloseConsumeOrderForCostCompare" resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.order_code,
+        t1.order_name,
+        t1.order_type,
+        t1.order_status,
+        t1.line_id,
+        t1.train_no,
+        t1.plan_id,
+        t1.group_id
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        where t.act_amount > 0
+        and t1.order_type not in (4, 5)
+        and t1.order_status != 4
+        and t1.plan_id = #{queryVO.planId}
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t1.group_id = #{queryVO.groupId}
+        </if>
+        <!--        <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">-->
+        <!--            and-->
+        <!--            (-->
+        <!--            t2.name like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            or-->
+        <!--            t2.code like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            )-->
+        <!--        </if>-->
+        <if test="queryVO.useCategory != null">
+            and t.use_category = #{queryVO.useCategory}
+        </if>
+    </select>
+
+    <select id="selectPageForCostCheck" resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+        t1.order_code,
+        t1.order_name,
+        t1.order_type,
+        t1.line_id,
+        t3.line_name,
+        t1.train_no,
+        t1.plan_id,
+        t7.plan_name,
+        t1.group_id,
+        t4.group_name,
+        t2.code as materialTypeCode,
+        t2.name as materialTypeName,
+        t2.spec as materialTypeSpec,
+        t2.unit as materialTypeUnit,
+        IFNULL(t5.short_name, t5.name) as systemName,
+        t6.station_no as workstationNo,
+        t6.name as workstationName
+        from bu_work_order_material t
+        left join bu_work_order t1 on t1.id = t.order_id
+        left join bu_material_type t2 on t2.id = t.material_type_id
+        left join bu_mtr_line t3 on t3.line_id = t1.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t1.group_id
+        left join bu_train_asset_type t5 on t5.id = t.system_id
+        left join bu_mtr_workstation t6 on t6.id = t.workstation_id
+        left join bu_repair_plan t7 on t7.id = t1.plan_id
+        where t.amount > 0
+        and t1.order_type not in (4, 5)
+        and t1.order_status = 4
+        <if test="queryVO.planId != null and queryVO.planId != ''">
+            and t1.plan_id = #{queryVO.planId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            and t1.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            and t1.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t1.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.orderCode != null and queryVO.orderCode != ''">
+            and t1.order_code like concat('%',#{queryVO.orderCode},'%')
+        </if>
+        <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">
+            and
+            (
+            t2.name like concat('%',#{queryVO.materialSearchText},'%')
+            or
+            t2.code like concat('%',#{queryVO.materialSearchText},'%')
+            )
+        </if>
+        <if test="queryVO.useCategory != null">
+            and t.use_category = #{queryVO.useCategory}
+        </if>
+        order by t3.line_num, t1.train_no, t1.group_id, t.use_category, t.material_type_id, t5.sort_num, t6.station_no
+    </select>
+
+    <select id="selectLineList" resultType="java.util.Map">
+        select line_id as id,
+        line_name as name
+        from bu_mtr_line
+        <if test="lineId != null and lineId != ''">
+            where line_id = #{lineId}
+        </if>
+    </select>
+
+    <select id="selectGroupList" resultType="java.util.Map">
+        select id as id,
+        group_name as name
+        from bu_mtr_workshop_group
+        <if test="groupId != null and groupId != ''">
+            where id = #{groupId}
+        </if>
+    </select>
+
+    <select id="selectPlanByPlanId" resultType="org.jeecg.modules.material.cost.bean.BuRepairPlan">
+        select t.*,
+               t1.line_name
+        from bu_repair_plan t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+        where t.id = #{planId}
+    </select>
+
+    <select id="selectListByIdList" resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+        t5.code as materialTypeCode,
+        t5.name as materialTypeName,
+        t5.spec as materialTypeSpec,
+        t5.unit as materialTypeUnit,
+        t2.line_id,
+        t3.line_name as lineName,
+        t2.train_no as trainNo,
+        t2.order_type as orderType,
+        t2.order_code as orderCode,
+        t2.order_name as orderName,
+        t2.group_id,
+        t4.group_name as groupName,
+        t2.start_time as orderTime
+        from bu_work_order_material t
+        left join bu_work_order t2 on t2.id = t.order_id
+        left join bu_mtr_line t3 on t3.line_id = t2.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t2.group_id
+        left join bu_material_type t5 on t5.id = t.material_type_id
+        where t.id
+        <choose>
+            <when test="orderMaterialIdList != null and orderMaterialIdList.size > 0">
+                in
+                <foreach collection="orderMaterialIdList" item="orderMaterialId" open="(" separator="," close=")">
+                    #{orderMaterialId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectOrderMaterialById" resultType="org.jeecg.modules.material.cost.bean.BuWorkOrderMaterial">
+        select t.*,
+               t1.order_code,
+               t1.order_name,
+               t1.order_type,
+               t1.line_id,
+               t3.line_name,
+               t1.train_no,
+               t1.plan_id,
+               t7.plan_name,
+               t1.group_id,
+               t4.group_name,
+               t2.code                        as materialTypeCode,
+               t2.name                        as materialTypeName,
+               t2.spec                        as materialTypeSpec,
+               t2.unit                        as materialTypeUnit,
+               IFNULL(t5.short_name, t5.name) as systemName,
+               t6.station_no                  as workstationNo,
+               t6.name                        as workstationName
+        from bu_work_order_material t
+                 left join bu_work_order t1 on t1.id = t.order_id
+                 left join bu_material_type t2 on t2.id = t.material_type_id
+                 left join bu_mtr_line t3 on t3.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t4 on t4.id = t1.group_id
+                 left join bu_train_asset_type t5 on t5.id = t.system_id
+                 left join bu_mtr_workstation t6 on t6.id = t.workstation_id
+                 left join bu_repair_plan t7 on t7.id = t1.plan_id
+        where t.id = #{orderMaterialId}
+    </select>
+
+</mapper>

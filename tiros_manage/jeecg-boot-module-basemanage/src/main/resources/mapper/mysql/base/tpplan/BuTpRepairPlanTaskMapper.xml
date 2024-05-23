@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.tpplan.mapper.BuTpRepairPlanTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTask">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_wbs" property="taskWbs"/>
+        <result column="task_name" property="taskName"/>
+        <result column="important" property="important"/>
+        <result column="outsource" property="outsource"/>
+        <result column="method" property="method"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="duration" property="duration"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="gen_order" property="genOrder"/>
+        <result column="safe_notice" property="safeNotice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, parent_id, task_no, task_wbs, task_name, important, outsource, method,
+        system_id, asset_type_id, work_time, duration, start_time, finish_time, day_index,
+        work_group_id, remark, create_time, create_by, update_time, update_by, gen_order, safe_notice
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.planId},
+            #{item.parentId},
+            #{item.taskNo},
+            #{item.taskWbs},
+            #{item.taskName},
+            #{item.important},
+            #{item.outsource},
+            #{item.method},
+            #{item.systemId},
+            #{item.assetTypeId},
+            #{item.workTime},
+            #{item.duration},
+            #{item.startTime},
+            #{item.finishTime},
+            #{item.dayIndex},
+            #{item.workGroupId},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.genOrder},
+            #{item.safeNotice},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_tp_repair_plan_task
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updateListTaskNo">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_tp_repair_plan_task set task_no = #{item.taskNo} where id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectListByIdList" parameterType="java.util.List"
+            resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTask">
+        SELECT
+        t.*,
+        decode((select count(1) from bu_tp_repair_plan_task where parent_id = t.id), 0, 'false', 'true') as hasChildren
+        FROM bu_tp_repair_plan_task t
+        WHERE t.id in
+        <foreach collection="idList" item="id" index="index" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectTpPlanTaskById" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTask">
+        select t.*,
+               decode((select count(1) from bu_tp_repair_plan_task where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+               t1.track_id    AS trackId,
+               t2.name        AS trackName,
+               t3.name        AS systemName,
+               t4.name        AS assetTypeName,
+               t5.group_name  AS workGroupName
+        from bu_tp_repair_plan_task t
+                 LEFT JOIN bu_tp_repair_plan_train_park t1 ON t1.task_id = t.id
+                 LEFT JOIN bu_mtr_track t2 ON t2.id = t1.track_id
+                 LEFT JOIN bu_train_asset_type t3 ON t3.id = t.system_id
+                 LEFT JOIN bu_train_asset_type t4 ON t4.id = t.asset_type_id
+                 LEFT JOIN bu_mtr_workshop_group t5 ON t5.id = t.work_group_id
+        where t.id = #{taskId}
+    </select>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTask">
+        select t.*,
+               decode((select count(1) from bu_tp_repair_plan_task where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+               t1.track_id    AS trackId,
+               t2.name        AS trackName,
+               t3.name        AS systemName,
+               t4.name        AS assetTypeName,
+               t5.group_name  AS workGroupName
+        from bu_tp_repair_plan_task t
+                 LEFT JOIN bu_tp_repair_plan_train_park t1 ON t1.task_id = t.id
+                 LEFT JOIN bu_mtr_track t2 ON t2.id = t1.track_id
+                 LEFT JOIN bu_train_asset_type t3 ON t3.id = t.system_id
+                 LEFT JOIN bu_train_asset_type t4 ON t4.id = t.asset_type_id
+                 LEFT JOIN bu_mtr_workshop_group t5 ON t5.id = t.work_group_id
+        WHERE t.plan_id = #{planId}
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as SIGNED)
+    </select>
+
+    <select id="selectTaskListNotIncludeDay" resultType="org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlanTask">
+        select t.*,
+               decode((select count(1) from bu_tp_repair_plan_task where parent_id = t.id), 0, 'false', 'true') as hasChildren,
+               t1.track_id    AS trackId,
+               t2.name        AS trackName,
+               t3.name        AS systemName,
+               t4.name        AS assetTypeName,
+               t5.group_name  AS workGroupName
+        from bu_tp_repair_plan_task t
+                 LEFT JOIN bu_tp_repair_plan_train_park t1 ON t1.task_id = t.id
+                 LEFT JOIN bu_mtr_track t2 ON t2.id = t1.track_id
+                 LEFT JOIN bu_train_asset_type t3 ON t3.id = t.system_id
+                 LEFT JOIN bu_train_asset_type t4 ON t4.id = t.asset_type_id
+                 LEFT JOIN bu_mtr_workshop_group t5 ON t5.id = t.work_group_id
+        WHERE t.plan_id = #{planId}
+          and t.work_group_id is not null
+          and t.work_time is not null
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as SIGNED)
+    </select>
+
+    <select id="selectSafeNoticeDataLength" resultType="java.lang.Integer">
+        select data_length
+        from all_TAB_COLUMNS
+        where table_name = 'BU_TP_REPAIR_PLAN_TASK'
+          and column_name = 'SAFE_NOTICE'
+    </select>
+
+</mapper>

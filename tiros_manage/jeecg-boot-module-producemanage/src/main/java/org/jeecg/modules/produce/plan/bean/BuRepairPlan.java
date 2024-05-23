@@ -1,0 +1,190 @@
+package org.jeecg.modules.produce.plan.bean;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+import org.jeecg.common.aspect.annotation.Dict;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * <p>
+ * 列计划
+ * </p>
+ *
+ * @author youGen
+ * @since 2020-09-27
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@ApiModel(value = "BuRepairPlan对象", description = "列计划")
+@TableName("bu_repair_plan")
+public class BuRepairPlan extends Model<BuRepairPlan> {
+    private static final long serialVersionUID = 1L;
+
+    @TableId(value = "id", type = IdType.UUID)
+    private String id;
+
+    @ApiModelProperty(value = "编码")
+    private String code;
+
+    @ApiModelProperty(value = "计划名称", required = true)
+    @NotBlank
+    private String planName;
+
+    @ApiModelProperty(value = "车辆段id ,字典bu_mtr_depot,name,id", required = true)
+    @NotBlank
+    private String depotId;
+
+    @ApiModelProperty(value = "线路id,字典bu_mtr_line,line_name,line_id", required = true)
+    @NotBlank
+    private String lineId;
+
+    @ApiModelProperty(value = "修程类型id,字典bu_repair_program,name,id", required = true)
+    @NotBlank
+    private String repairProgramId;
+
+    @ApiModelProperty(value = "交接车记录表中的id", required = true)
+    @NotBlank
+    private String exchangeId;
+
+    @ApiModelProperty(value = "维修车辆编号")
+    private String trainNo;
+
+    @ApiModelProperty(value = "当前里程")
+    private Double mileage;
+
+    @ApiModelProperty(value = "计划模板id", required = true)
+    @NotBlank
+    private String planTemplateId;
+
+    @ApiModelProperty(value = "开始日期", required = true)
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date startDate;
+
+    @ApiModelProperty(value = "完成日期", required = true)
+    @NotNull
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date finishDate;
+
+    @ApiModelProperty(value = "实际开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date actStart;
+
+    @ApiModelProperty(value = "实际完成时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date actFinish;
+
+    @ApiModelProperty(value = "工期", required = true)
+    @NotNull
+    private Integer duration;
+
+    @ApiModelProperty(value = "状态  字典dictCode=bu_plan_status 0新增1审批")
+    @Dict(dicCode = "bu_plan_status")
+    private Integer status;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
+    @JsonIgnore
+    private Date createTime;
+    @JsonIgnore
+    private String createBy;
+    @JsonIgnore
+    private Date updateTime;
+    @JsonIgnore
+    private String updateBy;
+
+    @ApiModelProperty(value = "进度状态 字典dictCode=bu_progress_status")
+    @Dict(dicCode = "bu_progress_status")
+    private Integer progressStatus;
+
+    @ApiModelProperty(value = "当前进度：为1~100的数量，列计划中当前已完成任务的工期，占所有任务工期的比例，后端程序自动计算")
+    private Integer progress;
+
+    @ApiModelProperty(value = "实际工期")
+    private Integer actDuration;
+
+    @ApiModelProperty(value = "车辆序号，来自交接车记录明细中的序号")
+    private Integer trainIndex;
+
+    @ApiModelProperty(value = "规程id")
+    private String reguId;
+
+    @ApiModelProperty(value = "所属财务项目")
+    private String fdProject;
+
+    @ApiModelProperty(value = "所属财务任务")
+    private String fdTask;
+
+    @ApiModelProperty(value = "所属财务开支编码")
+    private String fdCostType;
+
+    @ApiModelProperty(value = "车间id", required = true)
+    @NotBlank
+    private String workshopId;
+
+    @ApiModelProperty(value = "暂停时间")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date suspendTime;
+
+    @ApiModelProperty(value = "激活时间")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date activateTime;
+
+    @ApiModelProperty(value = "暂停前进度状态")
+    @Dict(dicCode = "bu_progress_status")
+    private Integer suspendedProgressStatus;
+
+    @ApiModelProperty(value = "公司id")
+    private String companyId;
+
+    @ApiModelProperty(value = "是否历史数据")
+    @Dict(dicCode = "bu_state")
+    private Integer historyData;
+
+
+    @ApiModelProperty(value = "车辆段名称")
+    @TableField(exist = false)
+    private String depotName;
+
+    @ApiModelProperty(value = "车间名称")
+    @TableField(exist = false)
+    private String workshopName;
+
+    @ApiModelProperty(value = "线路名称")
+    @TableField(exist = false)
+    private String lineName;
+
+    @ApiModelProperty(value = "修程名称")
+    @TableField(exist = false)
+    private String repairProgramName;
+
+    @ApiModelProperty(value = "项目序号 来自交接车")
+    @TableField(exist = false)
+    private Integer itemNo;
+
+
+    @Override
+    protected Serializable pkVal() {
+        return this.id;
+    }
+
+}

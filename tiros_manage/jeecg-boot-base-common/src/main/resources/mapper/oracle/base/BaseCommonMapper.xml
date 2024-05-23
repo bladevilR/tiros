@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.common.tiros.common.mapper.BaseCommonMapper">
+
+    <update id="updateSysConfig">
+        update sys_config
+        set config_value = #{configValue, jdbcType=VARCHAR}
+        where config_code = #{configCode, jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectDepartIdAndMaximoCode" resultType="java.util.Map">
+        select id          as "id",
+               maximo_code as "maximoCode"
+        from sys_depart
+    </select>
+
+    <select id="selectGroupIdAndName" resultType="java.util.Map">
+        select id         as "id",
+               group_name as "groupName"
+        from bu_mtr_workshop_group
+    </select>
+
+    <select id="selectUserIdAndWorkNo" resultType="java.util.Map">
+        select id      as "id",
+               work_no as "workNo"
+        from sys_user
+    </select>
+
+    <select id="selectUserIdAndRealName" resultType="java.util.Map">
+        select id       as "id",
+               realname as "realname"
+        from sys_user
+    </select>
+
+    <select id="selectWorkstationIdAndName" resultType="java.util.Map">
+        select id   as "id",
+               name as "name"
+        from bu_mtr_workstation
+    </select>
+
+    <select id="selectAssetTypeSystemIdAndName" resultType="java.util.Map">
+        select id   as "id",
+               name as "name"
+        from bu_train_asset_type
+        where struct_type = 1
+    </select>
+
+    <select id="selectTrainIdByTrainNo" resultType="java.lang.String">
+        select id
+        from bu_train_info
+        where train_no = #{trainNo}
+    </select>
+
+    <select id="selectDepartMaximoCodeById" resultType="java.lang.String">
+        select maximo_code
+        from sys_depart
+        where id = #{departId}
+    </select>
+
+    <select id="selectMonitorWorkNoByGroupId" resultType="java.lang.String">
+        select t.work_no
+        from sys_user t
+                 left join bu_mtr_workshop_group t1 on t1.monitor = t.id
+        where t1.id = #{groupId}
+    </select>
+
+</mapper>

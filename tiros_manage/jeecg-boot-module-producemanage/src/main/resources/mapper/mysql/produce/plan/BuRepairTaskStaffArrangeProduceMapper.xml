@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.plan.mapper.BuRepairTaskStaffArrangeProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.plan.bean.BuRepairTaskStaffArrange">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="user_id" property="userId"/>
+        <result column="ord_tsk_wk_station_id" property="ordTskWkStationId"/>
+        <result column="work_time" property="workTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, user_id, ord_tsk_wk_station_id, work_time
+    </sql>
+
+
+    <select id="selectWorkTimeSumBOListByLineAndProgram"
+            resultType="org.jeecg.modules.produce.plan.bean.bo.WorkTimeSumBO">
+        select t1.plan_id       as planId,
+               t4.group_name    as groupName,
+               t5.name          as workstationName,
+               SUM(t.work_time) as sumWorkTime
+        from bu_repair_task_staff_arrange t
+                 left join bu_work_order t1 on t1.id = t.order_id
+                 left join bu_repair_plan t2 on t2.id = t1.plan_id
+                 left join bu_work_order_task_workstation t3 on t3.id = t.ord_tsk_wk_station_id
+                 left join bu_mtr_workshop_group t4 on t4.id = t1.group_id
+                 left join bu_mtr_workstation t5 on t5.id = t3.workstation_id
+        where t2.line_id = #{lineId}
+          and t2.repair_program_id = #{repairProgramId}
+        group by t1.plan_id, t4.group_name, t5.name
+    </select>
+
+</mapper>

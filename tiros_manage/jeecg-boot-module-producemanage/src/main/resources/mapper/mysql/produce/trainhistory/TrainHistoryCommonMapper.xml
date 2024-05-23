@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.trainhistory.mapper.TrainHistoryCommonMapper">
+
+    <select id="selectDepartIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id, depart_name as name
+        from sys_depart
+    </select>
+
+    <select id="selectDepotIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id, name
+        from bu_mtr_depot
+    </select>
+
+    <select id="selectWorkshopIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id, name
+        from bu_mtr_workshop
+    </select>
+
+    <select id="selectWorkstationIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id, name
+        from bu_mtr_workstation
+    </select>
+
+    <select id="selectLineIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select line_id as id, line_name as name
+        from bu_mtr_line
+    </select>
+
+    <select id="selectTrainIdName" resultType="org.jeecg.modules.produce.trainhistory.bean.bo.IdNameBO">
+        select id, train_no as name
+        from bu_train_info
+        order by train_no
+    </select>
+
+</mapper>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairPlanSpeEqMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanSpeEq">
+        <id column="id" property="id"/>
+        <result column="task_id" property="taskId"/>
+        <result column="spec_asset_id" property="specAssetId"/>
+        <result column="asset_name" property="assetName"/>
+        <result column="asset_code" property="assetCode"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="time_len" property="timeLen"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, spec_asset_id, asset_name, asset_code, start_time, end_time, time_len, remark,
+        create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.specAssetId, jdbcType=VARCHAR},
+            #{item.assetName, jdbcType=VARCHAR},
+            #{item.assetCode, jdbcType=VARCHAR},
+            #{item.startTime, jdbcType=VARCHAR},
+            #{item.endTime, jdbcType=VARCHAR},
+            #{item.timeLen, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_repair_plan_spe_eq
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanSpeEq">
+        select t.*
+        from bu_repair_plan_spe_eq t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_spec_assets t2 on t1.id = t.spec_asset_id
+        where t1.plan_id = #{planId}
+        order by t2.asset_code, t1.start_time, t.start_time
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanSpeEq">
+        select t.*
+        from bu_repair_plan_spe_eq t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+                 left join bu_spec_assets t2 on t1.id = t.spec_asset_id
+        where t.task_id = #{taskId}
+        order by t2.asset_code, t1.start_time, t.start_time
+    </select>
+
+</mapper>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuWorkOrderBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuWorkOrder">
+        <id column="id" property="id"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="order_name" property="orderName"/>
+        <result column="order_type" property="orderType"/>
+        <result column="generate" property="generate"/>
+        <result column="plan_id" property="planId"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="duration" property="duration"/>
+        <result column="group_id" property="groupId"/>
+        <result column="monitor" property="monitor"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="work_status" property="workStatus"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="issuing_time" property="issuingTime"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="from_type" property="fromType"/>
+        <result column="maximo_work_order_id" property="maximoWorkOrderId"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_code, order_name, order_type, generate, plan_id, start_time, finish_time,
+        duration, group_id, monitor, workshop_id, line_id, train_no, act_start, act_finish,
+        order_status, work_status, remark, create_time, create_by, update_time, update_by,
+        issuing_time, fd_project, fd_task, fd_cost_type, from_type, maximo_work_order_id,
+        company_id
+    </sql>
+
+    <select id="listWorkOrderByCondition" resultType="org.jeecg.modules.board.progress.bean.BuWorkOrder">
+        SELECT
+        t.*,
+        t2.group_name AS groupName,
+        (SELECT COUNT(id) FROM bu_work_order_task WHERE order_id = t.id) AS taskCount,
+        (SELECT COUNT(id) FROM bu_work_order_task WHERE order_id = t.id AND task_status = 2) AS finishedTaskCount
+        FROM bu_work_order t
+        LEFT JOIN bu_mtr_workshop t1 ON t1.id = t.workshop_id
+        LEFT JOIN bu_mtr_workshop_group t2 ON t2.id = t.group_id
+        <where>
+            AND t.group_id = #{queryVO.groupId}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t1.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null">
+                AND t.start_time &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                AND t.finish_time &lt;= #{queryVO.endDate}
+            </if>
+        </where>
+        order by t.order_code desc
+    </select>
+
+    <select id="listOutsourceWorkOrderByCondition" resultType="org.jeecg.modules.board.progress.bean.BuWorkOrder">
+        SELECT
+        t.*,
+        (SELECT COUNT(id) FROM bu_work_order_task WHERE order_id = t.id) AS taskCount,
+        (SELECT COUNT(id) FROM bu_work_order_task WHERE order_id = t.id AND task_status = 2) AS finishedTaskCount
+        FROM bu_work_order t
+        LEFT JOIN bu_mtr_workshop t1 ON t1.id = t.workshop_id
+        <where>
+            AND t.id IN (SELECT order_id from bu_work_order_task WHERE out_task != 0)
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t1.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null">
+                AND t.start_time &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                AND t.finish_time &lt;= #{queryVO.endDate}
+            </if>
+        </where>
+        order by t.order_code
+    </select>
+    <select id="listOutsourceWorkOrderTaskByCondition"
+            resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT
+        t.*,
+        t1.start_time as startTime,
+        t1.finish_time as finishTime
+        FROM bu_work_order_task t
+        left join bu_work_order t1 on t1.id = t.order_id
+        LEFT JOIN bu_mtr_workshop t2 ON t2.id = t1.workshop_id
+        LEFT JOIN bu_train_asset_type t3 on t3.id=t.asset_type_id
+        <where>
+            AND t.out_task != 0
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t2.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t1.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t1.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null">
+                AND t1.start_time &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                AND t1.finish_time &lt;= #{queryVO.endDate}
+            </if>
+        </where>
+        order by t3.code,t.out_task
+    </select>
+
+</mapper>

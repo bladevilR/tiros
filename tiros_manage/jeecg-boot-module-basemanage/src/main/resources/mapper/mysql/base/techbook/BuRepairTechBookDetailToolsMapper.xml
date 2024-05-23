@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.techbook.mapper.BuRepairTechBookDetailToolsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.techbook.bean.BuRepairTechBookDetailTools">
+        <id column="id" property="id"/>
+        <result column="book_detail_id" property="bookDetailId"/>
+        <result column="tool_type_id" property="toolTypeId"/>
+        <result column="amount" property="amount"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, book_detail_id, tool_type_id, amount
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.bookDetailId},
+            #{item.toolTypeId},
+            #{item.amount},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_repair_tech_book_tools
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByDetailId"
+            resultType="org.jeecg.modules.basemanage.techbook.bean.BuRepairTechBookDetailTools">
+        SELECT t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        FROM bu_repair_tech_book_tools t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.tool_type_id
+        where t.book_detail_id = #{detailId}
+    </select>
+
+</mapper>

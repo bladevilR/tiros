@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.summary.mapper.BuRepairExchangMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.summary.bean.BuRepairExchang">
+        <id column="id" property="id"/>
+        <result column="trade_type" property="tradeType"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="program_id" property="programId"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="send_dept_id" property="sendDeptId"/>
+        <result column="send_user_id" property="sendUserId"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="accept_dept_id" property="acceptDeptId"/>
+        <result column="accept_user_id" property="acceptUserId"/>
+        <result column="accept_date" property="acceptDate"/>
+        <result column="accept_mileage" property="acceptMileage"/>
+        <result column="plan_finish_date" property="planFinishDate"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="item_no" property="itemNo"/>
+        <result column="train_number" property="trainNumber"/>
+        <result column="plan_temp_id" property="planTempId"/>
+        <result column="year_detail_id" property="yearDetailId"/>
+        <result column="receive_id" property="receiveId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="history_data" property="historyData"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, trade_type, line_id, train_no, program_id, train_index, send_dept_id, send_user_id, send_date,
+        accept_dept_id, accept_user_id, accept_date, accept_mileage, plan_finish_date, remark, status,
+        create_time, create_by, update_time, update_by, year_detail_id, receive_id, company_id, workshop_id,
+        history_data
+    </sql>
+
+
+    <select id="selectRepairExchangeById" resultType="org.jeecg.modules.produce.summary.bean.BuRepairExchang">
+        SELECT t1.*,
+               t2.line_name                     AS lineName,
+               t3.name                          AS programName,
+               t10.tp_name                      as planTempName,
+               t4.depart_name                   AS sendDeptName,
+               t5.realname                      AS sendUserName,
+               t6.depart_name                   AS acceptDeptName,
+               t7.realname                      AS acceptUserName,
+               IFNULL(t8.process_status, '未发起') AS wfStatus,
+               t8.process_candidate,
+               t9.id                            as trainId,
+               t3.services                      as programServices,
+               t11.start_date                   as planStartDate,
+               t11.finish_date                  as planEndDate
+        FROM bu_repair_exchang t1
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+                 LEFT JOIN sys_depart t4 ON t4.id = t1.send_dept_id
+                 LEFT JOIN sys_user t5 ON t5.id = t1.send_user_id
+                 LEFT JOIN sys_depart t6 ON t6.id = t1.accept_dept_id
+                 LEFT JOIN sys_user t7 ON t7.id = t1.accept_user_id
+                 LEFT JOIN wf_biz_status t8 ON t8.business_key = t1.id
+                 LEFT JOIN bu_train_info t9 ON t9.train_no = t1.train_no
+                 LEFT JOIN bu_tp_repair_plan t10 ON t10.id = t1.plan_temp_id
+                 LEFT JOIN bu_repair_plan_year_detail t11 on t11.id = t1.year_detail_id
+        where t1.id = #{id}
+    </select>
+
+
+</mapper>

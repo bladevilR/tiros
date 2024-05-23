@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuRepairPlanFormsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanForms">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="form_type" property="formType"/>
+        <result column="obj_id" property="objId"/>
+        <result column="from_by" property="fromBy"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="title" property="title"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="work_record_type" property="workRecordType"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuRepairPlanForms_WithChoice"
+               type="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanForms">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="form_type" property="formType"/>
+        <result column="obj_id" property="objId"/>
+        <result column="from_by" property="fromBy"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="title" property="title"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="work_record_type" property="workRecordType"/>
+        <result column="planName" property="planName"/>
+        <result column="assetTypeName" property="assetTypeName"/>
+        <result column="trainStructName" property="trainStructName"/>
+        <collection property="choiceList" column="{id=id,formType=form_type, workRecordType=work_record_type}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.vo.BuPlanFormChoiceVO"
+                    select="selectPlanFormsChoiceList"/>
+    </resultMap>
+    <select id="selectPlanFormsChoiceList"
+            resultType="org.jeecg.modules.dispatch.planform.bean.vo.BuPlanFormChoiceVO">
+        <choose>
+            <when test="formType == 1">
+                select
+                t.id,
+                t1.name,
+                t.form_index,
+                #{formType} as formType,
+                NVL(t3.asset_name, t2.name) as assetName
+                from bu_pl_data_record t
+                left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_asset t3 on t3.id = t.train_asset_id
+                where t.plan_form_id = #{id}
+                order by t.form_index
+            </when>
+            <when test="formType == 3 and workRecordType == 1">
+                select
+                t.id,
+                t1.title as name,
+                t.form_index,
+                #{formType} as formType,
+                NVL(t3.asset_name, t2.name) as assetName
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_asset t3 on t3.id = t.train_asset_id
+                where t.plan_form_id = #{id}
+                order by t.form_index
+            </when>
+            <when test="formType == 3 and workRecordType == 2">
+                select
+                t.id,
+                t1.name,
+                t.form_index,
+                #{formType} as formType,
+                NVL(t3.asset_name, t2.name) as assetName
+                from bu_pl_work_record t
+                left join bu_base_form_template t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_asset t3 on t3.id = t.train_asset_id
+                where t.plan_form_id = #{id}
+                order by t.form_index
+            </when>
+            <when test="formType == 4">
+                select
+                t.id,
+                t1.title as name,
+                t.form_index,
+                #{formType} as formType,
+                NVL(t3.asset_name, t2.name) as assetName
+                from bu_pl_check_record t
+                left join bu_work_check t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_asset t3 on t3.id = t.asset_id
+                where t.plan_form_id = #{id}
+                order by t.form_index
+            </when>
+        </choose>
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, form_type, obj_id, from_by, asset_type_id, remark, create_time, create_by, update_time, update_by, 
+        title, train_struct_id, work_record_type
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.planId, jdbcType=VARCHAR},
+            #{item.formType, jdbcType=INTEGER},
+            #{item.objId, jdbcType=VARCHAR},
+            #{item.fromBy, jdbcType=INTEGER},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.title, jdbcType=VARCHAR},
+            #{item.trainStructId, jdbcType=VARCHAR},
+            #{item.workRecordType, jdbcType=INTEGER},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_repair_plan_forms
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectPageWithChoiceByCondition" resultMap="ResultMap_BuRepairPlanForms_WithChoice">
+        select temp.*,
+        t1.name AS assetTypeName,
+        (case when t4.id is not null then t4.name else t2.name end) as trainStructName,
+        t3.name as reguName,
+        t3.version as reguVersion
+        from (
+        <choose>
+            <when test="queryVO.formType != null and queryVO.formType == 1">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.name) as title,
+                a1.type as type,
+                a1.regu_id as reguId
+                from bu_repair_plan_forms a
+                left join bu_base_form_template a1 on a1.id = a.obj_id
+                where a.form_type = 1
+            </when>
+            <when test="queryVO.formType != null and queryVO.formType == 3">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                (case a.work_record_type when 1 then a1.code when 2 then a2.code else '' end) as code,
+                NVL(a.title, (case a.work_record_type when 1 then a1.title when 2 then a2.name else '' end)) as title,
+                null as type,
+                (case a.work_record_type when 1 then a1.regu_id when 2 then a2.regu_id else '' end) as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_record a1 on a1.id = a.obj_id
+                left join bu_base_form_template a2 on a2.id = a.obj_id
+                where a.form_type = 3
+            </when>
+            <when test="queryVO.formType != null and queryVO.formType == 4">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.title) as title,
+                null as type,
+                null as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_check a1 on a1.id = a.obj_id
+                where a.form_type = 4
+            </when>
+            <otherwise>
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.name) as title,
+                a1.type as type,
+                a1.regu_id as reguId
+                from bu_repair_plan_forms a
+                left join bu_base_form_template a1 on a1.id = a.obj_id
+                where a.form_type = 1
+                )
+                UNION ALL
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                (case a.work_record_type when 1 then a1.code when 2 then a2.code else '' end) as code,
+                NVL(a.title, (case a.work_record_type when 1 then a1.title when 2 then a2.name else '' end)) as title,
+                null as type,
+                (case a.work_record_type when 1 then a1.regu_id when 2 then a2.regu_id else '' end) as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_record a1 on a1.id = a.obj_id
+                left join bu_base_form_template a2 on a2.id = a.obj_id
+                where a.form_type = 3
+                )
+                UNION ALL
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.title) as title,
+                null as type,
+                null as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_check a1 on a1.id = a.obj_id
+                where a.form_type = 4
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        left join bu_train_asset_type t1 on t1.id = temp.asset_type_id
+        left join bu_train_structure_detail t2 on t2.id = temp.train_struct_id
+        left join bu_repair_regu_info t3 on t3.id = temp.reguId
+        left join bu_maximo_train_asset t4 on t4.id = temp.train_struct_id
+        <where>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and temp.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and (
+                (temp.code like '%'||#{queryVO.searchText}||'%')
+                or
+                (temp.title like '%'||#{queryVO.searchText}||'%')
+                )
+            </if>
+            <if test="queryVO.objId != null and queryVO.objId != ''">
+                and temp.obj_id = #{queryVO.objId}
+            </if>
+            <if test="queryVO.assetTypeId != null and queryVO.assetTypeId != ''">
+                and temp.asset_type_id = #{queryVO.assetTypeId}
+            </if>
+        </where>
+        order by temp.form_type, temp.code, temp.title
+    </select>
+
+    <select id="selectListWithChoiceByCondition" resultMap="ResultMap_BuRepairPlanForms_WithChoice">
+        select temp.*,
+        t1.name AS assetTypeName,
+        (case when t4.id is not null then t4.name else t2.name end) as trainStructName,
+        t3.name as reguName,
+        t3.version as reguVersion
+        from (
+        <choose>
+            <when test="queryVO.formType != null and queryVO.formType == 1">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.name) as title,
+                a1.type as type,
+                a1.regu_id as reguId
+                from bu_repair_plan_forms a
+                left join bu_base_form_template a1 on a1.id = a.obj_id
+                where a.form_type = 1
+            </when>
+            <when test="queryVO.formType != null and queryVO.formType == 3">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                (case a.work_record_type when 1 then a1.code when 2 then a2.code else '' end) as code,
+                NVL(a.title, (case a.work_record_type when 1 then a1.title when 2 then a2.name else '' end)) as title,
+                null as type,
+                (case a.work_record_type when 1 then a1.regu_id when 2 then a2.regu_id else '' end) as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_record a1 on a1.id = a.obj_id
+                left join bu_base_form_template a2 on a2.id = a.obj_id
+                where a.form_type = 3
+            </when>
+            <when test="queryVO.formType != null and queryVO.formType == 4">
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.title) as title,
+                null as type,
+                null as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_check a1 on a1.id = a.obj_id
+                where a.form_type = 4
+            </when>
+            <otherwise>
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.name) as title,
+                a1.type as type,
+                a1.regu_id as reguId
+                from bu_repair_plan_forms a
+                left join bu_base_form_template a1 on a1.id = a.obj_id
+                where a.form_type = 1
+                )
+                UNION ALL
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                (case a.work_record_type when 1 then a1.code when 2 then a2.code else '' end) as code,
+                NVL(a.title, (case a.work_record_type when 1 then a1.title when 2 then a2.name else '' end)) as title,
+                null as type,
+                (case a.work_record_type when 1 then a1.regu_id when 2 then a2.regu_id else '' end) as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_record a1 on a1.id = a.obj_id
+                left join bu_base_form_template a2 on a2.id = a.obj_id
+                where a.form_type = 3
+                )
+                UNION ALL
+                (
+                select
+                a.id, a.plan_id, a.form_type, a.obj_id, a.asset_type_id, a.remark,
+                a.create_time, a.create_by, a.update_time, a.update_by,
+                a.train_struct_id, a.work_record_type,
+                a1.code as code,
+                NVL(a.title, a1.title) as title,
+                null as type,
+                null as reguId
+                from bu_repair_plan_forms a
+                left join bu_work_check a1 on a1.id = a.obj_id
+                where a.form_type = 4
+                )
+            </otherwise>
+        </choose>
+        ) temp
+        left join bu_train_asset_type t1 on t1.id = temp.asset_type_id
+        left join bu_train_structure_detail t2 on t2.id = temp.train_struct_id
+        left join bu_repair_regu_info t3 on t3.id = temp.reguId
+        left join bu_maximo_train_asset t4 on t4.id = temp.train_struct_id
+        <where>
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                and temp.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and (
+                (temp.code like '%'||#{queryVO.searchText}||'%')
+                or
+                (temp.title like '%'||#{queryVO.searchText}||'%')
+                )
+            </if>
+            <if test="queryVO.objId != null and queryVO.objId != ''">
+                and temp.obj_id = #{queryVO.objId}
+            </if>
+            <if test="queryVO.assetTypeId != null and queryVO.assetTypeId != ''">
+                and temp.asset_type_id = #{queryVO.assetTypeId}
+            </if>
+        </where>
+        order by temp.form_type, temp.code, temp.title
+    </select>
+
+    <select id="selectPlanFormsListWithChoiceByPlanIdList" resultMap="ResultMap_BuRepairPlanForms_WithChoice">
+        select temp.*,
+        b1.name AS assetTypeName,
+        (case when b4.id is not null then b4.name else b2.name end) as trainStructName,
+        b3.name as reguName,
+        b3.version as reguVersion
+        from (
+        select t.id, t.plan_id, t.form_type, t.obj_id, t.asset_type_id, t.remark,
+        t.create_time, t.create_by, t.update_time, t.update_by,
+        t.train_struct_id, t.work_record_type,
+        (case t.form_type
+        when 1 then t1.code
+        when 3 then ((case t.work_record_type when 1 then t3.code when 2 then t1.code else '' end))
+        when 4 then t4.code
+        else '' end) as code,
+        NVL(t.title,
+        (case t.form_type
+        when 1 then t1.name
+        when 3 then ((case t.work_record_type when 1 then t3.title when 2 then t1.name else '' end))
+        when 4 then t4.title
+        else '' end)) as title,
+        (case t.form_type
+        when 1 then t1.type
+        else NULL end) as type,
+        (case t.form_type
+        when 1 then t1.regu_id
+        when 3 then ((case t.work_record_type when 1 then t3.regu_id when 2 then t1.regu_id else '' end))
+        when 4 then ''
+        else '' end) as reguId
+        from bu_repair_plan_forms t
+        left join bu_base_form_template t1 on t1.id = t.obj_id
+        left join bu_work_record t3 on t3.id = t.obj_id
+        left join bu_work_check t4 on t4.id = t.obj_id
+        where t.from_by = 1 and t.plan_id
+        <choose>
+            <when test="planIdList != null and planIdList.size > 0">
+                in
+                <foreach collection="planIdList" item="planId" separator="," open="(" close=")">
+                    #{planId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        ) temp
+        left join bu_train_asset_type b1 on b1.id = temp.asset_type_id
+        left join bu_train_structure_detail b2 on b2.id = temp.train_struct_id
+        left join bu_repair_regu_info b3 on b3.id = temp.reguId
+        left join bu_maximo_train_asset b4 on b4.id = temp.train_struct_id
+        order by temp.form_type, temp.code, temp.title
+    </select>
+
+    <select id="selectFormById" resultMap="ResultMap_BuRepairPlanForms_WithChoice">
+        select temp.*,
+               b1.name               AS assetTypeName,
+               (case when b4.id is not null then b4.name else b2.name end) as trainStructName,
+               b3.name               as reguName,
+               b3.version            as reguVersion
+        from (
+                 select t.id,
+                        t.plan_id,
+                        t.form_type,
+                        t.obj_id,
+                        t.asset_type_id,
+                        t.remark,
+                        t.create_time,
+                        t.create_by,
+                        t.update_time,
+                        t.update_by,
+                        t.train_struct_id,
+                        t.work_record_type,
+                        (case t.form_type
+                             when 1 then t1.code
+                             when 3 then ((case t.work_record_type when 1 then t3.code when 2 then t1.code else '' end))
+                             when 4 then t4.code
+                             else '' end)      as code,
+                        NVL(t.title,
+                            (case t.form_type
+                                 when 1 then t1.name
+                                 when 3 then ((case t.work_record_type
+                                                   when 1 then t3.title
+                                                   when 2 then t1.name
+                                                   else '' end))
+                                 when 4 then t4.title
+                                 else '' end)) as title,
+                        (case t.form_type
+                             when 1 then t1.type
+                             else NULL end)    as type,
+                        (case t.form_type
+                             when 1 then t1.regu_id
+                             when 3 then ((case t.work_record_type
+                                               when 1 then t3.regu_id
+                                               when 2 then t1.regu_id
+                                               else '' end))
+                             when 4 then ''
+                             else '' end)      as reguId
+                 from bu_repair_plan_forms t
+                          left join bu_base_form_template t1 on t1.id = t.obj_id
+                          left join bu_work_record t3 on t3.id = t.obj_id
+                          left join bu_work_check t4 on t4.id = t.obj_id
+                 where t.id = #{id}
+             ) temp
+                 left join bu_train_asset_type b1 on b1.id = temp.asset_type_id
+                 left join bu_train_structure_detail b2 on b2.id = temp.train_struct_id
+                 left join bu_repair_regu_info b3 on b3.id = temp.reguId
+                 left join bu_maximo_train_asset b4 on b4.id = temp.train_struct_id
+        order by temp.form_type, temp.code, temp.title
+    </select>
+
+    <select id="selectBuWorkRecordDetailByWorkRecordId"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuWorkRecordDetail">
+        SELECT t.*,
+               t1.regu_detail_id
+        FROM bu_work_record_detail t
+                 LEFT JOIN bu_work_record_category t1 ON t1.id = t.category_id
+        WHERE t1.work_rec_id = #{workRecordId}
+        ORDER BY t1.rec_index, CAST(t.item_no AS int)
+    </select>
+
+    <select id="selectUserGroupId" resultType="java.lang.String">
+        select t.dep_id
+        from sys_user_depart t
+                 left join sys_depart t1 on t1.id = t.dep_id
+        where t.user_id = #{userId}
+          and t1.org_category = 4
+          and ROWNUM = 1
+        order by t1.id
+    </select>
+
+    <select id="selectPlanFormInstList" resultType="org.jeecg.modules.dispatch.planform.bean.PlanFormInstance">
+        select temp.*,
+        t1.plan_name,
+        t1.train_no,
+        t2.name as assetTypeName,
+        (case when t6.id is not null then t6.name else t3.name end) as trainStructName,
+        (case when t6.id is not null then t6.wbs else t3.wbs end) as trainStructWbs,
+        t4.asset_name,
+        t5.name as reguName,
+        t5.version as reguVersion
+        from (
+        (
+        select
+        a.id,
+        a2.code,
+        NVL(a.title, NVL(a1.title, a2.name)) as title,
+        a.plan_id,
+        a.plan_form_id,
+        a.form_obj_id,
+        a1.form_type,
+        0 as workRecordType,
+        a.asset_type_id,
+        a.struct_detail_id as trainStructId,
+        a.train_asset_id as assetId,
+        a.status,
+        a.form_index,
+        a1.remark,
+        a.update_time as writeTime,
+        a2.regu_id as reguId
+        from bu_pl_data_record a
+        left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+        left join bu_base_form_template a2 on a2.id = a.form_obj_id
+        )
+        union all
+        (
+        select
+        a.id,
+        (case a.work_record_type when 1 then a3.code when 2 then a2.code else '' end) as code,
+        NVL(a.title, NVL(a1.title, (case a.work_record_type when 1 then a3.title when 2 then a2.name else '' end))) as
+        title,
+        a.plan_id,
+        a.plan_form_id,
+        a.form_obj_id,
+        a1.form_type,
+        a.work_record_type,
+        a.asset_type_id,
+        a.struct_detail_id as trainStructId,
+        a.train_asset_id as assetId,
+        a.status,
+        a.form_index,
+        a1.remark,
+        a.update_time as writeTime,
+        a2.regu_id as reguId
+        from bu_pl_work_record a
+        left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+        left join bu_base_form_template a2 on a2.id = a.form_obj_id
+        left join bu_work_record a3 on a3.id = a.form_obj_id
+        )
+        union all
+        (
+        select
+        a.id,
+        a2.code,
+        NVL(a.title, NVL(a1.title, a2.title)) as title,
+        a.plan_id,
+        a.plan_form_id,
+        a.form_obj_id,
+        a1.form_type,
+        0 as workRecordType,
+        a.asset_type_id,
+        a.asset_struct_id as trainStructId,
+        a.asset_id as assetId,
+        a.status,
+        a.form_index,
+        a1.remark,
+        a.update_time as writeTime,
+        null as reguId
+        from bu_pl_check_record a
+        left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+        left join bu_work_check a2 on a2.id = a.form_obj_id
+        )
+        ) temp
+        left join bu_repair_plan t1 on t1.id = temp.plan_id
+        left join bu_train_asset_type t2 on t2.id = temp.asset_type_id
+        left join bu_train_structure_detail t3 on t3.id = temp.trainStructId
+        left join bu_train_asset t4 on t4.id = temp.assetId
+        left join bu_repair_regu_info t5 on t5.id = temp.reguId
+        left join bu_maximo_train_asset t6 on t6.id = temp.trainStructId
+        where temp.plan_id = #{queryVO.planId}
+        <if test="queryVO.searchText != null and queryVO.searchText != ''">
+            and (
+            temp.code like '%'|| #{queryVO.searchText} || '%'
+            or
+            temp.title like '%'|| #{queryVO.searchText} || '%'
+            )
+        </if>
+        <if test="queryVO.formType != null">
+            and temp.form_type = #{queryVO.formType}
+        </if>
+        <if test="queryVO.workstationId != null and queryVO.workstationId != ''">
+            and temp.form_obj_id in
+            (select form_id from bu_base_ref_station_form where workstation_id = #{queryVO.workstationId})
+        </if>
+        order by temp.form_type, temp.code, temp.title
+    </select>
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.CustomMaximoMapper">
+
+    <select id="selectBlockingErrorInQueueList" resultType="java.util.Map">
+        select t.IFACENAME     as "IFACENAME",
+               t.IMPORTMESSAGE as "errorMessage",
+               t.TRANSID       as "transId",
+               t1.WONUM        as "orderCode",
+               t1.STATUS       as "orderStatus",
+               t2.ISSUETYPE    as "materialIssueType",
+               t2.REFWO        as "materialOrderCode",
+               t2.ITEMNUM      as "materialCode",
+               t2.QUANTITY     as "materialQuantity",
+               t2.C_STATUS     as "materialStatus",
+               t3.REFWO        as "userOrderCode",
+               t3.LABORCODE    as "userWorkNo",
+               t3.REGULARHRS   as "userHour",
+               t4.TICKETID     as "faultSn"
+        from MXIN_INTER_TRANS t
+                 left join JDX_WO_IN t1 on t1.TRANSID = t.TRANSID
+                 left join JDX_MATUSETRANS_IN t2 on t2.TRANSID = t.TRANSID
+                 left join JDX_LABTRANS_IN t3 on t3.TRANSID = t.TRANSID
+                 left join JDX_SR_IN t4 on t4.TRANSID = t.TRANSID
+        where t.IMPORTMESSAGE is not null
+    </select>
+
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuRepairPlanTaskFormsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanTaskForms">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="plan_form_id" property="planFormId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, task_id, plan_form_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.planId},
+            #{item.taskId},
+            #{item.planFormId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_tp_repair_plan_task_forms
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanTaskForms">
+        select temp.*,
+               b1.name    as reguName,
+               b1.version as reguVersion
+        from (
+                 select t.*,
+                        (case t0.form_type
+                             when 1 then t1.code
+                             when 3 then ((case t0.work_record_type
+                                               when 1 then t3.code
+                                               when 2 then t1.code
+                                               else '' end))
+                             when 4 then t4.code
+                             else '' end)                as code,
+                        IFNULL(t0.title, (case t0.form_type
+                                           when 1 then t1.name
+                                           when 3 then ((case t0.work_record_type
+                                                             when 1 then t3.title
+                                                             when 2 then t1.name
+                                                             else '' end))
+                                           when 4 then t4.title
+                                           else '' end)) as title,
+                        (case t0.form_type
+                             when 1 then t1.type
+                             when 3 then NULL
+                             when 4 then NULL
+                             else NULL end)              as type,
+                        (case t0.form_type
+                             when 1 then t1.regu_id
+                             when 3 then ((case t0.work_record_type
+                                               when 1 then t3.regu_id
+                                               when 2 then t1.regu_id
+                                               else '' end))
+                             when 4 then NULL
+                             else NULL end)              as reguId,
+                        t0.form_type,
+                        t0.obj_id,
+                        t0.remark,
+                        t0.train_struct_id,
+                        t0.work_record_type,
+                        t5.name                          AS assetTypeName,
+                        t6.name                          as trainStructName
+                 from bu_repair_plan_task_forms t
+                          left join bu_repair_plan_forms t0 on t0.id = t.plan_form_id
+                          left join bu_base_form_template t1 on t1.id = t0.obj_id
+                          left join bu_work_record t3 on t3.id = t0.obj_id
+                          left join bu_work_check t4 on t4.id = t0.obj_id
+                          left join bu_train_asset_type t5 on t5.id = t0.asset_type_id
+                          left join bu_train_structure_detail t6 on t6.id = t0.train_struct_id
+             ) temp
+                 left join bu_repair_regu_info b1 on b1.id = temp.reguId
+        where temp.task_id = #{taskId}
+        order by temp.form_type, temp.code, temp.title
+    </select>
+    
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxProjectOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxProjectOut">
+        <result column="DESCRIPTION" property="description"/>
+        <result column="DISABLED" property="disabled"/>
+        <result column="ENDDATE" property="enddate"/>
+        <result column="FCSTATUS" property="fcstatus"/>
+        <result column="FCTYPE" property="fctype"/>
+        <result column="FINCNTRLID" property="fincntrlid"/>
+        <result column="ORGID" property="orgid"/>
+        <result column="PARENTFINCNTRLID" property="parentfincntrlid"/>
+        <result column="PROJECTID" property="projectid"/>
+        <result column="PROJECTTYPE" property="projecttype"/>
+        <result column="SITEID" property="siteid"/>
+        <result column="STARTDATE" property="startdate"/>
+        <result column="TASKID" property="taskid"/>
+        <result column="TASKLEVEL" property="tasklevel"/>
+        <result column="TRANSID" property="transid"/>
+        <result column="TRANSSEQ" property="transseq"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        DESCRIPTION, DISABLED, ENDDATE, FCSTATUS, FCTYPE, FINCNTRLID, ORGID, PARENTFINCNTRLID, PROJECTID, PROJECTTYPE, SITEID, STARTDATE, TASKID, TASKLEVEL, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

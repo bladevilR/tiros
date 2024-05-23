@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.org.mapper.BuUserSkillMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.org.bean.BuUserSkill">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="skill_id" property="skillId"/>
+        <result column="skill_name" property="skillName"/>
+        <result column="score" property="score"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, skill_id, skill_name, score, create_time, create_by, update_time, update_by
+    </sql>
+
+
+    <select id="selectUserWorkRecordReguDetailList"
+            resultType="org.jeecg.modules.basemanage.org.bean.bo.UserWorkRecordReduDetailBO">
+        select temp.*
+        from (
+                 (
+                     select t3.id             as orderId,
+                            t2.id             as orderTaskId,
+                            t1.workstation_id as workstationId,
+                            t.id              as staffArrangeId,
+                            t.user_id         as userId,
+                            t2.task_obj_id    as reguDetailId
+                     from bu_repair_task_staff_arrange t
+                              left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+                              left join bu_work_order_task t2 on t2.id = t1.order_task_id
+                              left join bu_work_order t3 on t3.id = t2.order_id
+                     where t2.task_status = 2
+                       and t2.task_type = 4
+                       and t2.task_finish &gt;= #{date}
+                 )
+                 UNION ALL
+                 (
+                     select t3.id             as orderId,
+                            t2.id             as orderTaskId,
+                            t1.workstation_id as workstationId,
+                            t.id              as staffArrangeId,
+                            t.user_id         as userId,
+                            t4.regu_detail_id as reguDetailId
+                     from bu_repair_task_staff_arrange t
+                              left join bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+                              left join bu_work_order_task t2 on t2.id = t1.order_task_id
+                              left join bu_work_order t3 on t3.id = t2.order_id
+                              left join bu_repair_task_regu t4 on t4.task_id = t2.task_obj_id
+                     where t2.task_status = 2
+                       and t2.task_type = 1
+                       and t2.task_finish &gt;= #{date}
+                 )
+             ) temp
+    </select>
+
+    <select id="selectAllReguDetail" resultType="org.jeecg.modules.basemanage.org.bean.bo.RepairReguDetailBO">
+        SELECT t.id,
+               t.title,
+               t.type,
+               t.parent_id
+        FROM bu_repair_regu_detail t
+    </select>
+
+</mapper>

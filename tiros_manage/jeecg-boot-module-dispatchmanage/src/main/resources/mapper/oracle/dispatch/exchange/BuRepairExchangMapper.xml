@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.exchange.mapper.BuRepairExchangMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchang">
+        <id column="id" property="id"/>
+        <result column="trade_type" property="tradeType"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="program_id" property="programId"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="send_dept_id" property="sendDeptId"/>
+        <result column="send_user_id" property="sendUserId"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="accept_dept_id" property="acceptDeptId"/>
+        <result column="accept_user_id" property="acceptUserId"/>
+        <result column="accept_date" property="acceptDate"/>
+        <result column="accept_mileage" property="acceptMileage"/>
+        <result column="plan_finish_date" property="planFinishDate"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="item_no" property="itemNo"/>
+        <result column="train_number" property="trainNumber"/>
+        <result column="plan_temp_id" property="planTempId"/>
+        <result column="year_detail_id" property="yearDetailId"/>
+        <result column="receive_id" property="receiveId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="history_data" property="historyData"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, trade_type, line_id, train_no, program_id, train_index, send_dept_id, send_user_id, send_date,
+        accept_dept_id, accept_user_id, accept_date, accept_mileage, plan_finish_date, remark, status,
+        create_time, create_by, update_time, update_by, year_detail_id, receive_id, company_id, workshop_id,
+        history_data
+    </sql>
+
+    <!-- 根据条件分页查询交接车记录 -->
+    <select id="selectPageByCondition" resultMap="BaseResultMap">
+        SELECT
+        t1.*,
+        t2.line_name AS lineName,
+        t3.name AS programName,
+        t9.tp_name as planTempName,
+        t4.depart_name AS sendDeptName,
+        t5.realname AS sendUserName,
+        t6.depart_name AS acceptDeptName,
+        t7.realname AS acceptUserName,
+        NVL(t8.process_status, '未发起') AS wfStatus,
+        t8.process_candidate
+        FROM bu_repair_exchang t1
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+        LEFT JOIN sys_depart t4 ON t4.id = t1.send_dept_id
+        LEFT JOIN sys_user t5 ON t5.id = t1.send_user_id
+        LEFT JOIN sys_depart t6 ON t6.id = t1.accept_dept_id
+        LEFT JOIN sys_user t7 ON t7.id = t1.accept_user_id
+        LEFT JOIN wf_biz_status t8 ON t8.business_key = t1.id
+        LEFT JOIN bu_tp_repair_plan t9 ON t9.id = t1.plan_temp_id
+        <where>
+            <if test="queryVO.tradeType != null">
+                AND t1.trade_type = #{queryVO.tradeType}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo !=''">
+                AND t1.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programId != null and queryVO.programId !=''">
+                AND t1.program_id = #{queryVO.programId}
+            </if>
+            <if test="queryVO.acceptDate != null">
+                AND to_char(t1.accept_date,'yyyy-mm-dd') = to_char(#{queryVO.acceptDate},'yyyy-mm-dd')
+            </if>
+            <if test="queryVO.sendDate != null">
+                AND to_char(t1.send_date,'yyyy-mm-dd') = to_char(#{queryVO.sendDate},'yyyy-mm-dd')
+            </if>
+            <if test="queryVO.status != null">
+                AND t1.status = #{queryVO.status}
+            </if>
+        </where>
+        order by t1.accept_date desc,t1.train_index desc,t1.train_no
+    </select>
+
+    <select id="selectRepairExchangeById" resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchang">
+        SELECT t1.*,
+               t2.line_name                  AS lineName,
+               t3.name                       AS programName,
+               t10.tp_name                   as planTempName,
+               t4.depart_name                AS sendDeptName,
+               t5.realname                   AS sendUserName,
+               t6.depart_name                AS acceptDeptName,
+               t7.realname                   AS acceptUserName,
+               NVL(t8.process_status, '未发起') AS wfStatus,
+               t8.process_candidate,
+               t9.id                         as trainId,
+               t3.services                   as programServices
+        FROM bu_repair_exchang t1
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+                 LEFT JOIN sys_depart t4 ON t4.id = t1.send_dept_id
+                 LEFT JOIN sys_user t5 ON t5.id = t1.send_user_id
+                 LEFT JOIN sys_depart t6 ON t6.id = t1.accept_dept_id
+                 LEFT JOIN sys_user t7 ON t7.id = t1.accept_user_id
+                 LEFT JOIN wf_biz_status t8 ON t8.business_key = t1.id
+                 LEFT JOIN bu_train_info t9 ON t9.train_no = t1.train_no
+                 LEFT JOIN bu_tp_repair_plan t10 ON t10.id = t1.plan_temp_id
+        where t1.id = #{id}
+    </select>
+
+    <select id="selectRepairedReceiveExchangeByTrainNo"
+            resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchang">
+        select *
+        from bu_repair_exchang
+        where trade_type = 0
+          and train_no = #{trainNo}
+          and status = 3
+          and rownum = 1
+        order by create_time desc
+    </select>
+
+    <select id="selectReceiveListDeliverable" resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchang">
+        select t.*
+        from bu_repair_exchang t
+        where t.trade_type = 0
+          and t.status = 3
+          and t.id not in (select receive_id from bu_repair_exchang where trade_type = 1 and receive_id is not null)
+        order by t.train_index desc, t.accept_date desc, t.train_no
+    </select>
+
+    <select id="selectApprovedDeliverListByYear" resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchang">
+        select t.*
+        from bu_repair_exchang t
+                 left join bu_repair_exchang t1 on t1.id = t.receive_id
+        where t.trade_type = 1
+          and t.status = 1
+          and to_number(to_char(t1.plan_finish_date, 'yyyy')) = #{year}
+        order by t.train_index desc, t.accept_date desc, t.train_no
+    </select>
+
+    <select id="getUserDepartList" resultType="java.util.Map">
+        select t1.dep_id  as "departId",
+               t.org_code as "orgCode"
+        from sys_depart t
+                 left join sys_user_depart t1 on t1.dep_id = t.id
+        where t1.user_id = #{userId}
+        order by t.org_code
+    </select>
+
+    <select id="getTrainNumber" resultType="java.lang.Integer">
+        select Max(train_index)
+        from bu_repair_exchang
+        where trade_type = 0
+          and status != 0
+          and to_number(to_char(accept_date, 'yyyy')) = to_number(to_char(sysdate, 'yyyy'))
+    </select>
+
+    <select id="getItemNo" resultType="java.lang.Integer">
+        select count(1)
+        from bu_repair_exchang
+        where program_id = #{programId}
+          and trade_type = 0
+          and status != 0
+          and to_number(to_char(accept_date, 'yyyy')) = to_number(to_char(sysdate, 'yyyy'))
+    </select>
+
+    <select id="selectListTrainIndex" resultType="java.lang.Integer">
+        select train_index
+        from bu_repair_exchang
+        where train_no = #{trainNo}
+          and trade_type = 0
+          and status != 0
+          and to_number(to_char(accept_date, 'yyyy')) = to_number(to_char(sysdate, 'yyyy'))
+    </select>
+
+</mapper>

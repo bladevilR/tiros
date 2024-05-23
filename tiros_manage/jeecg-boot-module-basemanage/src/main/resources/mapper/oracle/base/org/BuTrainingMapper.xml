@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.org.mapper.BuTrainingMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.org.bean.BuTraining">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="train_type" property="trainType"/>
+        <result column="address" property="address"/>
+        <result column="teacher" property="teacher"/>
+        <result column="train_time" property="trainTime"/>
+        <result column="time_length" property="timeLength"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, train_type, address, teacher, train_time, time_length, remark,
+        create_time, create_by, update_time, update_by, company_id, workshop_id, line_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.basemanage.org.bean.BuTraining">
+        select t.*
+        from bu_training t
+        <where>
+            <if test="queryVO.title != null and queryVO.title != ''">
+                and t.title like '%'||#{queryVO.title}||'%'
+            </if>
+            <if test="queryVO.trainTime != null">
+                and t.train_time =#{queryVO.trainTime}
+            </if>
+            <if test="queryVO.userId != null and queryVO.userId != ''">
+                and id in (select training_id from bu_traiining_attend where user_id = #{queryVO.userId})
+            </if>
+        </where>
+    </select>
+
+</mapper>

@@ -1,0 +1,523 @@
+/**
+ * 列表查询通用样式，移动端自适应
+ */
+.search{
+  margin-bottom: 54px;
+}
+.fold{
+  width: calc(100% - 216px);
+  display: inline-block
+}
+.operator{
+  margin-bottom: 18px;
+}
+@media screen and (max-width: 900px) {
+  .fold {
+    width: 100%;
+  }
+}
+.operator button {
+  margin-right: 5px;
+}
+i {
+  cursor: pointer;
+}
+.trcolor{
+  background-color: rgba(255, 192, 203, 0.31);
+  color:red;
+}
+
+// 调整ant table 的行高
+// 一般表格
+.ant-table-middle > .ant-table-content > .ant-table-body > table > .ant-table-tbody > tr > td{
+  padding: 9px 8px;
+}
+// 树形表格
+.ant-table-middle > .ant-table-content > .ant-table-scroll > .ant-table-body > table > .ant-table-tbody > tr > td{
+  padding: 9px 8px;
+}
+// 固定列
+.ant-table-middle > .ant-table-content > .ant-table-fixed-right > .ant-table-body-outer > .ant-table-body-inner > table > .ant-table-tbody > tr > td{
+  padding: 9px 8px;
+}
+
+// 设置按钮间隔
+.space-btn .ant-btn{
+  margin: 0px !important;
+  margin-left: 8px !important;
+}
+.margin-left8 {
+  margin: 0px !important;
+  margin-left: 8px !important;
+}
+.margin-left10 {
+  margin: 0px !important;
+  margin-left: 10px !important;
+}
+.margin-right8 {
+  margin: 0px !important;
+  margin-right: 8px !important;
+}
+.margin-right10 {
+  margin: 0px !important;
+  margin-right: 10px !important;
+}
+
+
+// 统一设置弹窗的标题栏样式
+.ant-modal-header {
+  padding: 12px 24px !important;
+}
+.ant-modal-title {
+  font-weight: bold !important;
+}
+.ant-modal-close-x {
+  width: 46px !important;
+  height: 46px !important;
+  line-height: 46px !important;
+}
+
+.ant-modal-body{
+  padding: 10px !important;
+}
+
+// 统一设置Tab也，标题与内容的间距
+.ant-tabs-bar {
+  margin: 0 0 5px 0 !important;
+}
+// 隐藏流程设计的图标
+.bjs-powered-by {
+  display: none;
+}
+
+//自定义日期组件屏蔽清除按钮
+.s-na-select-date .na-select-clear .ant-select-selection__clear{
+  display: none;
+}
+.s-na-select-date  .na-select-clear+div .ant-select-dropdown-menu .ant-select-dropdown-menu-item:first-child{
+  display: none;
+}
+
+// 屏蔽j-dict-select-tag清楚样式
+.na-display-jselect-clear-btn {
+  .ant-select-selection__clear{
+    display: none;
+  }
+
+  &+div{
+    .ant-select-dropdown-menu .ant-select-dropdown-menu-item:first-child{
+      display: none;
+    }
+  }
+}
+
+// vxe-table 单元格样式
+.table-cell-bg-yellow{
+  background: #eded20;
+}
+.table-cell-bg-red{
+  background: #e94141;
+  color: #fff;
+}
+
+// 提高vxe-table tooltip显示的 权值
+.vxe-table--tooltip-wrapper{
+  z-index: 1001 !important
+}
+
+//=============================修改ant-design表单的验证提示信息样式===========================================
+
+.ant-form.ant-form-horizontal .ant-form-item{
+  margin-bottom: 10px !important;
+}
+.ant-form .ant-form-item{
+  margin-bottom: 0px !important;
+}
+
+.ant-advanced-search-form .ant-row{
+  /*height: 35px !important;*/
+}
+
+/* 验证提示框 开始*/
+.ant-form-item-control.has-error > .ant-form-explain {
+  visibility: hidden;
+  text-align: center;
+  background-color: #ffffff;
+  border: 1px solid #ff0000;
+  border-radius: 6px;
+  padding: 5px;
+  margin-top: 5px;
+  /* 定位 */
+  position: absolute;
+  z-index: 1;
+
+  -webkit-transform: translateY(10px);
+  -moz-transform: translateY(10px);
+  -ms-transform: translateY(10px);
+  -o-transform: translateY(10px);
+  transform: translateY(10px);
+  -webkit-transition: all .25s ease-out;
+  -moz-transition: all .25s ease-out;
+  -ms-transition: all .25s ease-out;
+  -o-transition: all .25s ease-out;
+  transition: all .25s ease-out;
+  -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -ms-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  -o-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+.ant-form-item-control.has-error:hover .ant-form-explain {
+  visibility: visible;
+
+  -webkit-transform: translateY(0px);
+  -moz-transform: translateY(0px);
+  -ms-transform: translateY(0px);
+  -o-transform: translateY(0px);
+  transform: translateY(0px);
+}
+
+.ant-form-item-control.has-success > .ant-form-explain{
+  position: absolute;
+}
+.ant-form-item-control > .ant-form-explain{
+  position: absolute;
+}
+
+/*箭头*/
+.ant-form-item-control.has-error > .ant-form-explain::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #ff0000 transparent;
+}
+
+.ant-form-item-control >.show-help-leave-active{
+  display: none !important;
+}
+/* 验证提示框 结束 */
+
+/* antv 里设置了 font-weight:500 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  color: rgba(0, 0, 0, 0.85);
+  font-weight: bold !important;
+}
+
+/*要使用全屏modal时*/
+.fullDialog {
+  padding-bottom:0px !important;
+  top:0px;
+  height: calc(100%);
+  .ant-modal-content {
+    height: calc(100%);
+    // ant-modal-header  ant-modal-footer
+    .ant-modal-body {
+      height: calc(100% - 100px);
+      overflow: auto;
+    }
+  }
+  &.no-title{
+    .ant-modal-body{
+      height: calc(100% - 53px);
+    }
+  }
+  &.no-footer{
+    .ant-modal-body{
+      height: calc(100% - 47px);
+    }
+  }
+  &.no-title.no-footer{
+    .ant-modal-body{
+      height: calc(100%);
+    }
+  }
+}
+
+.ant-modal-wrap{
+  overflow: hidden !important;
+}
+
+/* 细线表格样式 */
+/*表格样式。*/
+.table {
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+  /*  font-family:Arial, Tahoma, Verdana, Sans-Serif,宋体;*/
+  border-collapse: collapse;
+
+  thead {
+    tr {
+      background-color: #f1f1f1;
+    }
+  }
+
+  /*表头样式。*/
+  th {
+    font-size: 12px;
+    font-weight: 600;
+    color: #303030;
+    border: 1px solid #2d2a2a;
+    letter-spacing: 2px;
+    padding: 10px 0px 10px 0px;
+    /* background: url(../images/tablehdbg.png);*/
+    white-space: nowrap;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  td {
+    border: 1px solid #2d2a2a;
+    font-size: 12px;
+    padding: 3px 3px 3px 6px;
+    height: 30px;
+    line-height: 30px;
+    color: #303030;
+    word-break: break-all;
+    word-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+.fieldset-wrapper {
+  margin-top: 15px;
+  border: 1px solid #eee;
+  position: relative;
+  border-radius: 8px;
+  padding: 10px;
+  padding-top: 15px;
+  .title {
+    position: absolute;
+    top: -14px;
+    padding: 1px 8px;
+    margin-left: 16px;
+    color: #777;
+    border-radius: 2px 2px 0 0;
+    background: #fff;
+    font-size: 14px;
+    width: auto;
+  }
+}
+
+/* 列表页面容器 */
+.bodyWrapper {
+  height: calc(100% - 10px) !important;
+
+  // YZC 2021-05-13 调整样式，移除使用margin-bottom填充，改用padding填充，背景颜色使用修改为使用伪类
+  // 搜索栏
+  .table-page-search-wrapper {
+    padding: 10px;
+    position: relative;
+
+    &>div, &>form{
+      position: relative;
+    }
+
+    &:before{
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: calc(100% - 10px);
+      top: 0;
+      left: 0;
+      background: #fbfbfb;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      z-index: 0;
+    }
+
+    .ant-form-inline {
+
+      .ant-form-item {
+        display: flex;
+        margin-bottom: 10px !important;
+        margin-right: 0;
+
+        .ant-form-item-control-wrapper {
+          flex: 1 1;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        > .ant-form-item-label {
+          line-height: 32px;
+          padding-right: 8px;
+          width: auto;
+        }
+        .ant-form-item-control {
+          height: 32px;
+          line-height: 32px;
+        }
+      }
+    }
+
+    .table-page-search-submitButtons {
+      display: block;
+      margin-bottom: 10px !important;
+      white-space: nowrap;
+    }
+
+  }
+  // 内容栏
+  .table-page-body {
+    height: calc(100% - 59px);
+  }
+}
+
+
+.table-page-body-wrapper{
+  display: flex;
+  flex-direction: column;
+  .table-body-context{
+    height: 100%;
+  }
+}
+
+// 覆盖Vxe-table默认样式
+.clear-vxt-overfllow-header{
+  .vxe-table--header-wrapper{
+    overflow: initial;
+  }
+}
+
+.vxt-header-title-kpi{
+  span{
+    padding-right: 180px;
+  }
+}
+
+
+// 覆盖Jeecg默认菜单的样式，防止左侧菜单被覆盖
+.ant-layout-sider-children{
+  position: relative !important;
+  .logo{
+    position: absolute !important;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .ant-menu-root{
+    padding-top: 50px !important;
+  }
+}
+
+.ant-layout-sider-children .ant-menu-root{
+  box-shadow: none!important;
+}
+
+// 覆盖a-spin默认样式
+.full-srceen{
+  height: 100%;
+
+  &.ant-spin-nested-loading .ant-spin-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.na-full-srceen{
+  height: 100%;
+}
+
+.sop-body-page{
+  width: 90%;
+  min-height: 100%;
+  background: #fff;
+  padding: 25px;
+}
+
+// flex布局，使用Heigth： 100% 填充内容
+
+*[na-flex-height-full]{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  &.ant-tabs .ant-tabs-content{
+    height: calc(100% - 45px);;
+  }
+
+
+  &.ant-spin-nested-loading .ant-spin-container{
+    height: 100%;
+  }
+}
+
+*[na-fd-irow]{
+  flex-direction: row !important;
+}
+
+
+.datePaddingRight {
+  .ant-calendar-picker-input.ant-input{
+    padding-right: 25px;
+  }
+}
+
+// Led大屏客户端样式
+.led-screen-client {
+
+  & .ant-layout-header, & .ant-layout-sider, & .tab-layout-tabs{
+    display: none;
+  }
+
+}
+
+//开发样式
+.led-screen-client {
+  .tabPageContent{
+    height: 100vh;
+    padding: 0;
+  }
+}
+
+
+#printDom{
+  position: fixed;
+  top: 200%;
+}
+
+[na-btn-type="print"]{
+  position: absolute;
+  top: 9px;
+  right: 58px;
+}
+
+//a-spin 样式覆盖
+*[na-spin-flex1]{
+  flex: 1;
+  .ant-spin-container{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.na-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.na-footer-none{
+  & > .ant-modal-wrap > .ant-modal > .ant-modal-content >.ant-modal-footer{
+    display: none;
+  }
+}
+
+.ant-card {
+  border-radius: 4px !important;
+}

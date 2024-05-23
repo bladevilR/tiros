@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.report.daily.mapper.BuRptDayReportNextWorkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.report.daily.bean.BuRptDayReportNextWork">
+        <id column="id" property="id" />
+        <result column="report_id" property="reportId" />
+        <result column="group_name" property="group" />
+        <result column="work_content" property="workContent" />
+        <result column="temp_work" property="tempWork" />
+        <result column="track_content" property="trackContent" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, report_id, group_name, work_content, temp_work, track_content, remark
+    </sql>
+
+</mapper>

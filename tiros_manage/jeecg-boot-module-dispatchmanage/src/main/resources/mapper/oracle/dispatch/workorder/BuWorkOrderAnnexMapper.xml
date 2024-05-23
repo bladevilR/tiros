@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkOrderAnnexMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderAnnex">
+        <result column="id" property="id"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="task_id" property="taskId"/>
+        <result column="file_id" property="fileId"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="savepath" property="savepath"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, work_order_id, task_id, file_id, name, type, savepath, file_size, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.workOrderId, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.fileId, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.type, jdbcType=VARCHAR},
+            #{item.savepath, jdbcType=VARCHAR},
+            #{item.fileSize, jdbcType=DOUBLE},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_work_order_annex
+            (
+            <include refid="Base_Column_List"/>
+            )
+           <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderAnnex">
+        select t.*,
+               t1.order_name as workOrderName,
+               t2.task_name
+        from bu_work_order_annex t
+                 left join bu_work_order t1 on t1.id = t.work_order_id
+                 left join bu_work_order_task t2 on t2.id = t.task_id
+        where (
+                      t.task_id = #{taskId}
+                      or
+                      ((t.task_id is null or t.task_id = '') and
+                       t.work_order_id = (select order_id from bu_work_order_task where id = #{taskId}))
+                  )
+    </select>
+
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxRealassettransOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxRealassettransOut">
+        <result column="ASSETNUM" property="assetnum" />
+        <result column="CREWGROUP" property="crewgroup" />
+        <result column="C_REALASSETTRANSID" property="cRealassettransid" />
+        <result column="ENTERBY" property="enterby" />
+        <result column="ITEMNUM" property="itemnum" />
+        <result column="OPERATEMODE" property="operatemode" />
+        <result column="SEQUENCE" property="sequence" />
+        <result column="TRANSDATE" property="transdate" />
+        <result column="LEAD" property="lead" />
+        <result column="PERSONGROUP" property="persongroup" />
+        <result column="SITEID" property="siteid" />
+        <result column="WONUM" property="wonum" />
+        <result column="TRANSID" property="transid" />
+        <result column="TRANSSEQ" property="transseq" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ASSETNUM, CREWGROUP, C_REALASSETTRANSID, ENTERBY, ITEMNUM, OPERATEMODE, SEQUENCE, TRANSDATE, LEAD, PERSONGROUP, SITEID, WONUM, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

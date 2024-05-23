@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.must.mapper.BuMaterialMustListMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.must.bean.BuMaterialMustList">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="need_amount" property="needAmount"/>
+        <result column="location" property="location"/>
+        <result column="remark" property="remark"/>
+        <result column="can_replace" property="canReplace"/>
+        <result column="location_desc" property="locationDesc"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, line_id, repair_program_id, sys_id, group_id, workstation_id, need_amount,
+        location, remark, can_replace, location_desc, status, create_time, create_by, update_time, update_by,
+        company_id, workshop_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.repairProgramId, jdbcType=VARCHAR},
+            #{item.sysId, jdbcType=VARCHAR},
+            #{item.groupId, jdbcType=VARCHAR},
+            #{item.workstationId, jdbcType=VARCHAR},
+            #{item.needAmount, jdbcType=DOUBLE},
+            #{item.location, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.canReplace, jdbcType=VARCHAR},
+            #{item.locationDesc, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertBatch" parameterType="java.util.List">
+        insert into bu_material_must_list
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectMaterialMustListPage" resultType="org.jeecg.modules.material.must.bean.BuMaterialMustList">
+        select t.*,
+        t2.name as repairProgramName,
+        t3.line_name as lineName,
+        t4.group_name as groupName,
+        t5.name as workstationName,
+        t6.name as locationName,
+        t1.name,
+        t1.code,
+        t1.spec,
+        t1.unit,
+        t1.category2 as materialTypeCategory,
+        t7.name as sysName
+        from bu_material_must_list t
+        left join bu_material_type t1 on t.material_type_id = t1.id
+        left join bu_repair_program t2 on t2.id = t.repair_program_id
+        left join bu_mtr_line t3 on t3.line_id = t.line_id
+        left join bu_mtr_workshop_group t4 on t4.id = t.group_id
+        left join bu_mtr_workstation t5 on t5.id = t.workstation_id
+        left join bu_train_structure_detail t6 on t6.id = t.location
+        left join bu_train_asset_type t7 on t7.id = t.sys_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and t.material_type_id in
+                (select id from bu_material_type where (
+                code like '%'||#{queryVO.searchText}||'%'
+                or
+                name like '%'||#{queryVO.searchText}||'%'))
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProgramId != null and queryVO.repairProgramId != ''">
+                and t.repair_program_id = #{queryVO.repairProgramId}
+            </if>
+            <if test="queryVO.sysId != null and queryVO.sysId != ''">
+                and t.sys_id = #{queryVO.sysId}
+            </if>
+            <if test="queryVO.workstationId != null and queryVO.workstationId != ''">
+                and t.workstation_id = #{queryVO.workstationId}
+            </if>
+            <if test="queryVO.groupId!= null and queryVO.groupId != ''">
+                and t.group_id=#{queryVO.groupId}
+            </if>
+            <if test="queryVO.materialTypeCodeList != null and queryVO.materialTypeCodeList.size > 0">
+                and t1.code in
+                <foreach collection="queryVO.materialTypeCodeList" item="materialTypeCode" separator="," open="("
+                         close=")">
+                    #{materialTypeCode}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectListByCompareQueryVO" resultType="org.jeecg.modules.material.must.bean.BuMaterialMustList">
+        select t.*,
+        t2.line_name,
+        t3.name as repairProgramName,
+        t4.name as sysName,
+        t5.station_no as workstationNo,
+        t5.name as workstationName
+        from bu_material_must_list t
+        left join bu_repair_plan t1 on t1.line_id = t.line_id and t1.repair_program_id = t.repair_program_id
+        left join bu_mtr_line t2 on t2.line_id = t.line_id
+        left join bu_repair_program t3 on t3.id = t.repair_program_id
+        left join bu_train_asset_type t4 on t4.id = t.sys_id
+        left join bu_mtr_workstation t5 on t5.id = t.workstation_id
+        left join bu_material_type t6 on t6.id = t.material_type_id
+        where t.status = 1
+        and t.need_amount > 0
+        and t1.id = #{queryVO.planId}
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            and t.group_id = #{queryVO.groupId}
+        </if>
+        <!--        <if test="queryVO.materialSearchText != null and queryVO.materialSearchText != ''">-->
+        <!--            and-->
+        <!--            (-->
+        <!--            t6.name like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            or-->
+        <!--            t6.code like '%'||#{queryVO.materialSearchText}||'%'-->
+        <!--            )-->
+        <!--        </if>-->
+        order by t.line_id, t3.code, t.group_id, t.material_type_id
+    </select>
+
+    <select id="selectAssetTypeId" resultType="java.lang.String">
+        select asset_type_id
+        FROM bu_train_structure_detail
+        WHERE id = #{structureId}
+    </select>
+
+    <update id="setGroupId">
+        UPDATE BU_MATERIAL_MUST_LIST a
+        SET GROUP_ID=(SELECT GROUP_ID FROM BU_GROUP_WORKSTATION WHERE WORKSTATION_ID = a.WORKSTATION_ID AND ROWNUM = 1)
+    </update>
+
+
+</mapper>

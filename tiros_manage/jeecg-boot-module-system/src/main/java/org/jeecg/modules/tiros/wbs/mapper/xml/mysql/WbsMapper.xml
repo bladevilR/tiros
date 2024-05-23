@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.tiros.wbs.mapper.WbsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap_WbsConf_Tree" type="org.jeecg.modules.tiros.wbs.bean.WbsPO">
+        <id column="id" property="id"/>
+        <result column="parentId" property="parentId"/>
+        <result column="code" property="code"/>
+        <result column="wbs" property="wbs"/>
+        <collection property="children"
+                    column="{
+                    id=id,
+                    wbsConfTable=wbsConfTable,
+                    wbsConfId=wbsConfId,
+                    wbsConfParentId=wbsConfParentId,
+                    wbsConfCode=wbsConfCode,
+                    wbsConfWbs=wbsConfWbs,
+                    wbsConfFilter=wbsConfFilter,
+                    wbsConfOrder=wbsConfOrder
+                    }"
+                    ofType="org.jeecg.modules.tiros.wbs.bean.WbsPO"
+                    select="selectWbsPOChildren"/>
+    </resultMap>
+    <select id="selectWbsPOChildren" resultMap="ResultMap_WbsConf_Tree">
+        select ${wbsConfId} as id,
+        ${wbsConfParentId} as parentId,
+        ${wbsConfCode} as code,
+        ${wbsConfWbs} as wbs,
+        #{wbsConfTable} as wbsConfTable,
+        #{wbsConfId} as wbsConfId,
+        #{wbsConfParentId} as wbsConfParentId,
+        #{wbsConfCode} as wbsConfCode,
+        #{wbsConfWbs} as wbsConfWbs,
+        #{wbsConfFilter} as wbsConfFilter,
+        #{wbsConfOrder} as wbsConfOrder
+        from ${wbsConfTable}
+        where ${wbsConfParentId} = #{id}
+        <if test="wbsConfFilter != null and wbsConfFilter != ''">
+            and ${wbsConfFilter}
+        </if>
+        <choose>
+            <when test="wbsConfOrder != null and wbsConfOrder != ''">
+                order by ${wbsConfOrder}
+            </when>
+            <otherwise>
+                order by ${wbsConfCode}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWbsPOList" resultType="org.jeecg.modules.tiros.wbs.bean.WbsPO">
+        select ${wbsConf.id} as id,
+        ${wbsConf.parentId} as parentId,
+        ${wbsConf.code} as code,
+        ${wbsConf.wbs} as wbs
+        from ${wbsConf.table}
+        <if test="wbsConf.filter != null and wbsConf.filter != ''">
+            where ${wbsConf.filter}
+        </if>
+        <choose>
+            <when test="wbsConf.order != null and wbsConf.order != ''">
+                order by ${wbsConf.order}
+            </when>
+            <otherwise>
+                order by ${wbsConf.code}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWbsPOTree" resultMap="ResultMap_WbsConf_Tree">
+        select ${wbsConf.id} as id,
+        ${wbsConf.parentId} as parentId,
+        ${wbsConf.code} as code,
+        ${wbsConf.wbs} as wbs,
+        #{wbsConf.table} as wbsConfTable,
+        #{wbsConf.id} as wbsConfId,
+        #{wbsConf.parentId} as wbsConfParentId,
+        #{wbsConf.code} as wbsConfCode,
+        #{wbsConf.wbs} as wbsConfWbs,
+        #{wbsConf.filter} as wbsConfFilter,
+        #{wbsConf.order} as wbsConfOrder
+        from ${wbsConf.table}
+        <if test="wbsConf.filter != null and wbsConf.filter != ''">
+            where ${wbsConf.filter}
+        </if>
+        <choose>
+            <when test="wbsConf.order != null and wbsConf.order != ''">
+                order by ${wbsConf.order}
+            </when>
+            <otherwise>
+                order by ${wbsConf.code}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByIdList" resultType="org.jeecg.modules.tiros.wbs.bean.WbsPO">
+        select
+        ${wbsConf.id} as id,
+        ${wbsConf.wbs} as wbs
+        from ${wbsConf.table}
+        where ${wbsConf.id}
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                in
+                <foreach collection="idList" index="index" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+
+    </select>
+
+    <update id="updateWbsList">
+        <foreach collection="list" index="index" item="item" open="" close="" separator=";">
+            update ${table}
+            <set>
+                ${wbs} = #{item.wbs}
+            </set>
+            where ${id} = #{item.id}
+        </foreach>
+    </update>
+
+    <update id="updateWbs">
+        update ${table}
+        <set>
+            ${wbs} = #{wbsPO.wbs}
+        </set>
+        where ${id} = #{wbsPO.id}
+    </update>
+
+</mapper>

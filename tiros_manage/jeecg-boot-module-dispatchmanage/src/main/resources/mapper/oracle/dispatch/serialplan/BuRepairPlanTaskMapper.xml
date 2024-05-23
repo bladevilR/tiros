@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairPlanTaskMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_name" property="taskName"/>
+        <result column="task_wbs" property="taskWbs"/>
+        <result column="important" property="important"/>
+        <result column="outsource" property="outsource"/>
+        <result column="method" property="method"/>
+        <result column="system_id" property="systemId"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="progress" property="progress"/>
+        <result column="duration" property="duration"/>
+        <result column="start_time" property="startTime"/>
+        <result column="finish_time" property="finishTime"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="predecessor" property="predecessor"/>
+        <result column="day_index" property="dayIndex"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="gen_order" property="genOrder"/>
+        <result column="has_gen" property="hasGen"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="suspend_status" property="suspendStatus"/>
+        <result column="suspend_time" property="suspendTime"/>
+        <result column="active_time" property="activeTime"/>
+        <result column="safe_notice" property="safeNotice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, parent_id, task_no, task_name, task_wbs, important, outsource, method,
+        system_id, asset_type_id, work_time, progress, duration, start_time, finish_time,
+        act_start, act_finish, predecessor, day_index, work_group_id, status, remark,
+        gen_order, has_gen, create_time, create_by, update_time, update_by, suspend_status,
+        suspend_time, active_time, safe_notice
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.planId, jdbcType=VARCHAR},
+            #{item.parentId, jdbcType=VARCHAR},
+            #{item.taskNo, jdbcType=INTEGER},
+            #{item.taskName, jdbcType=VARCHAR},
+            #{item.taskWbs, jdbcType=VARCHAR},
+            #{item.important, jdbcType=INTEGER},
+            #{item.outsource, jdbcType=INTEGER},
+            #{item.method, jdbcType=INTEGER},
+            #{item.systemId, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.workTime, jdbcType=DOUBLE},
+            #{item.progress, jdbcType=DOUBLE},
+            #{item.duration, jdbcType=DOUBLE},
+            #{item.startTime, jdbcType=TIMESTAMP},
+            #{item.finishTime, jdbcType=TIMESTAMP},
+            #{item.actStart, jdbcType=TIMESTAMP},
+            #{item.actFinish, jdbcType=TIMESTAMP},
+            #{item.predecessor, jdbcType=DOUBLE},
+            #{item.dayIndex, jdbcType=INTEGER},
+            #{item.workGroupId, jdbcType=VARCHAR},
+            #{item.status, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.genOrder, jdbcType=INTEGER},
+            #{item.hasGen, jdbcType=INTEGER},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.suspendStatus, jdbcType=INTEGER},
+            #{item.suspendTime, jdbcType=TIMESTAMP},
+            #{item.activeTime, jdbcType=TIMESTAMP},
+            #{item.safeNotice, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_plan_task
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateListTaskNo">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_repair_plan_task
+                set task_no = #{item.taskNo, jdbcType=NUMERIC}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListStatusAndTime">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_repair_plan_task
+                set
+                progress = #{item.progress, jdbcType=DOUBLE},
+                act_start = #{item.actStart, jdbcType=TIMESTAMP},
+                act_finish = #{item.actFinish, jdbcType=TIMESTAMP},
+                status = #{item.status, jdbcType=INTEGER},
+                update_time = #{item.updateTime, jdbcType=TIMESTAMP},
+                update_by = #{item.updateBy, jdbcType=VARCHAR}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updatePlanTaskGeneratedYes">
+        update bu_repair_plan_task
+        set has_gen = 1
+        <choose>
+            <when test="planTaskIdList != null and planTaskIdList.size > 0 ">
+                where id in
+                <foreach collection="planTaskIdList" item="planTaskId" index="index"
+                         separator="," open="(" close=")">
+                    #{planTaskId, jdbcType=VARCHAR}
+                </foreach>
+            </when>
+            <otherwise>
+                where id = '-1'
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="updateListSuspendActivity">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_repair_plan_task
+                set
+                status = #{item.status, jdbcType=INTEGER},
+                suspend_status = #{item.suspendStatus, jdbcType=INTEGER},
+                suspend_time = #{item.suspendTime, jdbcType=TIMESTAMP},
+                active_time = #{item.activeTime, jdbcType=TIMESTAMP}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        SELECT t.*,
+               t1.name       AS systemName,
+               t2.name       AS assetTypeName,
+               t3.group_name AS workGroupName
+        FROM bu_repair_plan_task t
+                 LEFT JOIN bu_train_asset_type t1 ON t1.id = t.system_id
+                 LEFT JOIN bu_train_asset_type t2 ON t2.id = t.asset_type_id
+                 LEFT JOIN bu_mtr_workshop_group t3 ON t3.id = t.work_group_id
+        WHERE t.plan_id = #{planId}
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as int)
+    </select>
+
+    <select id="selectListWithOrderTaskStatusByPlanId"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        SELECT t.*,
+               t1.task_status as orderTaskStatus,
+               t1.task_finish as orderTaskFinishTime
+        FROM bu_repair_plan_task t
+                 LEFT JOIN (SELECT *
+                            FROM (SELECT ROW_NUMBER() OVER (PARTITION BY task_obj_id ORDER BY task_type DESC) rn,
+                                         bu_work_order_task.*
+                                  FROM bu_work_order_task)
+                            WHERE rn = 1) t1 ON t1.task_obj_id = t.id
+        WHERE t.plan_id = #{planId}
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as int)
+    </select>
+
+    <select id="selectWorkStation" resultType="java.lang.String">
+        select t1.name
+        from bu_repair_task_workstation t
+                 left join bu_mtr_workstation t1 on t.workstation_id = t1.id
+        where t.task_id = #{id}
+    </select>
+
+    <select id="selectWorkGroupName" resultType="java.lang.String">
+        select group_name
+        from bu_mtr_workshop_group
+        where id = #{id}
+    </select>
+
+    <select id="selectPlanTaskTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        select t.*,
+               decode((select count(1) from bu_repair_plan_task where parent_id = t.id), 0, 0, 1) as hasChildren,
+               t1.track_id                                                                        AS trackId,
+               t2.name                                                                            AS trackName,
+               t3.name                                                                            AS systemName,
+               t4.name                                                                            AS assetTypeName,
+               t5.group_name                                                                      AS workGroupName
+        from bu_repair_plan_task t
+                 LEFT JOIN bu_repair_task_track t1 ON t1.task_id = t.id
+                 LEFT JOIN bu_mtr_track t2 ON t2.id = t1.track_id
+                 LEFT JOIN bu_train_asset_type t3 ON t3.id = t.system_id
+                 LEFT JOIN bu_train_asset_type t4 ON t4.id = t.asset_type_id
+                 LEFT JOIN bu_mtr_workshop_group t5 ON t5.id = t.work_group_id
+        where t.id = #{taskId}
+    </select>
+
+    <select id="selectTaskRepairPlanReguInfo"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        SELECT t.*,
+               t1.no,
+               t1.title,
+               t1.type,
+               t1.safe_notice,
+               t1.outsource,
+               t1.important,
+               t1.method,
+               t1.quality_level,
+               t1.asset_type_id,
+               t1.work_time,
+               t1.requirement,
+               t1.must_replace,
+               t1.measure,
+               t2.name AS assetTypeName
+        FROM bu_repair_task_regu t
+                 LEFT JOIN bu_repair_regu_detail t1 ON t1.id = t.regu_detail_id
+                 LEFT JOIN bu_train_asset_type t2 ON t2.id = t1.asset_type_id
+        WHERE task_id = #{id}
+        order by t1.no
+    </select>
+
+    <select id="noRelevanceDetail" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        select t.*
+        from bu_repair_plan_task t
+        where t.id not in (select task_id from bu_repair_task_regu)
+          and plan_id = #{id}
+        order by t.task_no
+    </select>
+
+    <select id="selectMaxTaskNoByParentId" resultType="java.lang.Integer">
+        SELECT
+        MAX(t.task_no)
+        FROM bu_repair_plan_task t
+        <where>
+            <choose>
+                <when test="parentId != null and parentId != ''">
+                    and t.parent_id = #{parentId}
+                </when>
+                <otherwise>
+                    and (t.parent_id is null)
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="selectListBeforeAndEqualDate"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        SELECT t.*
+        FROM bu_repair_plan_task t
+        WHERE t.plan_id = #{planId}
+          AND to_char(#{date}, 'yyyy-mm-dd') &gt;= to_char(t.finish_time, 'yyyy-mm-dd')
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as int)
+    </select>
+
+    <select id="selectListEqualDate"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        SELECT t.*
+        FROM bu_repair_plan_task t
+        WHERE t.plan_id = #{planId}
+          AND to_char(#{date}, 'yyyy-mm-dd') &gt;= to_char(t.finish_time, 'yyyy-mm-dd')
+        ORDER BY CAST(REPLACE(t.task_wbs, '.', '0') as int)
+    </select>
+
+    <select id="selectListByNow" parameterType="string"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        SELECT *
+        FROM bu_repair_plan_task
+        WHERE to_char(sysdate, 'yyyy-mm-dd') = to_char(start_time, 'yyyy-mm-dd')
+          AND plan_id = #{planId}
+    </select>
+
+    <select id="getTaskLatestFinishTimeByPlanId" resultType="java.util.Date">
+        SELECT MAX(t.finish_time)
+        FROM bu_repair_plan_task t
+        WHERE t.plan_id = #{planId}
+    </select>
+
+    <select id="getTaskTotalDurationByPlanId" resultType="java.lang.Integer">
+        SELECT SUM(t.duration)
+        FROM bu_repair_plan_task t
+        WHERE t.plan_id = #{planId}
+            AND t.parent_id is NULL
+           OR t.parent_id = ''
+    </select>
+
+    <select id="selectReguDetailIdListByPlanTaskId" resultType="java.lang.String">
+        select regu_detail_id
+        from bu_repair_task_regu
+        where task_id = #{planTaskId}
+    </select>
+
+    <select id="selectRepairTrainNoByPlanTaskId" resultType="java.lang.String">
+        select train_no
+        from bu_repair_plan
+        where id = (select plan_id from bu_repair_plan_task where id = #{planTaskId})
+    </select>
+
+    <select id="selectNeedSuspendListByOrderIdListAndPlanTaskStatus"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanTask">
+        select t.*
+        from bu_repair_plan_task t
+        where t.status = #{planTaskStatus}
+        and t.id in (
+        select task_obj_id from bu_work_order_task where order_id in
+        <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+            #{orderId}
+        </foreach>
+        )
+    </select>
+
+    <select id="selectSafeNoticeDataLength" resultType="java.lang.Integer">
+        select data_length
+        from all_TAB_COLUMNS
+        where table_name = 'BU_REPAIR_PLAN_TASK'
+          and column_name = 'SAFE_NOTICE'
+    </select>
+
+</mapper>

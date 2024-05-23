@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairTaskStaffRequireMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskStaffRequire">
+        <id column="id" property="id" />
+        <result column="task_id" property="taskId" />
+        <result column="amount" property="amount" />
+        <result column="require_postion" property="requirePostion" />
+        <result column="require_certificate" property="requireCertificate" />
+        <result column="require_tech" property="requireTech" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, task_id, amount, require_postion, require_certificate, require_tech, remark
+    </sql>
+
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.taskId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=INTEGER},
+            #{item.requirePostion, jdbcType=VARCHAR},
+            #{item.requireCertificate, jdbcType=VARCHAR},
+            #{item.requireTech, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR}
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_task_staff_require
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectListByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskStaffRequire">
+        select t.*
+        from bu_repair_task_staff_require t
+                 left join bu_repair_plan_task t1 on t1.id = t.task_id
+        where t1.plan_id = #{planId}
+    </select>
+
+    <select id="selectListByTaskId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskStaffRequire">
+        select t.*
+        from bu_repair_task_staff_require t
+        where t.task_id = #{taskId}
+    </select>
+
+</mapper>

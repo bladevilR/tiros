@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuTrainInfoThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuTrainInfo">
+        <id column="id" property="id"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="group_num" property="groupNum"/>
+        <result column="mileage" property="mileage"/>
+        <result column="status" property="status"/>
+        <result column="use_date" property="useDate"/>
+        <result column="warranty_date" property="warrantyDate"/>
+        <result column="track_id" property="trackId"/>
+        <result column="train_struct_id" property="trainStructId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="contract_name" property="contractName"/>
+        <result column="made_date" property="madeDate"/>
+        <result column="buy_date" property="buyDate"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="is_gen_asset" property="isGenAsset"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, train_type_id, line_id, train_no, group_num, mileage, status, use_date, warranty_date,
+        track_id, train_struct_id, supplier_id, contract_no, contract_name, made_date, buy_date,
+        remark, create_time, create_by, update_time, update_by, is_gen_asset, company_id, workshop_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.trainTypeId},
+            #{item.lineId},
+            #{item.trainNo},
+            #{item.groupNum},
+            #{item.mileage},
+            #{item.status},
+            #{item.useDate},
+            #{item.warrantyDate},
+            #{item.trackId},
+            #{item.trainStructId},
+            #{item.supplierId},
+            #{item.contractNo},
+            #{item.contractName},
+            #{item.madeDate},
+            #{item.buyDate},
+            #{item.remark},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.isGenAsset},
+            #{item.companyId},
+            #{item.workshopId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_train_info
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectAllLine" resultType="org.jeecg.modules.third.jdx.bean.BuMtrLine">
+        select t.*,
+               t1.depot_id
+        from bu_mtr_line t
+                 left join bu_mtr_workshop t1 on t1.id = t.workshop_id
+        order by line_id
+    </select>
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuWorkOrderTaskBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="task_type" property="taskType"/>
+        <result column="task_obj_id" property="taskObjId"/>
+        <result column="task_no" property="taskNo"/>
+        <result column="task_name" property="taskName"/>
+        <result column="task_content" property="taskContent"/>
+        <result column="work_time" property="workTime"/>
+        <result column="remark" property="remark"/>
+        <result column="task_start" property="taskStart"/>
+        <result column="task_finish" property="taskFinish"/>
+        <result column="task_time" property="taskTime"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="task_status" property="taskStatus"/>
+        <result column="out_task" property="outTask"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="important" property="important"/>
+        <result column="method" property="method"/>
+        <result column="safe_notice" property="safeNotice"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, task_type, task_obj_id, task_no, task_name, task_content, work_time,
+        remark, task_start, task_finish, task_time, report_time, task_status, out_task,
+        asset_type_id, struct_detail_id, train_asset_id, important, method, safe_notice
+    </sql>
+
+    <select id="listFinishWorkOrderTaskByCondition"
+            resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT
+        t.id,
+        t.task_finish
+        FROM bu_work_order_task t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        LEFT JOIN bu_mtr_workshop t2 ON t2.id = t1.workshop_id
+        <where>
+            AND t.task_status = 2
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t2.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t1.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t1.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.startDate != null">
+                AND t.task_finish &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                AND t.task_finish &lt;= #{queryVO.endDate}
+            </if>
+        </where>
+        order by t1.order_code, t.task_no
+    </select>
+
+    <select id="listIssuedWorkOrderTaskByCondition"
+            resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT
+        t.*,
+        t3.name AS depotName,
+        t1.group_id,
+        t4.group_name AS groupName
+        FROM bu_work_order_task t
+        LEFT JOIN bu_work_order t1 ON t1.id = t.order_id
+        LEFT JOIN bu_mtr_workshop t2 ON t2.id = t1.workshop_id
+        LEFT JOIN bu_mtr_depot t3 ON t3.id = t2.depot_id
+        LEFT JOIN bu_mtr_workshop_group t4 ON t4.id = t1.group_id
+        where t1.order_status != 0
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t2.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t1.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            AND t1.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            AND
+            (
+            t1.start_time &gt;= #{queryVO.startDate} and t1.start_time &lt;= #{queryVO.endDate}
+            OR
+            t1.finish_time &gt;= #{queryVO.startDate} and t1.finish_time &lt;= #{queryVO.endDate}
+            )
+        </if>
+        order by t1.order_code, t.task_no
+    </select>
+
+    <select id="listByOrderIdAndTaskStatus" resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        SELECT
+        t.*
+        FROM bu_work_order_task t
+        left join bu_work_order t1 on t.order_id=t1.id
+        WHERE t.order_id = #{orderId} and t1.order_type not in (4, 5)
+        <if test="taskStatus != null">
+            AND t.task_status = #{taskStatus}
+        </if>
+        ORDER BY t.task_no
+    </select>
+
+    <select id="selectOrderTaskUserByOrderTaskIdList" resultType="java.util.Map">
+        SELECT
+        t1.order_task_id AS taskId,
+        t.user_id AS userId
+        FROM bu_repair_task_staff_arrange t
+        LEFT JOIN bu_work_order_task_workstation t1 on t1.id = t.ord_tsk_wk_station_id
+        WHERE t1.order_task_id
+        <choose>
+            <when test="orderTaskIdList != null and orderTaskIdList.size > 0">
+                in
+                <foreach collection="orderTaskIdList" item="orderTaskId" open="(" separator="," close=")">
+                    #{orderTaskId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectPlanOrderTaskListByPlanId" resultType="org.jeecg.modules.board.progress.bean.BuWorkOrderTask">
+        select t.*,
+               t1.group_id,
+               t1.order_status
+        from bu_work_order_task t
+                 left join bu_work_order t1 on t1.id = t.order_id
+        where t1.order_type not in (4, 5)
+          and t1.plan_id = #{planId}
+    </select>
+
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.plan.mapper.BuMaterialMustListProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.plan.bean.BuMaterialMustList">
+        <id column="id" property="id"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="workstation_id" property="workstationId"/>
+        <result column="need_amount" property="needAmount"/>
+        <result column="location" property="location"/>
+        <result column="remark" property="remark"/>
+        <result column="can_replace" property="canReplace"/>
+        <result column="location_desc" property="locationDesc"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, material_type_id, line_id, repair_program_id, sys_id, group_id, workstation_id, need_amount,
+        location, remark, can_replace, location_desc, status, create_time, create_by, update_time, update_by,
+        company_id, workshop_id
+    </sql>
+
+</mapper>

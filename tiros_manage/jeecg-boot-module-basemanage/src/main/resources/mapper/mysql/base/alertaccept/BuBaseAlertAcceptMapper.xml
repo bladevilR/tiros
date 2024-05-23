@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.alertaccept.mapper.BuBaseAlertAcceptMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.alertaccept.entity.BuBaseAlertAccept">
+        <id column="id" property="id"/>
+        <result column="alert_type" property="alertType"/>
+        <result column="dimension" property="dimension"/>
+        <result column="target" property="target"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_WithTargetName" type="org.jeecg.modules.basemanage.alertaccept.entity.BuBaseAlertAccept">
+        <id column="id" property="id"/>
+        <result column="alert_type" property="alertType"/>
+        <result column="dimension" property="dimension"/>
+        <result column="target" property="target"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <discriminator javaType="integer" column="dimension">
+            <case value="1">
+                <association property="targetName" column="target" select="selectUser" javaType="string"/>
+            </case>
+            <case value="2">
+                <association property="targetName" column="target" javaType="string" select="selectRole"/>
+            </case>
+            <case value="3">
+                <association property="targetName" column="target" javaType="string" select="selectDepart"/>
+            </case>
+        </discriminator>
+    </resultMap>
+    <select id="selectUser" resultType="string">
+        select realname as targetName
+        from sys_user
+        where FIND_IN_SET(id, #{target})
+    </select>
+    <select id="selectRole" resultType="string">
+        select role_name as targetName
+        from sys_role
+        where FIND_IN_SET(id, #{target})
+    </select>
+    <select id="selectDepart" resultType="string">
+        select depart_name as targetName
+        from sys_depart
+        where FIND_IN_SET(id, #{target})
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, alert_type, dimension, target, create_time, create_by, update_time, update_by
+    </sql>
+
+
+    <select id="selectByAlertAccept" resultType="org.jeecg.modules.basemanage.alertaccept.entity.BuBaseAlertAccept">
+        select *
+        from bu_base_alert_accept
+        where dimension = #{alertAccept.dimension}
+          and alert_type = #{alertAccept.alertType}
+          and FIND_IN_SET(#{alertAccept.target}, target)
+    </select>
+
+    <select id="listAll" resultMap="ResultMap_WithTargetName">
+        select * from bu_base_alert_accept
+        <where>
+            <if test="alertAcceptVO.alertType!=null and alertAcceptVO.alertType!=''">
+                alert_type=#{alertAcceptVO.alertType}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectUsernameListByAlertType" resultType="java.lang.String">
+        select distinct temp.username
+        from (
+        (
+        select username
+        from sys_user
+        WHERE FIND_IN_SET(id,
+        (select GROUP_CONCAT(target) from bu_base_alert_accept
+        where dimension = 1
+        <if test="alertType != null">
+            and alert_type = #{alertType}
+        </if>)
+        )
+        )
+        UNION ALL
+        (
+        select t.username
+        from sys_user t
+        left join sys_user_role t1 on t1.user_id = t.id
+        WHERE FIND_IN_SET(t1.role_id,
+        (select GROUP_CONCAT(target) from bu_base_alert_accept where dimension = 2
+        <if test="alertType != null">
+            and alert_type = #{alertType}
+        </if>)
+        )
+        )
+        UNION ALL
+        (
+        select t.username
+        from sys_user t
+        left join sys_user_depart t1 on t1.user_id = t.id
+        WHERE FIND_IN_SET(t1.dep_id,
+        (select GROUP_CONCAT(target) from bu_base_alert_accept where dimension = 3
+        <if test="alertType != null">
+            and alert_type = #{alertType}
+        </if>)
+        )
+        )
+        ) temp
+    </select>
+
+</mapper>

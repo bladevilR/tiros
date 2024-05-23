@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.fault.mapper.BuFaultCodeNewMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.fault.bean.BuFaultCodeNew">
+        <id column="id" property="id"/>
+        <result column="flt_code" property="fltCode"/>
+        <result column="flt_name" property="fltName"/>
+        <result column="flt_level" property="fltLevel"/>
+        <result column="parent_code" property="parentCode"/>
+        <result column="flt_major_code" property="fltMajorCode"/>
+        <result column="flt_major_name" property="fltMajorName"/>
+        <result column="self_create" property="selfCreate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, flt_code, flt_name, flt_level, parent_code, flt_major_code, flt_major_name, self_create, create_time, create_by, update_time, update_by
+    </sql>
+
+
+    <select id="selectAll" resultType="org.jeecg.modules.dispatch.fault.bean.BuFaultCodeNew">
+        <choose>
+            <when test="searchText!=null and searchText!=''">
+                select *
+                from bu_fault_code_new
+                where ( flt_code like concat('%',#{searchText},'%') or flt_name like concat('%',#{searchText},'%'))
+                order by flt_code
+            </when>
+            <otherwise>
+                select t.*,
+                decode((select count(1) from bu_fault_code_new where parent_code = t.flt_code), 0, 'false', 'true') as hasChildren
+                from bu_fault_code_new t
+                order by t.flt_code
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectByParentCode" resultType="org.jeecg.modules.dispatch.fault.bean.BuFaultCodeNew">
+        select t.*,
+        decode((select count(1) from bu_fault_code_new where parent_code = t.flt_code), 0, 'false', 'true') as hasChildren
+        from bu_fault_code_new t
+        <where>
+            <choose>
+                <when test="code!=null and code!=''">
+                    t.parent_code=#{code}
+                </when>
+                <otherwise>
+                    (t.parent_code is null or t.parent_code ='')
+                </otherwise>
+            </choose>
+        </where>
+        order by t.flt_code
+    </select>
+
+    <select id="selectParentCodeByCode" resultType="org.jeecg.modules.dispatch.fault.bean.BuFaultCodeNew">
+        select t.*,
+               decode((select count(1) from bu_fault_code_new where parent_code = t.flt_code), 0, 0, 1) as hasChildren
+        from bu_fault_code_new t
+        where t.FLT_CODE = #{code}
+    </select>
+
+</mapper>

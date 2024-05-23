@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.produce.cost.mapper.BuWorkOrderMaterialProduceMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.produce.cost.bean.BuWorkOrderMaterial">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="act_amount" property="actAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="use_category" property="useCategory"/>
+        <result column="is_verify" property="isVerify"/>
+        <result column="op_type" property="opType"/>
+        <result column="is_gen_order" property="isGenOrder"/>
+        <result column="plan_amount" property="planAmount"/>
+        <result column="need_dispatchin" property="needDispatchin"/>
+        <result column="system_id" property="systemId"/>
+        <result column="workstation_id" property="workstationId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, order_id, order_task_id, material_type_id, amount, act_amount, remark, use_category,
+        is_verify, op_type, is_gen_order, plan_amount, need_dispatchin, system_id, workstation_id
+    </sql>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.produce.cost.bean.BuWorkOrderMaterial">
+        select
+        t.*,
+        t6.line_id,
+        t6.line_name,
+        t2.train_no,
+        t2.order_code,
+        t2.order_name,
+        t2.group_id,
+        t3.group_name,
+        t4.depot_id,
+        t5.name as depotName,
+        NVL(t8.short_name,t8.name) as systemName,
+        t7.code as materialTypeCode,
+        t7.name as materialTypeName,
+        t7.price as materialTypePrice,
+        (select SUM(a.act_amount) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeAmount,
+        (select SUM(a.act_amount * a.price) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeTotalPrice,
+        t2.start_time as consumeTime
+        from bu_work_order_material t
+        left join bu_work_order_task t1 on t1.id = t.order_task_id
+        left join bu_work_order t2 on t2.id = t.order_id
+        left join bu_mtr_workshop_group t3 on t3.id = t2.group_id
+        left join bu_mtr_workshop t4 on t4.id = t3.workshop_id
+        left join bu_mtr_depot t5 on t5.id = t4.depot_id
+        left join bu_mtr_line t6 on t6.line_id = t2.line_id
+        left join bu_material_type t7 on t7.id = t.material_type_id
+        left join bu_train_asset_type t8 on t8.id = t.system_id
+        where t2.order_type not in (4, 5) and t2.order_status in (3, 4)
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t4.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t2.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            AND t2.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            AND t2.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.sysId != null and queryVO.sysId != ''">
+            AND t.system_id = #{queryVO.sysId}
+        </if>
+        <if test="queryVO.assetId != null and queryVO.assetId != ''">
+            AND t1.train_asset_id = #{queryVO.assetId}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            AND
+            (
+            t2.start_time &gt;= #{queryVO.startDate}
+            AND
+            t2.start_time &lt;= #{queryVO.endDate}
+            )
+        </if>
+        order by t2.order_code desc, t.op_type, t.use_category, t7.code, t2.start_time desc
+    </select>
+
+    <select id="selectSimpleListByCondition" resultType="org.jeecg.modules.produce.cost.bean.BuWorkOrderMaterial">
+        SELECT
+        t.id,
+        t.op_type,
+        t.use_category,
+        t.amount,
+        t.act_amount,
+        t4.price as materialTypePrice,
+        NVL(t5.short_name,t5.name) as systemName,
+        t2.train_no,
+        t4.code as materialTypeCode,
+        t4.name as materialTypeName,
+        t4.price as materialTypePrice,
+        (select SUM(a.act_amount) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeAmount,
+        (select SUM(a.act_amount * a.price) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeTotalPrice,
+        t2.start_time as consumeTime
+        FROM bu_work_order_material t
+        LEFT JOIN bu_work_order_task t1 ON t1.id = t.order_task_id
+        LEFT JOIN bu_work_order t2 ON t2.id = t.order_id
+        LEFT JOIN bu_mtr_workshop t3 ON t3.id = t2.workshop_id
+        LEFT JOIN bu_material_type t4 ON t4.id = t.material_type_id
+        left join bu_train_asset_type t5 on t5.id = t.system_id
+        where t2.order_type not in (4, 5) AND t2.order_status in (3, 4)
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t3.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t2.line_id = #{queryVO.lineId}
+        </if>
+        <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+            AND t2.train_no = #{queryVO.trainNo}
+        </if>
+        <if test="queryVO.groupId != null and queryVO.groupId != ''">
+            AND t2.group_id = #{queryVO.groupId}
+        </if>
+        <if test="queryVO.sysId != null and queryVO.sysId != ''">
+            AND t.system_id = #{queryVO.sysId}
+        </if>
+        <if test="queryVO.assetId != null and queryVO.assetId != ''">
+            AND t1.train_asset_id = #{queryVO.assetId}
+        </if>
+        <if test="queryVO.startDate != null and queryVO.endDate != null">
+            AND
+            (
+            t2.start_time &gt;= #{queryVO.startDate}
+            AND
+            t2.start_time &lt;= #{queryVO.endDate}
+            )
+        </if>
+        order by t.op_type, t.use_category, t4.code, t2.start_time desc
+    </select>
+
+    <select id="selectListForRptByOrderIdList" resultType="org.jeecg.modules.produce.cost.bean.BuWorkOrderMaterial">
+        SELECT t.*,
+        t2.train_no,
+        t2.line_id,
+        t2.workshop_id ,
+        t2.company_id,
+        t3.depot_id,
+        NVL(t7.short_name,t7.name) as systemName,
+        t5.id AS trainid,
+        t3.repair_program_id AS programId,
+        t6.code as materialTypeCode,
+        t6.name as materialTypeName,
+        t6.price as materialTypePrice,
+        (select SUM(a.act_amount) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeAmount,
+        (select SUM(a.act_amount * a.price) from bu_work_order_material_acts a
+        where a.order_material_id = t.id and a.act_amount > 0) as consumeTotalPrice,
+        t2.start_time as consumeTime
+        FROM bu_work_order_material t
+        LEFT JOIN bu_work_order_task t1 ON t1.id = t.order_task_id
+        LEFT JOIN bu_work_order t2 ON t2.id = t.order_id
+        LEFT JOIN bu_repair_plan t3 on t3.id = t2.plan_id
+        LEFT JOIN bu_mtr_workshop t4 ON t4.id = t2.workshop_id
+        LEFT JOIN bu_train_info t5 on t5.train_no = t2.train_no
+        LEFT JOIN bu_material_type t6 on t6.id = t.material_type_id
+        left join bu_train_asset_type t7 on t7.id = t.system_id
+        WHERE t2.order_type not in (4, 5)
+        AND t2.order_status in (3, 4)
+        AND t3.id is not NULL
+        AND t2.id
+        <choose>
+            <when test="orderIdList != null and orderIdList.size > 0">
+                in
+                <foreach collection="orderIdList" item="orderId" separator="," open="(" close=")">
+                    #{orderId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+        order by t.op_type, t.use_category, t6.code, t2.start_time desc
+    </select>
+
+    <select id="selectMaterialCostSumBOListByPlanId"
+            resultType="org.jeecg.modules.produce.cost.bean.bo.MaterialCostSumBO">
+        <if test="groupType == null or groupType == 1">
+            select
+            t1.material_type_id as materialTypeId,
+            t3.name as materialTypeName,
+            sum(t.act_amount * t.price) as totalCost
+            from bu_work_order_material_acts t
+            left join bu_work_order_material t1 on t1.id = t.order_material_id
+            left join bu_work_order t2 on t2.id = t1.order_id
+            left join bu_material_type t3 on t3.id = t1.material_type_id
+            WHERE t2.order_type not in (4, 5)
+            and t2.plan_id = #{planId}
+            group by t1.material_type_id, t3.name
+            order by SUM(t.act_amount * t.price) desc
+        </if>
+        <if test="groupType != null and groupType == 2">
+            select
+            t3.name as materialTypeName,
+            sum(t.act_amount * t.price) as totalCost
+            from bu_work_order_material_acts t
+            left join bu_work_order_material t1 on t1.id = t.order_material_id
+            left join bu_work_order t2 on t2.id = t1.order_id
+            left join bu_material_type t3 on t3.id = t1.material_type_id
+            WHERE t2.order_type not in (4, 5)
+            and t2.plan_id = #{planId}
+            group by t3.name
+            order by SUM(t.act_amount * t.price) desc
+        </if>
+        <if test="groupType != null and groupType == 3">
+            select
+            t1.use_category as useCategory,
+            sum(t.act_amount * t.price) as totalCost
+            from bu_work_order_material_acts t
+            left join bu_work_order_material t1 on t1.id = t.order_material_id
+            left join bu_work_order t2 on t2.id = t1.order_id
+            left join bu_material_type t3 on t3.id = t1.material_type_id
+            WHERE t2.order_type not in (4, 5)
+            and t2.plan_id = #{planId}
+            group by t1.use_category
+            order by SUM(t.act_amount * t.price) desc
+        </if>
+    </select>
+
+    <select id="selectActListOfSubmitOrderByPlanId"
+            resultType="org.jeecg.modules.produce.cost.bean.BuWorkOrderMaterialActs">
+        select t.*,
+               t1.material_type_id,
+               t1.use_category
+        from bu_work_order_material_acts t
+                 left join bu_work_order_material t1 on t1.id = t.order_material_id
+                 left join bu_work_order t2 on t2.id = t1.order_id
+        where t2.order_type not in (4, 5)
+          and t2.order_status in (3, 4)
+          and t2.plan_id = #{planId}
+    </select>
+
+    <select id="selectMaterialListByMaterialTypeIdList" resultType="org.jeecg.modules.produce.cost.bean.BuMaterialType">
+        select * from bu_material_type
+        where id
+        <choose>
+            <when test="materialTypeIdList != null and materialTypeIdList.size > 0">
+                in
+                <foreach collection="materialTypeIdList" item="materialTypeId" separator="," open="(" close=")">
+                    #{materialTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.group.safeassume.mapper.BuWorkSafeAssumeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssume">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="read_date" property="readDate"/>
+        <result column="content" property="content"/>
+        <result column="group_id" property="groupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_Collection -->
+    <resultMap id="ResultMap_BuWorkSafeAssume_Collection"
+               type="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssume">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="read_date" property="readDate"/>
+        <result column="content" property="content"/>
+        <result column="group_id" property="groupId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <collection property="readList" column="id"
+                    ofType="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssumeRead"
+                    select="selectReadListBySafeAssumeId"/>
+        <collection property="needReadUserList" column="group_id"
+                    ofType="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssumeRead"
+                    select="selectNeedReadUserListBySafeAssumeId"/>
+    </resultMap>
+    <!-- 根据预想id查询安全预想阅读记录列表 -->
+    <select id="selectReadListBySafeAssumeId" resultType="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssumeRead">
+        SELECT t.*,
+               t1.realname AS userName
+        FROM bu_work_safe_assume_read t
+                 LEFT JOIN sys_user t1 ON t1.id = t.user_id
+        WHERE t.safe_assume_id = #{id}
+    </select>
+    <!-- 根据预想id查询需要阅读人员列表 -->
+    <select id="selectNeedReadUserListBySafeAssumeId"
+            resultType="org.jeecg.modules.group.safeassume.bean.BuWorkSafeAssumeRead">
+        SELECT t.id       AS userId,
+               t.realname AS username
+        FROM sys_user t
+        WHERE t.id IN (select user_id from sys_user_depart where dep_id = #{group_id})
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, read_date, content, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 根据条件分页查询安全预想 -->
+    <select id="selectPageByCondition" resultMap="ResultMap_BuWorkSafeAssume_Collection">
+        SELECT
+        t.*,
+        t1.realname AS createUserName
+        FROM bu_work_safe_assume t
+        LEFT JOIN sys_user t1 ON t1.username = t.create_by
+        <where>
+            <if test="queryVO.title != null and queryVO.title != ''">
+                AND t.title LIKE '%'||#{queryVO.title}||'%'
+            </if>
+            <if test="queryVO.readDate != null">
+                AND t.read_date = #{queryVO.readDate}
+            </if>
+            <if test="queryVO.groupId != null and queryVO.groupId != ''">
+                AND t.group_id = #{queryVO.groupId}
+            </if>
+        </where>
+        ORDER BY t.read_date DESC
+    </select>
+
+    <!-- 根据根据id查询安全预想详情 -->
+    <select id="selectSafeAssumeById" resultMap="ResultMap_BuWorkSafeAssume_Collection">
+        SELECT t.*,
+               t1.realname AS createUserName
+        FROM bu_work_safe_assume t
+                 LEFT JOIN sys_user t1 ON t1.username = t.create_by
+        WHERE t.id = #{id}
+    </select>
+
+</mapper>

@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.regu.mapper.BuRepairReguDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        <id column="id" property="id"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="no" property="no"/>
+        <result column="title" property="title"/>
+        <result column="type" property="type"/>
+        <result column="safe_notice" property="safeNotice"/>
+        <result column="remark" property="remark"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="outsource" property="outsource"/>
+        <result column="important" property="important"/>
+        <result column="method" property="method"/>
+        <result column="quality_level" property="qualityLevel"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="requirement" property="requirement"/>
+        <result column="must_replace" property="mustReplace"/>
+        <result column="measure" property="measure"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="outsource2" property="outsource2"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="ResultMap_BuRepairReguDetail_WithRelation_Simple"
+               type="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        <id column="id" property="id"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="no" property="no"/>
+        <result column="title" property="title"/>
+        <result column="type" property="type"/>
+        <result column="safe_notice" property="safeNotice"/>
+        <result column="remark" property="remark"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="outsource" property="outsource"/>
+        <result column="important" property="important"/>
+        <result column="method" property="method"/>
+        <result column="quality_level" property="qualityLevel"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="work_time" property="workTime"/>
+        <result column="requirement" property="requirement"/>
+        <result column="must_replace" property="mustReplace"/>
+        <result column="measure" property="measure"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="outsource2" property="outsource2"/>
+        <collection property="reguTechFiles" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile"
+                    select="selectReguTechFile_Simple"/>
+        <collection property="reguMaterials" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial"
+                    select="selectReguMaterial_Simple"/>
+        <collection property="reguPersons" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson"
+                    select="selectReguPerson_Simple"/>
+        <collection property="reguTools" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools"
+                    select="selectReguTool_Simple"/>
+    </resultMap>
+    <select id="selectReguTechFile_Simple" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile">
+        select t.*
+        from bu_repair_regu_tech_file t
+        where t.regu_detail_id = #{id}
+    </select>
+    <select id="selectReguMaterial_Simple" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial">
+        SELECT t.*
+        FROM bu_repair_regu_material t
+        where t.regu_detail_id = #{id}
+    </select>
+    <select id="selectReguPerson_Simple" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson">
+        select t.*
+        from bu_repair_regu_person t
+        where t.regu_detail_id = #{id}
+    </select>
+    <select id="selectReguTool_Simple" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools">
+        SELECT t.*
+        FROM bu_repair_regu_tools t
+        where t.regu_detail_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, regu_id, no, title, type, safe_notice, remark, parent_id, outsource, important,
+        method, quality_level, asset_type_id, work_time, requirement, must_replace, measure,
+        create_time, create_by, update_time, update_by, outsource2
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.reguId, jdbcType=VARCHAR},
+            #{item.no, jdbcType=VARCHAR},
+            #{item.title, jdbcType=VARCHAR},
+            #{item.type, jdbcType=INTEGER},
+            #{item.safeNotice, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.parentId, jdbcType=VARCHAR},
+            #{item.outsource, jdbcType=INTEGER},
+            #{item.important, jdbcType=INTEGER},
+            #{item.method, jdbcType=VARCHAR},
+            #{item.qualityLevel, jdbcType=VARCHAR},
+            #{item.assetTypeId, jdbcType=VARCHAR},
+            #{item.workTime, jdbcType=FLOAT},
+            #{item.requirement, jdbcType=VARCHAR},
+            #{item.mustReplace, jdbcType=INTEGER},
+            #{item.measure, jdbcType=INTEGER},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.outsource2, jdbcType=INTEGER}
+        </trim>
+    </sql>
+
+    <resultMap id="ResultMap_BuRepairReguDetail_Collection"
+               type="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        <id property="id" column="id"/>
+        <result property="reguId" column="regu_id"/>
+        <result property="no" column="no"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="safeNotice" column="safe_notice"/>
+        <result property="remark" column="remark"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="outsource" column="outsource"/>
+        <result property="important" column="important"/>
+        <result property="method" column="method"/>
+        <result property="qualityLevel" column="quality_level"/>
+        <result property="assetTypeId" column="asset_type_id"/>
+        <result property="workTime" column="work_time"/>
+        <result property="requirement" column="requirement"/>
+        <result property="mustReplace" column="must_replace"/>
+        <result property="measure" column="measure"/>
+        <result property="createTime" column="creat_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="hasChildren" column="hasChildren"/>
+        <result property="parentName" column="parentName"/>
+        <result property="assetTypeName" column="assetTypeName"/>
+        <collection property="reguTechFiles" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile"
+                    select="selectReguTechFile"/>
+        <collection property="reguMaterials" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial"
+                    select="selectReguMaterial"/>
+        <collection property="reguPersons" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson"
+                    select="selectReguPerson"/>
+        <collection property="reguTools" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools"
+                    select="selectReguTool"/>
+        <collection property="techBookDetails" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechBookDetail"
+                    select="selectTechBookDetail"/>
+    </resultMap>
+    <select id="selectReguTechFile" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile">
+        select t.*,
+               t1.name,
+               t1.savepath,
+               t1.file_size as fileSize,
+               t1.type,
+               t1.create_time as uploadDate,
+               t1.remark
+        from bu_repair_regu_tech_file t
+                 left join bu_doc_file t1 on t1.id = t.file_id
+        where t.regu_detail_id = #{id}
+    </select>
+    <select id="selectReguMaterial" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial">
+        SELECT t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        FROM bu_repair_regu_material t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+        where t.regu_detail_id = #{id}
+    </select>
+    <select id="selectReguPerson" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson">
+        select *
+        from bu_repair_regu_person
+        where regu_detail_id = #{id}
+    </select>
+    <select id="selectReguTool" resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools">
+        SELECT t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        FROM bu_repair_regu_tools t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.tool_type_id
+        where t.regu_detail_id = #{id}
+    </select>
+   <!-- SELECT t.*,
+    t1.step_content as bootStepContent
+    FROM bu_repair_regu_techbook_detail t
+    left join bu_repair_tech_book_detail t1 on t1.id = t.book_detail_id
+    where t.regu_detail_id = #{id}
+    order by t.book_step_no-->
+    <select id="selectTechBookDetail"
+            resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechBookDetail">
+        SELECT t.*
+        FROM bu_repair_regu_techbook_detail t
+        where t.regu_detail_id = #{id}
+        order by t.book_step_no
+    </select>
+
+    <resultMap id="ResultMap_BuRepairReguDetail_SimpleTree"
+               type="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail"
+                    select="selectReguDetailSimpleTree"/>
+    </resultMap>
+    <select id="selectReguDetailSimpleTree" resultMap="ResultMap_BuRepairReguDetail_SimpleTree">
+        select id, parent_id
+        from bu_repair_regu_detail
+        where parent_id = #{id}
+    </select>
+
+<!--  VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach> -->
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_repair_regu_detail
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+                select
+            <include refid="insertValueItems"/>
+                from dual
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectListByRepairReguDetailQueryVO"
+            resultType="org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail">
+        <if test="queryVO.title == null or queryVO.title == ''">
+            select t.*,
+            decode((select count(1) from bu_repair_regu_detail where parent_id = t.id), 0, 0, 1) as hasChildren,
+            t2.title as parentName,
+            t1.name as assetTypeName
+            from bu_repair_regu_detail t
+            left join bu_train_asset_type t1 on t.asset_type_id = t1.id
+            left join bu_repair_regu_detail t2 on t2.id = t.parent_id
+            <where>
+                <if test="queryVO.reguId != null and queryVO.reguId != ''">
+                    and t.regu_id = #{queryVO.reguId}
+                </if>
+                <if test="queryVO.type != null">
+                    and t.type = #{queryVO.type}
+                </if>
+                    <if test="queryVO.parentId != null and queryVO.parentId != ''">
+                        and t.parent_id = #{queryVO.parentId}
+                    </if>
+                    <if test="queryVO.parentId == null or queryVO.parentId == ''">
+                        and (t.parent_id is null or t.parent_id = '')
+                    </if>
+            </where>
+            order by CAST(t.no AS int)
+        </if>
+        <if test="queryVO.title != null and queryVO.title != ''">
+            select t.*,
+            decode((select count(1) from bu_repair_regu_detail where parent_id = t.id), 0, 0, 1) as hasChildren,
+            t2.title as parentName,
+            t1.name as assetTypeName
+            from bu_repair_regu_detail t
+            left join bu_train_asset_type t1 on t.asset_type_id = t1.id
+            left join bu_repair_regu_detail t2 on t2.id = t.parent_id
+            <where>
+                <if test="queryVO.reguId != null and queryVO.reguId != ''">
+                    and t.regu_id = #{queryVO.reguId}
+                </if>
+                <if test="queryVO.type != null">
+                    and t.type = #{queryVO.type}
+                </if>
+                <if test="queryVO.title != null and queryVO.title != ''">
+                    and t.title like '%'||#{queryVO.title}||'%'
+                    <if test="queryVO.parentId != null and queryVO.parentId != ''">
+                        and t.parent_id = #{queryVO.parentId}
+                    </if>
+                </if>
+            </where>
+            order by CAST(t.no AS int)
+        </if>
+    </select>
+
+    <select id="selectReguDetailById" resultMap="ResultMap_BuRepairReguDetail_Collection">
+        SELECT t.*,
+               decode((select count(1) from bu_repair_regu_detail where parent_id = t.id), 0, 0, 1) as hasChildren,
+               Nvl2(t.parent_id, (select title from bu_repair_regu_detail where id = t.parent_id),'') as parentName,
+               t1.name                                                                                  as assetTypeName
+        FROM bu_repair_regu_detail t
+                 left join bu_train_asset_type t1 on t.asset_type_id = t1.id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectTreeByIdList" resultMap="ResultMap_BuRepairReguDetail_SimpleTree">
+        select id, parent_id
+        from bu_repair_regu_detail
+        <choose>
+            <when test="idList != null and idList.size > 0">
+                where id in
+                <foreach collection="idList" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </when>
+            <otherwise>
+                where id = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

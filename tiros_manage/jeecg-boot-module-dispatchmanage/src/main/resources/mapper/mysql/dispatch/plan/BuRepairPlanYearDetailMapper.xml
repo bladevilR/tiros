@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.plan.mapper.BuRepairPlanYearDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail">
+        <id column="id" property="id"/>
+        <result column="year_plan_id" property="yearPlanId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="amount" property="amount"/>
+        <result column="program_id" property="programId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, year_plan_id, line_id, train_index, amount, program_id, start_date, finish_date, status, remark
+    </sql>
+
+
+    <select id="selectListByPlanYearId" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail">
+        select t.*,
+               t1.line_name,
+               t2.name as programName
+        from bu_repair_plan_year_detail t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_repair_program t2 on t2.id = t.program_id
+        where t.year_plan_id = #{planYearId}
+        order by t.train_index
+    </select>
+
+    <select id="selectBuTpRepairPlanBOByTpRepairPlanId"
+            resultType="org.jeecg.modules.dispatch.plan.bean.bo.BuTpRepairPlanBO">
+        SELECT t.id                AS id,
+               t.tp_name           AS tpName,
+               t.line_id           AS lineId,
+               t.repair_program_id AS repairProgramId,
+               t.duration          AS duration,
+               t1.line_name        AS lineName,
+               t2.name             AS repairProgramName
+        FROM bu_tp_repair_plan t
+                 LEFT JOIN bu_mtr_line t1 ON t1.line_id = t.line_id
+                 LEFT JOIN bu_repair_program t2 ON t2.id = t.repair_program_id
+        WHERE t.id = #{tpRepairPlanId}
+    </select>
+
+    <select id="selectTpRepairPlanDayIndexAndGroupByTpRepairPlanId" resultType="java.util.Map">
+        select day_index     as dayIndex,
+               work_group_id as groupId
+        from bu_tp_repair_plan_task
+        where plan_id = #{tpRepairPlanId}
+    </select>
+
+    <select id="selectWorkshopAbilityByWorkshopId" resultType="java.lang.Integer">
+        select ability
+        from bu_mtr_workshop
+        where id = #{workshopId}
+    </select>
+
+    <select id="selectListByYearAndStatus" resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail">
+        select t.*,
+        t2.line_name AS lineName,
+        t3.name AS programName
+        from bu_repair_plan_year_detail t
+        left join bu_repair_plan_year t1 on t1.id = t.year_plan_id
+        left join bu_mtr_line t2 on t2.line_id = t.line_id
+        left join bu_repair_program t3 on t3.id = t.program_id
+        where t1.year = #{year}
+        <if test="status != null">
+            and t.status = #{status}
+        </if>
+        order by t.train_index
+    </select>
+
+    <select id="selectListByLineAndTrainIndexAndYear"
+            resultType="org.jeecg.modules.dispatch.plan.bean.BuRepairPlanYearDetail">
+        select t.*
+        from bu_repair_plan_year_detail t
+                 left join bu_repair_plan_year t1 on t1.id = t.year_plan_id
+        where t.line_id = #{lineId}
+          and t.train_index = #{trainIndex}
+          and t1.year = #{year}
+        order by t.train_index
+    </select>
+
+    <select id="selectAmountSumByYearAndProgramId" resultType="java.lang.Integer">
+        select SUM(IFNULL(t.amount,0))
+        from bu_repair_plan_year_detail t
+        left join bu_repair_plan_year t1 on t1.id = t.year_plan_id
+        where t1.year = #{year}
+        <if test="programId != null and programId != ''">
+            and t.program_id = #{programId}
+        </if>
+    </select>
+
+</mapper>

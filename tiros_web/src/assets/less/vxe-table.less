@@ -1,0 +1,55 @@
+@import "../../../public/color.less";
+.vxe-table .vxe-header--column:not(.col--ellipsis){
+  padding: 11px 0 !important;
+}
+.vxe-table .vxe-body--column:not(.col--ellipsis) {
+  padding: 0px !important;
+}
+
+.vxe-table.vxe-editable .vxe-body--column{
+  height: 40px !important;
+}
+.vxe-table .vxe-body--row .vxe-body--column {
+  height: 40px !important;
+  &.na-planinfo-cell{
+    height: initial !important;
+    .vxe-cell{
+      max-height: 500px;
+    }
+  }
+}
+
+.vxe-table--header,.vxe-table--body{
+  .col--checkbox{
+    /*width: 40px !important;*/
+  }
+
+  // .na-planinfo-header{
+  //   width: 10%;
+  // }
+}
+
+/*设置选择列的样式*/
+.vxe-table .col--radio .vxe-cell{
+/*  padding-left: 0px !important;
+  padding-right: 0px !important;*/
+  margin-left: 1px;
+}
+.vxe-table .col--checkbox .vxe-cell{
+/*  padding-left: 0px !important;
+  padding-right: 0px !important;*/
+  margin-left: 1px;
+}
+
+/* 固定列的选择框设置 */
+.vxe-table--fixed-left-wrapper .vxe-cell--checkbox {
+/*  margin-left: calc(50% - 8px) !important;*/
+}
+
+.vxe-table--fixed-left-wrapper .vxe-table--header-wrapper .vxe-cell--checkbox{
+  margin-left: 0px !important;
+}
+
+.vxe-table--fixed-left-wrapper .vxe-cell--radio {
+  margin-left: calc(50% - 8px) !important;
+}

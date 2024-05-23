@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.doc.mapper.BuDocPrivilegeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.doc.bean.BuDocPrivilege">
+        <id column="id" property="id" />
+        <result column="obj_type" property="objType" />
+        <result column="obj_id" property="objId" />
+        <result column="target_type" property="targetType" />
+        <result column="target_id" property="targetId" />
+        <result column="doc_privileges" property="docPrivileges" />
+        <result column="create_time" property="createTime" />
+        <result column="create_by" property="createBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_by" property="updateBy" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, obj_type, obj_id, target_type, target_id, doc_privileges, create_time, create_by, update_time, update_by
+    </sql>
+    <select id="selectByTargetId" resultType="org.jeecg.modules.basemanage.doc.bean.BuDocPrivilege">
+
+      select t.* ,
+       CASE t.target_type
+        WHEN 1 THEN
+            (select username from sys_user where id=t.target_id)
+        WHEN 2 THEN
+           ( select role_name from sys_role where id=t.target_id)
+        WHEN  3 THEN
+            (select depart_name from sys_depart where id=t.target_id)
+        ELSE
+            ''
+    END objName
+        from bu_doc_privilege t where t.obj_id=#{id}
+
+
+
+    </select>
+
+</mapper>

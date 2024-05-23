@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.trans.mapper.BuMaximoTransDataMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.trans.bean.BuMaximoTransData">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="obj_id" property="objId"/>
+        <result column="obj_json" property="objJson"/>
+        <result column="create_time" property="createTime"/>
+        <result column="trans_id" property="transId"/>
+        <result column="success_status" property="successStatus"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="message" property="message"/>
+        <result column="trans_time" property="transTime"/>
+        <result column="success_time" property="successTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, obj_id, obj_json, create_time, trans_id, success_status, handle_status,
+        message, trans_time, success_time
+    </sql>
+
+
+    <select id="selectUnTransList" resultType="org.jeecg.modules.third.trans.bean.BuMaximoTransData">
+        select t.*
+        from bu_maximo_trans_data t
+        where t.trans_id is null
+        order by t.create_time
+    </select>
+
+    <update id="updateTransId">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_maximo_trans_data
+                set trans_id = #{item.transId}
+                where
+                id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateStatusAndMessageAndTime">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" separator=";">
+                update bu_maximo_trans_data
+                set
+                success_status = #{item.successStatus},
+                handle_status = #{item.handleStatus},
+                message = #{item.message},
+                trans_time = #{item.transTime},
+                success_time = #{item.successTime}
+                where
+                id = #{item.id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateHandledByTransDataIdList">
+        update bu_maximo_trans_data
+        set handle_status = 1
+        where id
+        <choose>
+            <when test="transDataIdList != null and transDataIdList.size > 0">
+                in
+                <foreach collection="transDataIdList" item="transDataId" open="(" separator="," close=")">
+                    #{transDataId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </update>
+
+</mapper>

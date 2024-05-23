@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaximoTrainAssetThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaximoTrainAsset">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="parent_code" property="parentCode"/>
+        <result column="wbs" property="wbs"/>
+        <result column="location_code" property="locationCode"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="maximo_status" property="maximoStatus"/>
+        <result column="maximo_asset_type" property="maximoAssetType"/>
+        <result column="maximo_specialty" property="maximoSpecialty"/>
+        <result column="maximo_org_id" property="maximoOrgId"/>
+        <result column="maximo_site_id" property="maximoSiteId"/>
+        <result column="maximo_dept" property="maximoDept"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, parent_code, wbs, location_code, line_id, train_no, status, remark, maximo_status, maximo_asset_type,
+        maximo_specialty, maximo_org_id, maximo_site_id, maximo_dept, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.code},
+            #{item.name},
+            #{item.parentCode},
+            #{item.wbs},
+            #{item.locationCode},
+            #{item.lineId},
+            #{item.trainNo},
+            #{item.status},
+            #{item.remark},
+            #{item.maximoStatus},
+            #{item.maximoAssetType},
+            #{item.maximoSpecialty},
+            #{item.maximoOrgId},
+            #{item.maximoSiteId},
+            #{item.maximoDept},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_maximo_train_asset
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="selectListUsed" resultType="org.jeecg.modules.third.jdx.bean.BuMaximoTrainAsset">
+        select *
+        from bu_maximo_train_asset
+        where length(id) = 32
+          and id in (
+            (select fault_asset_id from bu_fault_info where fault_asset_id is not null)
+            UNION ALL
+            (select train_asset_id from bu_work_order_task where train_asset_id is not null)
+            UNION ALL
+            (select asset_id from bu_pl_check_record where asset_id is not null)
+            UNION ALL
+            (select train_asset_id from bu_pl_data_record where train_asset_id is not null)
+            UNION ALL
+            (select train_asset_id from bu_pl_work_record where train_asset_id is not null)
+        )
+    </select>
+
+    <select id="selectFaultIdAssetIdList" resultType="java.util.Map">
+        select id, fault_asset_id as assetId
+        from bu_fault_info
+        where fault_asset_id in (select id from bu_maximo_train_asset)
+    </select>
+
+    <select id="selectOrderTaskIdAssetIdList" resultType="java.util.Map">
+        select id, train_asset_id as assetId
+        from bu_work_order_task
+        where train_asset_id in (select id from bu_maximo_train_asset)
+    </select>
+
+    <select id="selectCheckInstIdAssetIdList" resultType="java.util.Map">
+        select id, asset_id as assetId
+        from bu_pl_check_record
+        where asset_id in (select id from bu_maximo_train_asset)
+    </select>
+
+    <select id="selectDataInstIdAssetIdList" resultType="java.util.Map">
+        select id, train_asset_id as assetId
+        from bu_pl_data_record
+        where train_asset_id in (select id from bu_maximo_train_asset)
+    </select>
+
+    <select id="selectWorkInstIdAssetIdList" resultType="java.util.Map">
+        select id, train_asset_id as assetId
+        from bu_pl_work_record
+        where train_asset_id in (select id from bu_maximo_train_asset)
+    </select>
+
+    <update id="updateFaultAssetIdBatch">
+        <foreach collection="idNewAssetIdMapList" item="idNewAssetIdMap" separator=";">
+            update bu_fault_info set fault_asset_id = #{idNewAssetIdMap.assetId}
+            where id = #{idNewAssetIdMap.id}
+        </foreach>
+    </update>
+
+    <update id="updateOrderTaskAssetIdBatch">
+        <foreach collection="idNewAssetIdMapList" item="idNewAssetIdMap" separator=";">
+            update bu_work_order_task set train_asset_id = #{idNewAssetIdMap.assetId}
+            where id = #{idNewAssetIdMap.id}
+        </foreach>
+    </update>
+
+    <update id="updateCheckInstAssetIdBatch">
+        <foreach collection="idNewAssetIdMapList" item="idNewAssetIdMap" separator=";">
+            update bu_pl_check_record set asset_id = #{idNewAssetIdMap.assetId}
+            where id = #{idNewAssetIdMap.id}
+        </foreach>
+    </update>
+
+    <update id="updateDataInstAssetIdBatch">
+        <foreach collection="idNewAssetIdMapList" item="idNewAssetIdMap" separator=";">
+            update bu_pl_data_record set train_asset_id = #{idNewAssetIdMap.assetId}
+            where id = #{idNewAssetIdMap.id}
+        </foreach>
+    </update>
+
+    <update id="updateWorkInstAssetIdBatch">
+        <foreach collection="idNewAssetIdMapList" item="idNewAssetIdMap" separator=";">
+            update bu_pl_work_record set train_asset_id = #{idNewAssetIdMap.assetId}
+            where id = #{idNewAssetIdMap.id}
+        </foreach>
+    </update>
+
+</mapper>

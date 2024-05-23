@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaximoFinanceItemThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaximoFinanceItem">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="fc_code" property="fcCode"/>
+        <result column="parent_fc_code" property="parentFcCode"/>
+        <result column="wbs" property="wbs"/>
+        <result column="project_code" property="projectCode"/>
+        <result column="task_level" property="taskLevel"/>
+        <result column="fc_status" property="fcStatus"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="line_id" property="lineId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="maximo_org_id" property="maximoOrgId"/>
+        <result column="maximo_site_id" property="maximoSiteId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, type, code, name, fc_code, parent_fc_code, wbs, project_code, task_level, fc_status, start_date, end_date,
+        line_id, status, remark, maximo_org_id, maximo_site_id, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.type, jdbcType=VARCHAR},
+            #{item.code, jdbcType=VARCHAR},
+            #{item.name, jdbcType=VARCHAR},
+            #{item.fcCode, jdbcType=VARCHAR},
+            #{item.parentFcCode, jdbcType=VARCHAR},
+            #{item.wbs, jdbcType=VARCHAR},
+            #{item.projectCode, jdbcType=VARCHAR},
+            #{item.taskLevel, jdbcType=NUMERIC},
+            #{item.fcStatus, jdbcType=VARCHAR},
+            #{item.startDate, jdbcType=TIMESTAMP},
+            #{item.endDate, jdbcType=TIMESTAMP},
+            #{item.lineId, jdbcType=VARCHAR},
+            #{item.status, jdbcType=NUMERIC},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.maximoOrgId, jdbcType=VARCHAR},
+            #{item.maximoSiteId, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_maximo_finance_item
+        (
+        <include refid="Base_Column_List"/>
+        )
+        <foreach collection="list" item="item" index="index" separator="union all">
+            (
+            select
+            <include refid="insertValueItems"/>
+            from dual
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateList" parameterType="list">
+        <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+            update bu_maximo_finance_item
+            <set>
+                type = #{item.type, jdbcType=VARCHAR},
+                code = #{item.code, jdbcType=VARCHAR},
+                name = #{item.name, jdbcType=VARCHAR},
+                parent_fc_code = #{item.parentFcCode, jdbcType=VARCHAR},
+                project_code = #{item.projectCode, jdbcType=VARCHAR},
+                task_level = #{item.taskLevel, jdbcType=NUMERIC},
+                fc_status = #{item.fcStatus, jdbcType=VARCHAR},
+                start_date = #{item.startDate, jdbcType=TIMESTAMP},
+                end_date = #{item.endDate, jdbcType=TIMESTAMP},
+                line_id = #{item.lineId, jdbcType=VARCHAR},
+                status = #{item.status, jdbcType=NUMERIC},
+                remark = #{item.remark, jdbcType=VARCHAR},
+                maximo_org_id = #{item.maximoOrgId, jdbcType=VARCHAR},
+                maximo_site_id = #{item.maximoSiteId, jdbcType=VARCHAR},
+                update_time = #{item.updateTime, jdbcType=TIMESTAMP},
+                update_by = #{item.updateBy, jdbcType=VARCHAR}
+            </set>
+            where id = #{item.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectListUsed" resultType="org.jeecg.modules.third.jdx.bean.BuMaximoFinanceItem">
+        select *
+        from bu_maximo_finance_item
+        where length(id) = 32
+          and id in (
+                (select fd_project from bu_tp_repair_plan where fd_project is not null)
+                UNION ALL
+                (select fd_project from bu_repair_plan where fd_project is not null)
+                UNION ALL
+                (select fd_project from bu_work_order where fd_project is not null)
+                UNION ALL
+                (select fd_project from bu_train_history_work where fd_project is not null)
+                UNION ALL
+                (select fd_task from bu_tp_repair_plan where fd_task is not null)
+                UNION ALL
+                (select fd_task from bu_repair_plan where fd_task is not null)
+                UNION ALL
+                (select fd_task from bu_work_order where fd_task is not null)
+                UNION ALL
+                (select fd_task from bu_train_history_work where fd_task is not null)
+        )
+    </select>
+
+    <select id="selectTpPlanIdProjectIdList" resultType="java.util.Map">
+        select id, fd_project as "fdProject", fd_task as "fdTask"
+        from bu_tp_repair_plan
+        where fd_project in (select id from bu_maximo_finance_item)
+           or fd_task in (select id from bu_maximo_finance_item)
+    </select>
+
+    <select id="selectPlanIdProjectIdList" resultType="java.util.Map">
+        select id, fd_project as "fdProject", fd_task as "fdTask"
+        from bu_repair_plan
+        where fd_project in (select id from bu_maximo_finance_item)
+           or fd_task in (select id from bu_maximo_finance_item)
+    </select>
+
+    <select id="selectOrderIdProjectIdList" resultType="java.util.Map">
+        select id, fd_project as "fdProject", fd_task as "fdTask"
+        from bu_work_order
+        where fd_project in (select id from bu_maximo_finance_item)
+           or fd_task in (select id from bu_maximo_finance_item)
+    </select>
+
+    <select id="selectHistoryOrderIdProjectIdList" resultType="java.util.Map">
+        select id, fd_project as "fdProject", fd_task as "fdTask"
+        from bu_train_history_work
+        where fd_project in (select id from bu_maximo_finance_item)
+           or fd_task in (select id from bu_maximo_finance_item)
+    </select>
+
+    <update id="updateTpPlanProjectIdBatch">
+        <foreach collection="idNewProjectIdMapList" item="idNewProjectIdMap" open="begin" close=";end;" separator=";">
+            update bu_tp_repair_plan set
+            fd_project = #{idNewProjectIdMap.fdProject, jdbcType=VARCHAR},
+            fd_task = #{idNewProjectIdMap.fdTask, jdbcType=VARCHAR}
+            where id = #{idNewProjectIdMap.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updatePlanProjectIdBatch">
+        <foreach collection="idNewProjectIdMapList" item="idNewProjectIdMap" open="begin" close=";end;" separator=";">
+            update bu_repair_plan set
+            fd_project = #{idNewProjectIdMap.fdProject, jdbcType=VARCHAR},
+            fd_task = #{idNewProjectIdMap.fdTask, jdbcType=VARCHAR}
+            where id = #{idNewProjectIdMap.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateOrderProjectIdBatch">
+        <foreach collection="idNewProjectIdMapList" item="idNewProjectIdMap" open="begin" close=";end;" separator=";">
+            update bu_work_order set
+            fd_project = #{idNewProjectIdMap.fdProject, jdbcType=VARCHAR},
+            fd_task = #{idNewProjectIdMap.fdTask, jdbcType=VARCHAR}
+            where id = #{idNewProjectIdMap.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateHistoryOrderProjectIdBatch">
+        <foreach collection="idNewProjectIdMapList" item="idNewProjectIdMap" open="begin" close=";end;" separator=";">
+            update bu_train_history_work set
+            fd_project = #{idNewProjectIdMap.fdProject, jdbcType=VARCHAR},
+            fd_task = #{idNewProjectIdMap.fdTask, jdbcType=VARCHAR}
+            where id = #{idNewProjectIdMap.id, jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <select id="selectIdList" resultType="java.lang.String">
+        select id
+        from bu_maximo_finance_item
+    </select>
+
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.progress.mapper.BuRepairPlanYearBoardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.progress.bean.BuRepairPlanYear">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="year" property="year"/>
+        <result column="first_time" property="firstTime"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="middle_amount" property="middleAmount"/>
+        <result column="hight_amount" property="hightAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询映射结果_子查询年计划详情 -->
+    <resultMap id="ResultMap_BuRepairPlanYear_WithDetail"
+               type="org.jeecg.modules.board.progress.bean.BuRepairPlanYear">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="year" property="year"/>
+        <result column="first_time" property="firstTime"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="middle_amount" property="middleAmount"/>
+        <result column="hight_amount" property="hightAmount"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="line_id" property="lineId"/>
+        <collection property="detailList" column="id"
+                    ofType="org.jeecg.modules.board.progress.bean.BuRepairPlanYearDetail"
+                    select="selectPlanYearDetailList"/>
+    </resultMap>
+    <select id="selectPlanYearDetailList"
+            resultType="org.jeecg.modules.board.progress.bean.BuRepairPlanYearDetail">
+        SELECT t1.*,
+               t2.line_name AS lineName,
+               t3.name      AS programName
+        FROM bu_repair_plan_year_detail t1
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t1.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t1.program_id
+        WHERE t1.year_plan_id = #{id}
+        ORDER BY t1.train_index
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, year, first_time, depot_id, remark, status, middle_amount, hight_amount,
+        middle_plan_template, hight_plan_template, create_time, create_by, update_time, update_by,
+        workshop_id, company_id, line_id
+    </sql>
+
+    <select id="selectRepairPlanYearDetailListByYearCondition"
+            resultType="org.jeecg.modules.board.progress.bean.BuRepairPlanYearDetail">
+        SELECT
+        t.*,
+        t1.depot_id AS depotId,
+        t2.name AS depotName,
+        t3.line_name AS lineName,
+        t4.name AS programName
+        FROM bu_repair_plan_year_detail t
+        LEFT JOIN bu_repair_plan_year t1 ON t1.id = t.year_plan_id
+        LEFT JOIN bu_mtr_depot t2 ON t2.id = t1.depot_id
+        LEFT JOIN bu_mtr_line t3 ON t3.line_id = t.line_id
+        LEFT JOIN bu_repair_program t4 ON t4.id = t.program_id
+        WHERE t1.year = #{year}
+        <if test="queryVO.depotId != null and queryVO.depotId != ''">
+            AND t1.depot_id = #{queryVO.depotId}
+        </if>
+        <if test="queryVO.lineId != null and queryVO.lineId != ''">
+            AND t.line_id = #{queryVO.lineId}
+        </if>
+        ORDER BY t.train_index
+    </select>
+
+</mapper>

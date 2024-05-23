@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormWorkRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="train_asset_id_up" property="trainAssetIdUp"/>
+        <result column="manuf_no_up" property="manufNoUp"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="status" property="status"/>
+        <result column="work_date" property="workDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="title" property="title"/>
+        <result column="work_record_type" property="workRecordType"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuPlanFormWorkRecord_WithDetail"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="train_asset_id_up" property="trainAssetIdUp"/>
+        <result column="manuf_no_up" property="manufNoUp"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="status" property="status"/>
+        <result column="work_date" property="workDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="title" property="title"/>
+        <result column="work_record_type" property="workRecordType"/>
+        <result column="recordIds" property="recordIds"/>
+        <collection property="detailList" column="{id=id,recordIds=recordIds}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordDetail"
+                    select="selectWorkRecordDetailList"/>
+    </resultMap>
+    <select id="selectWorkRecordDetailList" parameterType="map"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordDetail">
+        select t.*,
+        NVL(t1.category_id, '') as categoryId,
+        t2.rec_index,
+        t2.regu_title,
+        t1.item_no,
+        t1.check_level,
+        t1.tech_require,
+        t1.work_content
+        from bu_pl_work_record_detail t
+        left join bu_work_record_detail t1 on t1.id = t.work_rec_detail_id
+        left join bu_work_record_category t2 on t2.id = t1.category_id
+        where t.work_record_id = #{id}
+        <if test="recordIds!=null and recordIds!=''">
+            and instr(#{recordIds},t.work_rec_detail_id)>0
+        </if>
+        order by t2.rec_index, t1.item_no
+    </select>
+
+    <resultMap id="ResultMap_BuPlanFormWorkRecord_WithDetailCheck"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecord">
+        <id column="id" property="id"/>
+        <result column="plan_id" property="planId"/>
+        <result column="plan_form_id" property="planFormId"/>
+        <result column="form_obj_id" property="formObjId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="struct_detail_id" property="structDetailId"/>
+        <result column="train_asset_id" property="trainAssetId"/>
+        <result column="manuf_no" property="manufNo"/>
+        <result column="train_asset_id_up" property="trainAssetIdUp"/>
+        <result column="manuf_no_up" property="manufNoUp"/>
+        <result column="form_index" property="formIndex"/>
+        <result column="status" property="status"/>
+        <result column="work_date" property="workDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="work_group_id" property="workGroupId"/>
+        <result column="remark" property="remark"/>
+        <result column="check_result" property="checkResult"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="check_user_id" property="checkUserId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="title" property="title"/>
+        <result column="work_record_type" property="workRecordType"/>
+        <result column="recordIds" property="recordIds"/>
+        <collection property="detailList" column="{id=id,recordIds=recordIds}"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordDetail"
+                    select="selectWorkRecordDetailListWithCheck"/>
+    </resultMap>
+    <select id="selectWorkRecordDetailListWithCheck" parameterType="map"
+            resultMap="ResultMap_BuPlanFormWorkRecordDetail_WithCheck">
+        select t.*,
+        NVL(t1.category_id, '') as categoryId,
+        t2.rec_index,
+        t2.regu_title,
+        t1.item_no,
+        t1.check_level,
+        t1.tech_require,
+        t1.work_content
+        from bu_pl_work_record_detail t
+        left join bu_work_record_detail t1 on t1.id = t.work_rec_detail_id
+        left join bu_work_record_category t2 on t2.id = t1.category_id
+        where t.work_record_id = #{id}
+        <if test="recordIds!=null and recordIds!=''">
+            and instr(#{recordIds},t.work_rec_detail_id)>0
+        </if>
+        order by t2.rec_index, t1.item_no
+    </select>
+    <resultMap id="ResultMap_BuPlanFormWorkRecordDetail_WithCheck"
+               type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordDetail">
+        <id column="id" property="id"/>
+        <result column="work_record_id" property="workRecordId"/>
+        <result column="work_rec_detail_id" property="workRecDetailId"/>
+        <result column="regu_detail_id" property="reguDetailId"/>
+        <result column="work_info" property="workInfo"/>
+        <result column="result" property="result"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <collection property="checksList" column="id"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordChecks"
+                    select="selectWorkRecordChecksList"/>
+    </resultMap>
+    <select id="selectWorkRecordChecksList"
+            resultType="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordChecks">
+        select t.*,
+               t1.realname as checkUserName
+        from bu_pl_work_record_result t
+                 left join sys_user t1 on t1.id = t.check_user_id
+        where t.record_detail_id = #{id}
+        order by t.check_time
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, plan_id, plan_form_id, form_obj_id, train_no, asset_type_id, struct_detail_id, train_asset_id,
+        manuf_no, train_asset_id_up, manuf_no_up, form_index, status, work_date, finish_date, work_group_id,
+        remark, check_result, check_date, check_user_id, create_time, create_by, update_time, update_by,
+        title, work_record_type
+    </sql>
+
+
+    <update id="updateStructAndTitleById">
+        update bu_pl_work_record
+        set struct_detail_id = #{structDetailId, jdbcType=VARCHAR},
+            title            = #{title, jdbcType=VARCHAR}
+        where id = #{id, jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateFinishDateByIdList">
+        update bu_pl_work_record
+        set finish_date = #{finishDate, jdbcType=TIMESTAMP}
+        where id in
+        <foreach collection="idList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectWorkRecordWithDetailByTask2InstId" resultMap="ResultMap_BuPlanFormWorkRecord_WithDetail">
+        <choose>
+            <when test="allItems != null and allItems">
+                select t8.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_work_record t8 on t8.id = t.form_inst_id
+                left join bu_work_record t1 on t1.id = t8.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t8.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t8.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t8.train_asset_id
+                left join bu_train_asset t5 on t5.id = t8.train_asset_id_up
+                left join sys_user t6 on t6.id = t8.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t8.work_group_id
+                where t.id = #{task2InstId}
+            </when>
+            <otherwise>
+                select t8.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                t.record_ids as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_work_record t8 on t8.id = t.form_inst_id
+                left join bu_work_record t1 on t1.id = t8.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t8.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t8.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t8.train_asset_id
+                left join bu_train_asset t5 on t5.id = t8.train_asset_id_up
+                left join sys_user t6 on t6.id = t8.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t8.work_group_id
+                where t.id = #{task2InstId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWorkRecordWithDetailCheckByTask2InstId"
+            resultMap="ResultMap_BuPlanFormWorkRecord_WithDetailCheck">
+        <choose>
+            <when test="allItems != null and allItems">
+                select t8.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_work_record t8 on t8.id=t.form_inst_id
+                left join bu_work_record t1 on t1.id = t8.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t8.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t8.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t8.train_asset_id
+                left join bu_train_asset t5 on t5.id = t8.train_asset_id_up
+                left join sys_user t6 on t6.id = t8.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t8.work_group_id
+                where t.id = #{task2InstId}
+            </when>
+            <otherwise>
+                select t8.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                t.record_ids as recordIds
+                from bu_work_order_task_form_inst t
+                left join bu_pl_work_record t8 on t8.id=t.form_inst_id
+                left join bu_work_record t1 on t1.id = t8.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t8.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t8.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t8.train_asset_id
+                left join bu_train_asset t5 on t5.id = t8.train_asset_id_up
+                left join sys_user t6 on t6.id = t8.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t8.work_group_id
+                where t.id = #{task2InstId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWorkRecordWithDetailByInstId" resultMap="ResultMap_BuPlanFormWorkRecord_WithDetail">
+        <choose>
+            <when test="allItems != null and allItems">
+                select t.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t.train_asset_id
+                left join bu_train_asset t5 on t5.id = t.train_asset_id_up
+                left join sys_user t6 on t6.id = t.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t.work_group_id
+                where t.id = #{instId}
+            </when>
+            <otherwise>
+                select t.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t.train_asset_id
+                left join bu_train_asset t5 on t5.id = t.train_asset_id_up
+                left join sys_user t6 on t6.id = t.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t.work_group_id
+                where t.id = #{instId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectWorkRecordWithDetailCheckByInstId" resultMap="ResultMap_BuPlanFormWorkRecord_WithDetailCheck">
+        <choose>
+            <when test="allItems != null and allItems">
+                select t.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t.train_asset_id
+                left join bu_train_asset t5 on t5.id = t.train_asset_id_up
+                left join sys_user t6 on t6.id = t.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t.work_group_id
+                where t.id = #{instId}
+            </when>
+            <otherwise>
+                select t.*,
+                t1.updown,
+                t1.title as workRecName,
+                t2.name as assetTypeName,
+                t3.name as structDetailName,
+                t4.asset_name as trainAssetName,
+                t5.asset_name as trainAssetNameUp,
+                t6.realname as checkUserName,
+                t7.group_name as workGroupName,
+                null as recordIds
+                from bu_pl_work_record t
+                left join bu_work_record t1 on t1.id = t.form_obj_id
+                left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+                left join bu_train_structure_detail t3 on t3.id = t.struct_detail_id
+                left join bu_train_asset t4 on t4.id = t.train_asset_id
+                left join bu_train_asset t5 on t5.id = t.train_asset_id_up
+                left join sys_user t6 on t6.id = t.check_user_id
+                left join bu_mtr_workshop_group t7 on t7.id = t.work_group_id
+                where t.id = #{instId}
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectListByOrderId" resultType="org.jeecg.modules.dispatch.workorder.bean.BuWorkOrderTaskFormInst">
+        select temp.id,
+               temp.inst_type,
+               temp.form_inst_id,
+               temp.plan_id,
+               temp.work_order_id,
+               temp.work_order_task_id,
+               temp.record_ids,
+               temp.remark,
+               t5.task_name,
+               temp.planFormId,
+               temp.fromBy,
+               temp.formObjId,
+               temp.code     as formCode,
+               temp.name     as formName,
+               temp.assetTypeId,
+               t2.name       as assetTypeName,
+               temp.structDetailId,
+               t3.name       as structDetailName,
+               t3.wbs        as structDetailWbs,
+               temp.trainAssetId,
+               t4.asset_name as trainAssetName,
+               temp.status,
+               temp.checkResult,
+               temp.checkDate,
+               temp.checkUserId,
+               t6.realname   as checkUserName,
+               temp.workRecordType
+        from (
+                 select t.*,
+                        a.plan_form_id                as planFormId,
+                        case a.work_record_type
+                            when 1 then a2.code
+                            when 2 then a3.code
+                            else '' end               as code,
+                        NVL(a.title, case a.work_record_type
+                                         when 1 then a2.title
+                                         when 2 then a3.name
+                                         else '' end) as name,
+                        a1.from_by                    as fromBy,
+                        a1.form_type                  as formType,
+                        a.form_obj_id                 as formObjId,
+                        a.train_no                    as trainNo,
+                        a.asset_type_id               as assetTypeId,
+                        a.struct_detail_id            as structDetailId,
+                        a.train_asset_id              as trainAssetId,
+                        a.status,
+                        a.check_result                as checkResult,
+                        a.check_date                  as checkDate,
+                        a.check_user_id               as checkUserId,
+                        a.work_record_type            as workRecordType
+                 from bu_work_order_task_form_inst t
+                          left join bu_pl_work_record a on a.id = t.form_inst_id
+                          left join bu_repair_plan_forms a1 on a1.id = a.plan_form_id
+                          left join bu_work_record a2 on a2.id = a.form_obj_id
+                          left join bu_base_form_template a3 on a3.id = a.form_obj_id
+                 where t.work_order_task_id in (select id from bu_work_order_task where order_id = #{orderId})
+                   and t.inst_type = 3
+             ) temp
+                 left join bu_train_asset_type t2 on t2.id = temp.assetTypeId
+                 left join bu_train_asset t4 on t4.id = temp.trainAssetId
+                 left join bu_train_structure_detail t3 on t3.id = t4.struct_detail_id
+                 left join bu_work_order_task t5 on t5.id = temp.work_order_task_id
+                 left join sys_user t6 on t6.id = temp.checkUserId
+        order by temp.inst_type desc, temp.code
+    </select>
+
+    <select id="selectFormTemplateDataJsonByFormTemplateId" resultType="string">
+        select datajson
+        from bu_base_form_template
+        where id = #{formTemplateId}
+    </select>
+
+</mapper>

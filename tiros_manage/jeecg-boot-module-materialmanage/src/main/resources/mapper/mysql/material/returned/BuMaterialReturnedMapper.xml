@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.returned.mapper.BuMaterialReturnedMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.returned.bean.BuMaterialReturned">
+        <id column="id" property="id"/>
+        <result column="bill_code" property="billCode"/>
+        <result column="bill_name" property="billName"/>
+        <result column="bill_date" property="billDate"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="handle_user_id" property="handleUserId"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="sync_time" property="syncTime"/>
+        <result column="sync_result" property="syncResult"/>
+        <result column="sync_result_time" property="syncResultTime"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, bill_code, bill_name, bill_date, work_order_id, group_id, handle_user_id,
+        status, remark, create_time, create_by, update_time, update_by, sync_time, sync_result, sync_result_time,
+        company_id, workshop_id, line_id
+    </sql>
+
+    <select id="selectPageByQueryVO" resultType="org.jeecg.modules.material.returned.bean.BuMaterialReturned">
+        select t.*,
+        t1.order_code as workOrderCode,
+        t1.order_name as workOrderName,
+        t2.depart_name as groupName,
+        t3.realname as handleUserName
+        from bu_material_returned t
+        left join bu_work_order t1 on t1.id = t.work_order_id
+        left join sys_depart t2 on t2.id = t.group_id
+        left join sys_user t3 on t3.id = t.handle_user_id
+        <where>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                and
+                (
+                t.bill_code like concat('%',#{queryVO.searchText},'%')
+                or
+                t.bill_name like concat('%',#{queryVO.searchText},'%')
+                )
+            </if>
+            <if test="queryVO.startDate != null">
+                and t.bill_date &gt;= #{queryVO.startDate}
+            </if>
+            <if test="queryVO.endDate != null">
+                and t.bill_date &lt;= #{queryVO.endDate}
+            </if>
+            <if test="queryVO.planId!=null and queryVO.planId!=''">
+                and t1.plan_id=#{queryVO.planId}
+            </if>
+        </where>
+        order by t.bill_code desc
+    </select>
+
+    <select id="selectReturnedById" resultType="org.jeecg.modules.material.returned.bean.BuMaterialReturned">
+        select t.*,
+               t1.order_code  as workOrderCode,
+               t1.order_name  as workOrderName,
+               t2.depart_name as groupName,
+               t3.realname    as handleUserName
+        from bu_material_returned t
+                 left join bu_work_order t1 on t1.id = t.work_order_id
+                 left join sys_depart t2 on t2.id = t.group_id
+                 left join sys_user t3 on t3.id = t.handle_user_id
+        where t.id = #{id}
+    </select>
+
+    <select id="selectGroupIdByWorkOrder" resultType="java.lang.String">
+        select group_id
+        from bu_work_order
+        where id = #{workOrderId}
+    </select>
+
+</mapper>

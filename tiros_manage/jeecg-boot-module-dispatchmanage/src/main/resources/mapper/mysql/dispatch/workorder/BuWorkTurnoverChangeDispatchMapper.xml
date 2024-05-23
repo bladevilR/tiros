@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.workorder.mapper.BuWorkTurnoverChangeDispatchMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.workorder.bean.BuWorkTurnoverChange">
+        <id column="id" property="id"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="down_turnover_id" property="downTurnoverId"/>
+        <result column="up_turnover_id" property="upTurnoverId"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="change_type" property="changeType"/>
+        <result column="phase" property="phase"/>
+        <result column="reason" property="reason"/>
+        <result column="reason_desc" property="reasonDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, line_id, train_no, order_id, down_turnover_id, up_turnover_id, group_id, user_id,
+        change_type, phase, reason, reason_desc, create_time, create_by, update_time, update_by
+    </sql>
+
+    <update id="updateMustReplacePlan">
+        update bu_repair_task_must_replace
+        set change_id = #{uuid},
+            changed=1
+        where id = #{mustReplaceId}
+    </update>
+
+    <select id="selectTrainNo" resultType="java.lang.String">
+        select train_no
+        from bu_train_info
+        where id = #{trainId}
+    </select>
+
+</mapper>

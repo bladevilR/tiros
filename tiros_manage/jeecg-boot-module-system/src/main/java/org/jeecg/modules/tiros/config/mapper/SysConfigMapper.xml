@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.tiros.config.mapper.SysConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.common.tiros.config.bean.SysConfig">
+        <id column="config_code" property="configCode"/>
+        <result column="config_value" property="configValue"/>
+        <result column="config_name" property="configName"/>
+        <result column="config_remark" property="configRemark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        config_code, config_value, config_name, config_remark
+    </sql>
+
+    <select id="selectPageBySearchText" resultType="org.jeecg.common.tiros.config.bean.SysConfig">
+        select *
+        from sys_config
+        <if test="searchText != null and searchText != ''">
+            where
+            (
+            config_code like CONCAT('%',#{searchText},'%')
+            or
+            config_name like CONCAT('%',#{searchText},'%')
+            )
+        </if>
+        order by config_code
+    </select>
+
+</mapper>

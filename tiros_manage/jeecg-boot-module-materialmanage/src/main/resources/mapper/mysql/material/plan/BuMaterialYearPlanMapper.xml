@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.material.plan.mapper.BuMaterialYearPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.material.plan.bean.BuMaterialYearPlan">
+        <id column="id" property="id"/>
+        <result column="sb_year" property="sbYear"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="sb_type" property="sbType"/>
+        <result column="sb_amount" property="sbAmount"/>
+        <result column="sb_user_id" property="sbUserId"/>
+        <result column="sb_dept_id" property="sbDeptId"/>
+        <result column="sb_date" property="sbDate"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, sb_year, line_id, repair_program_id, material_type_id, sb_type, sb_amount, sb_user_id, sb_dept_id, sb_date,
+        create_time, create_by, update_time, update_by, company_id, workshop_id
+    </sql>
+
+
+    <select id="materialYearPlanPage" resultType="org.jeecg.modules.material.plan.bean.BuMaterialYearPlan">
+        <!-- <choose>
+             <when test="queryVO.summary">
+                 select any_value(t.sb_year) as sb_year,
+                 any_value(t.sb_date) as sb_date,
+                 sum(t.sb_amount) as sb_amount,
+                 any_value(t.id) as id,
+                 any_value(t.sb_type) as sb_type,
+                 any_value(t2.line_name) as lineName,
+                 any_value(t1.name) as name,
+                 any_value(t1.code) as code,
+                 any_value(t1.spec) as spec,
+                 any_value(t1.category2) as materialTypeCategory,
+                 any_value(t1.unit) as unit,
+                 any_value(t3.name )as repairProgramName,
+                 any_value(t4.realname) as sbUserName,
+                 any_value(t5.depart_name)as sbDeptName
+                 from bu_material_year_plan t
+                 left join bu_material_type t1 on t1.id=t.material_type_id
+                 left join bu_mtr_line t2 on t2.line_id=t.line_id
+                 left join bu_repair_program t3 on t3.id=t.repair_program_id
+                 left join sys_user t4 on t4.id=t.sb_user_id
+                 left join sys_depart t5 on t5.id=t.sb_dept_id
+                 <where>
+                     <if test="queryVO.searchText!=null and queryVO.searchText!=''">
+                         ( t1.name like concat('%',#{queryVO.searchText},'%')
+                         or t1.code like concat('%',#{queryVO.searchText},'%'))
+                     </if>
+                     <if test="queryVO.sbYear!=null">
+                         and t.sb_year=#{queryVO.sbYear}
+                     </if>
+                     <if test="queryVO.lineId!=null and queryVO.lineId!=''">
+                         and t.line_id=#{queryVO.lineId}
+                     </if>
+                     <if test="queryVO.repairProgramId!=null and queryVO.repairProgramId!=''">
+                         and t.repair_program_id=#{queryVO.repairProgramId}
+                     </if>
+                     <if test="queryVO.sbUserId!=null and queryVO.sbUserId!=''">
+                         and t.sb_user_id=#{queryVO.sbUserId}
+                     </if>
+                     <if test="queryVO.sbDeptId!=null and queryVO.sbDeptId!=''">
+                         and t.sb_dept_id=#{queryVO.sbDeptId}
+                     </if>
+                 </where>
+                 group by t.material_type_id
+             </when>
+             <otherwise>-->
+        select t.* ,t2.line_name as lineName,t1.name,t1.code,t1.spec,t1.category2 as materialTypeCategory,
+        t1.unit,t3.name as repairProgramName,t4.realname as sbUserName,t5.depart_name as sbDeptName
+        from bu_material_year_plan t
+        left join bu_material_type t1 on t1.id=t.material_type_id
+        left join bu_mtr_line t2 on t2.line_id=t.line_id
+        left join bu_repair_program t3 on t3.id=t.repair_program_id
+        left join sys_user t4 on t4.id=t.sb_user_id
+        left join sys_depart t5 on t5.id=t.sb_dept_id
+        <where>
+            <if test="queryVO.searchText!=null and queryVO.searchText!=''">
+                ( t1.name like concat('%',#{queryVO.searchText},'%')
+                or t1.code like concat('%',#{queryVO.searchText},'%'))
+            </if>
+            <if test="queryVO.sbYear!=null">
+                and t.sb_year=#{queryVO.sbYear}
+            </if>
+            <if test="queryVO.lineId!=null and queryVO.lineId!=''">
+                and t.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProgramId!=null and queryVO.repairProgramId!=''">
+                and t.repair_program_id=#{queryVO.repairProgramId}
+            </if>
+            <if test="queryVO.sbUserId!=null and queryVO.sbUserId!=''">
+                and t.sb_user_id=#{queryVO.sbUserId}
+            </if>
+            <if test="queryVO.sbDeptId!=null and queryVO.sbDeptId!=''">
+                and t.sb_dept_id=#{queryVO.sbDeptId}
+            </if>
+        </where>
+        order by t.sb_year Desc
+        <!--    </otherwise>
+        </choose>-->
+
+    </select>
+    <select id="selectBYQueryVO" resultType="org.jeecg.modules.material.plan.bean.BuMaterialYearPlan">
+        select t.* ,t2.line_name as lineName,t1.name,t1.code,t1.spec,t1.category2 as materialTypeCategory,
+        t1.unit,t3.name as repairProgramName,t4.realname as sbUserName,t5.depart_name as sbDeptName
+        from bu_material_year_plan t
+        left join bu_material_type t1 on t1.id=t.material_type_id
+        left join bu_mtr_line t2 on t2.line_id=t.line_id
+        left join bu_repair_program t3 on t3.id=t.repair_program_id
+        left join sys_user t4 on t4.id=t.sb_user_id
+        left join sys_depart t5 on t5.id=t.sb_dept_id
+        <where>
+            <if test="queryVO.id!=null and queryVO.id!=''">
+                and t.id=#{queryVO.id}
+            </if>
+            <if test="queryVO.searchText!=null and queryVO.searchText!=''">
+                ( t1.name like concat('%',#{queryVO.searchText},'%')
+                or t1.code like concat('%',#{queryVO.searchText},'%'))
+            </if>
+            <if test="queryVO.sbYear!=null">
+                and t.sb_year=#{queryVO.sbYear}
+            </if>
+            <if test="queryVO.lineId!=null and queryVO.lineId!=''">
+                and t.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProgramId!=null and queryVO.repairProgramId!=''">
+                and t.repair_program_id=#{queryVO.repairProgramId}
+            </if>
+            <if test="queryVO.sbUserId!=null and queryVO.sbUserId!=''">
+                and t.sb_user_id=#{queryVO.sbUserId}
+            </if>
+            <if test="queryVO.sbDeptId!=null and queryVO.sbDeptId!=''">
+                and t.sb_dept_id=#{queryVO.sbDeptId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWorkGroupId" resultType="java.lang.String">
+        select id
+        from sys_depart
+        where org_code = #{orgCode}
+    </select>
+
+</mapper>

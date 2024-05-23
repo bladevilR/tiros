@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.alertaccept.mapper.BuBaseAlertMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.alertaccept.entity.BuBaseAlert">
+        <id column="id" property="id"/>
+        <result column="alert_type" property="alertType"/>
+        <result column="alert_obj_id" property="alertObjId"/>
+        <result column="alert_content" property="alertContent"/>
+        <result column="gen_notice" property="genNotice"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, alert_type, alert_obj_id, alert_content, gen_notice, status, create_time, create_by, update_time, update_by,
+        company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.alertType},
+            #{item.alertObjId},
+            #{item.alertContent},
+            #{item.genNotice},
+            #{item.status},
+            #{item.createTime},
+            #{item.createBy},
+            #{item.updateTime},
+            #{item.updateBy},
+            #{item.companyId},
+            #{item.workshopId},
+            #{item.lineId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_base_alert
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+    <select id="countMaterialStockAlert" resultType="java.util.Map">
+        select t.materialTypeId as materialTypeId,
+               t2.name          as materialTypeName,
+               t.currentStock   as currentStock,
+               t1.theshold      as theshold
+        from (
+                 select material_type_id                        as materialTypeId,
+                        IF(ISNULL(sum(amount)), 0, sum(amount)) as currentStock
+                 from bu_material_stock
+                 group by material_type_id
+             ) t
+                 left join bu_material_type_attr t1 on t1.material_type_id = t.materialTypeId
+                 left join bu_material_type t2 on t2.id = t.materialTypeId
+        where (IF(ISNULL(t1.theshold), 0, t1.theshold) - t.currentStock) > 0
+    </select>
+
+    <select id="countMaterialExpireAlert" resultType="java.util.Map">
+        select t2.id              as entryDetailId,
+               t.material_type_id as materialTypeId,
+               t3.name            as materialTypeName,
+               t2.entry_date      as entryDate,
+               t2.expir_date      as expireDate,
+               t.company_id       as companyId,
+               t.workshop_id      as workshopId,
+               t.line_id          as lineId
+        from bu_material_stock t
+                 left join bu_material_type_attr t1 on t1.material_type_id = t.material_type_id
+                 left join bu_material_entry_detail t2 on t2.id = t.entry_detail_id
+                 left join bu_material_type t3 on t3.id = t.material_type_id
+        where (
+                      DATEDIFF(#{date}, t2.expir_date) >= 0
+                      or
+                      DATEDIFF(#{date}, t2.production_date) >=
+                      t2.expir_day * (1 - IF(ISNULL(t1.lead), 0, t1.lead * 0.01))
+                  )
+    </select>
+
+    <select id="countToolsCheckAlert" resultType="java.util.Map">
+        SELECT t.id as toolId,
+        t.name as toolName,
+        t.next_check_time as nextCheckTime,
+        t.company_id as companyId,
+        t.workshop_id as workshopId,
+        t.line_id as lineId
+        FROM bu_material_tools t
+        WHERE t.next_check_time &lt; #{date}
+        <if test="notAlertToolStatusList != null and notAlertToolStatusList.size > 0">
+            and t.status not in
+            <foreach collection="notAlertToolStatusList" item="notAlertToolStatus" separator="," open="(" close=")">
+                #{notAlertToolStatus}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="countOutsourceTrainAssetExpireAlert" resultType="java.util.Map">
+        select t.turnover_asset_id                                      as turnoverAssetId,
+               t.asset_name                                             as assetName,
+               IF(ISNULL(t.quality_date), DATE_ADD(t1.transfer_date, INTERVAL t2.expiration MONTH),
+                  DATE_ADD(t.quality_date, INTERVAL t.quality_day DAY)) as expireDate,
+               t1.bill_no                                               as billNo,
+               t1.company_id                                            as companyId,
+               t1.workshop_id                                           as workshopId,
+               t1.line_id                                               as lineId
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t1.id = t.outin_id
+                 left join bu_contract_info t2 on t2.id = t1.contract_id
+        where t1.bill_type = 1
+          and IF(ISNULL(t.quality_date), DATE_ADD(t1.transfer_date, INTERVAL t2.expiration MONTH),
+                 DATE_ADD(t.quality_date, INTERVAL t.quality_day DAY)) &lt; #{date}
+    </select>
+
+    <select id="countMeasureAlert" resultType="java.util.Map">
+        SELECT t.id            as formValuesId,
+               t.alert_message as alertMessage,
+               t1.company_id   as companyId,
+               t1.workshop_id  as workshopId,
+               t1.line_id      as lineId
+        FROM bu_pl_data_record_value t
+                 left join bu_work_order t1 on t1.id = t.order_id
+        WHERE t.alert_happen = 1
+          AND t.status = 0
+    </select>
+
+    <select id="countDelayOutsourceOutinDetail" resultType="java.util.Map">
+        select t.id                                                     as outinDetailId,
+               IF(ISNULL(t.return_time), t2.finish_date, t.return_time) as finishTime,
+               t.asset_name                                             as assetName,
+               t1.bill_no                                               as billNo,
+               t1.company_id                                            as companyId,
+               t1.workshop_id                                           as workshopId,
+               t1.line_id                                               as lineId
+        from bu_outsource_outin_detail t
+                 left join bu_outsource_outin t1 on t1.id = t.outin_id
+                 left join bu_contract_info t2 on t2.id = t1.contract_id
+        where (t1.bill_type = 0 and (IF(ISNULL(t.return_time),
+                                        date_add(t1.transfer_date, interval t2.need_day day), t.return_time) &lt;
+                                     #{date}))
+    </select>
+
+    <select id="countDelayOrder" resultType="java.util.Map">
+        SELECT id          as orderId,
+               order_code  as orderCode,
+               order_name  as orderName,
+               finish_time as finishTime,
+               company_id  as companyId,
+               workshop_id as workshopId,
+               line_id     as lineId
+        FROM bu_work_order
+        WHERE order_status != 0
+          AND order_status != 5
+          AND work_status != 2
+          AND finish_time &lt; #{date}
+    </select>
+
+    <select id="countUnHandleFault" resultType="java.util.Map">
+        SELECT t.id          as faultId,
+               t.report_time as reportTime,
+               t.fault_sn    as faultSn,
+               t.company_id  as companyId,
+               t.workshop_id as workshopId,
+               t.line_id     as lineId
+        FROM bu_fault_info t
+        WHERE t.status = 0
+          AND t.submit_status = 1
+    </select>
+
+</mapper>

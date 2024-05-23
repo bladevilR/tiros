@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.tiros.stock.change.mapper.BuMaterialStockChangeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.common.tiros.stock.change.bean.BuMaterialStockChange">
+        <id column="id" property="id"/>
+        <result column="stock_type" property="stockType"/>
+        <result column="stock_id" property="stockId"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="change_time" property="changeTime"/>
+        <result column="change_reason" property="changeReason"/>
+        <result column="change_type" property="changeType"/>
+        <result column="old_value" property="oldValue"/>
+        <result column="new_value" property="newValue"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="order_code" property="orderCode"/>
+        <result column="assign_detail_id" property="assignDetailId"/>
+        <result column="returned_detail_id" property="returnedDetailId"/>
+        <result column="order_material_act_id" property="orderMaterialActId"/>
+        <result column="operation_user" property="operationUser"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, stock_type, stock_id, warehouse_id, material_type_id, trade_no, change_time, change_reason,
+        change_type,  old_value, new_value, train_no, order_code, assign_detail_id, returned_detail_id,
+        order_material_act_id, operation_user, remark
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.stockType, jdbcType=NUMERIC},
+            #{item.stockId, jdbcType=VARCHAR},
+            #{item.warehouseId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.changeTime, jdbcType=TIMESTAMP},
+            #{item.changeReason, jdbcType=VARCHAR},
+            #{item.changeType, jdbcType=NUMERIC},
+            #{item.oldValue, jdbcType=NUMERIC},
+            #{item.newValue, jdbcType=NUMERIC},
+            #{item.trainNo, jdbcType=VARCHAR},
+            #{item.orderCode, jdbcType=VARCHAR},
+            #{item.assignDetailId, jdbcType=VARCHAR},
+            #{item.returnedDetailId, jdbcType=VARCHAR},
+            #{item.orderMaterialActId, jdbcType=VARCHAR},
+            #{item.operationUser, jdbcType=VARCHAR},
+            #{item.remark, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_stock_change
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

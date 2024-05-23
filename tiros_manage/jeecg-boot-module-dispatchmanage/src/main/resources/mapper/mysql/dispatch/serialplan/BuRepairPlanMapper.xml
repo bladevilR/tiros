@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.serialplan.mapper.BuRepairPlanMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="plan_name" property="planName"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="mileage" property="mileage"/>
+        <result column="plan_template_id" property="planTemplateId"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="act_start" property="actStart"/>
+        <result column="act_finish" property="actFinish"/>
+        <result column="duration" property="duration"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="progress_status" property="progressStatus"/>
+        <result column="progress" property="progress"/>
+        <result column="act_duration" property="actDuration"/>
+        <result column="train_index" property="trainIndex"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="fd_project" property="fdProject"/>
+        <result column="fd_task" property="fdTask"/>
+        <result column="fd_cost_type" property="fdCostType"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="suspend_time" property="suspendTime"/>
+        <result column="activate_time" property="activateTime"/>
+        <result column="suspended_progress_status" property="suspendedProgressStatus"/>
+        <result column="company_id" property="companyId"/>
+        <result column="history_data" property="historyData"/>
+    </resultMap>
+
+    <resultMap id="ResultMap_BuRepairPlan_Relation"
+               type="org.jeecg.modules.dispatch.serialplan.bean.vo.BuRepairPlanRelationVO">
+        <id column="id" property="id"/>
+        <collection property="repairPlanReguInfo" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu"
+                    select="selectPlanRepairPlanReguInfo"/>
+        <collection property="bookSteps" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskBookStep"
+                    select="selectPlanBookSteps"/>
+        <collection property="specAssets" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanSpeEq"
+                    select="selectPlanSpecAssets"/>
+        <collection property="workstations" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation"
+                    select="selectPlanWorkstations"/>
+        <collection property="materials" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial"
+                    select="selectPlanMaterials"/>
+        <collection property="tools" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskTool"
+                    select="selectPlanTools"/>
+        <collection property="persons" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskStaffRequire"
+                    select="selectPlanPersons"/>
+        <collection property="forms" column="id"
+                    ofType="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanForms"
+                    select="selectPlanForms"/>
+        <collection property="mustReplaces" column="id"
+                    ofType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace"
+                    select="selectPlanMustReplaces"/>
+    </resultMap>
+    <select id="selectPlanRepairPlanReguInfo"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskRegu">
+        SELECT t.*,
+               t1.no,
+               t1.title,
+               t1.type,
+               t1.safe_notice,
+               t1.outsource,
+               t1.important,
+               t1.method,
+               t1.quality_level,
+               t1.asset_type_id,
+               t1.work_time,
+               t1.requirement,
+               t1.must_replace,
+               t1.measure,
+               t2.name AS assetTypeName
+        FROM bu_repair_task_regu t
+                 LEFT JOIN bu_repair_regu_detail t1 ON t1.id = t.regu_detail_id
+                 LEFT JOIN bu_train_asset_type t2 ON t2.id = t1.asset_type_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+        order by t1.no
+    </select>
+    <select id="selectPlanBookSteps"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskBookStep">
+        SELECT t.*,
+               t1.step_content as bootStepContent
+        FROM bu_repair_task_book_step t
+                 left join bu_repair_tech_book_detail t1 on t1.id = t.book_detail_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+        order by t.book_step_no
+    </select>
+    <select id="selectPlanSpecAssets"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlanSpeEq">
+        SELECT t.*
+        FROM bu_repair_plan_spe_eq t
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+        order by t.asset_code
+    </select>
+    <select id="selectPlanWorkstations" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskWorkstation">
+        SELECT t.*,
+               t1.workshop_id,
+               t1.station_no,
+               t1.name,
+               t1.location,
+               t1.content,
+               t1.remark,
+               t2.name AS workshopName
+        FROM bu_repair_task_workstation t
+                 LEFT JOIN bu_mtr_workstation t1 ON t1.id = t.workstation_id
+                 LEFT JOIN bu_mtr_workshop t2 ON t2.id = t1.workshop_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+    </select>
+    <select id="selectPlanMaterials" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMaterial">
+        SELECT t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        FROM bu_repair_task_material t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.material_type_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+    </select>
+    <select id="selectPlanTools" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskTool">
+        SELECT t.*,
+               t1.code,
+               t1.name,
+               t1.spec,
+               t1.unit,
+               t1.price,
+               t1.kind,
+               t1.category1,
+               t1.category2
+        FROM bu_repair_task_tool t
+                 LEFT JOIN bu_material_type t1 ON t1.id = t.tool_type_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+    </select>
+    <select id="selectPlanPersons" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskStaffRequire">
+        SELECT t.*
+        FROM bu_repair_task_staff_require t
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+    </select>
+    <select id="selectPlanForms" resultType="org.jeecg.modules.dispatch.planform.bean.BuRepairPlanForms">
+        SELECT t.*,
+               (case t.form_type
+                    when 1 then t1.code
+                    when 2 then ''
+                    when 3 then t3.code
+                    when 4 then t4.code
+                    else '' end)   as
+                                      code,
+               (case t.form_type
+                    when 1 then t1.name
+                    when 2 then t2.name
+                    when 3 then t3.title
+                    when 4 then t4.title
+                    else '' end)
+                                   as formName,
+               (case t.form_type
+                    when 1 then t1.type
+                    when 2 then NULL
+                    when 3 then NULL
+                    when 4 then NULL
+                    else NULL end) as type,
+               t5.name             AS assetTypeName
+        FROM bu_repair_plan_forms t
+                 LEFT JOIN bu_base_form_template t1 ON t1.id = t.obj_id
+                 LEFT JOIN bu_doc_file t2 ON t2.id = t.obj_id
+                 LEFT JOIN bu_work_record t3 ON t3.id = t.obj_id
+                 left join bu_work_check t4 on t4.id = t.obj_id
+                 left join bu_train_asset_type t5 on t5.id = t.asset_type_id
+        WHERE t.plan_id = #{id}
+    </select>
+    <select id="selectPlanMustReplaces" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairTaskMustReplace">
+        select t.*,
+               t1.need_amount as needAmount,
+               t3.name        as repairProgramName,
+               t4.line_name   as lineName,
+               t5.group_name  as groupName,
+               t6.name        as workstationName,
+               t7.name        as locationName,
+               t2.name,
+               t2.code,
+               t2.spec,
+               t2.unit,
+               t2.category1   as materialTypeCategory,
+               t8.name        as sysName
+        from bu_repair_task_must_replace t
+                 left join bu_material_must_list t1 on t1.id = t.must_replace_id
+                 left join bu_material_type t2 on t1.material_type_id = t2.id
+                 left join bu_repair_program t3 on t3.id = t1.repair_program_id
+                 left join bu_mtr_line t4 on t4.line_id = t1.line_id
+                 left join bu_mtr_workshop_group t5 on t5.id = t1.group_id
+                 left join bu_mtr_workstation t6 on t6.id = t1.workstation_id
+                 left join bu_train_structure_detail t7 on t7.id = t1.location
+                 left join bu_train_asset_type t8 on t8.id = t1.sys_id
+        WHERE t.task_id IN (SELECT id FROM bu_repair_plan_task WHERE plan_id = #{id})
+    </select>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, plan_name, depot_id, line_id, repair_program_id, exchange_id, train_no, mileage,
+        plan_template_id, start_date, finish_date, act_start, act_finish, duration, status, remark,
+        create_time, create_by, update_time, update_by, progress_status, progress, act_duration,
+        train_index, fd_project, fd_task, fd_cost_type, workshop_id, suspend_time, suspend_time,
+        suspended_progress_status, company_id, history_data
+    </sql>
+
+    <select id="selectMaxCodeOfCurrentPlanData" resultType="java.lang.Integer">
+        select MAX(CAST(code as SIGNED)) as code
+        from bu_repair_plan
+        where history_data = 0
+    </select>
+
+    <select id="selectTpRepairPlan" resultType="org.jeecg.modules.dispatch.serialplan.bean.tp.BuTpRepairPlan">
+        select t.*,
+               a1.line_name as lineName,
+               a2.name      as trainTypeName,
+               a3.name      as repairProgramName
+        from bu_tp_repair_plan t
+                 left join bu_mtr_line a1 on t.line_id = a1.line_id
+                 left join bu_train_type a2 on t.train_type_id = a2.id
+                 left join bu_repair_program a3 on t.repair_program_id = a3.id
+        where t.STATUS = 1
+    </select>
+
+    <select id="selectPageByCondition" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        SELECT
+        t.*,
+        t1.name AS depotName,
+        t7.name as workshopName,
+        t2.line_name AS lineName,
+        t3.name AS repairProgramName,
+        IFNULL(t4.process_status, '未发起') AS wfStatus,
+        t4.process_candidate,
+        t5.train_type_id AS trainTypeId,
+        t6.code AS trainTypeCode,
+        t6.name AS trainTypeName,
+        t8.code as fdProjectCode,
+        t8.name as fdProjectName,
+        t9.code as fdTaskCode,
+        t9.name as fdTaskName,
+        t10.item_no AS itemNo
+        FROM bu_repair_plan t
+        LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+        LEFT JOIN wf_biz_status t4 ON t4.business_key = t.id
+        LEFT JOIN bu_train_info t5 ON t5.train_no = t.train_no
+        LEFT JOIN bu_train_type t6 ON t6.id = t5.train_type_id
+        LEFT JOIN bu_mtr_workshop t7 ON t7.id = t.workshop_id
+        LEFT JOIN bu_maximo_finance_item t8 ON t8.id = t.fd_project
+        LEFT JOIN bu_maximo_finance_item t9 ON t9.id = t.fd_task
+        LEFT JOIN bu_repair_exchang t10 on t10.id=t.exchange_id
+
+        <where>
+            <if test="plan.status != null">
+                and t.status = #{plan.status}
+            </if>
+            <if test="plan.depotId != null and plan.depotId != ''">
+                and t.depot_id = #{plan.depotId}
+            </if>
+            <if test="plan.lineId != null and plan.lineId != ''">
+                and t.line_id = #{plan.lineId}
+            </if>
+            <if test="plan.trainNo != null and plan.trainNo != ''">
+                and t.train_no = #{plan.trainNo}
+            </if>
+            <if test="plan.id != null and plan.id != ''">
+                and t.id = #{plan.id}
+            </if>
+            <if test="plan.searchText != null and plan.searchText != ''">
+                and t.plan_name like concat('%',#{plan.searchText},'%')
+            </if>
+            <if test="plan.progressStatus != null">
+                and t.progress_status = #{plan.progressStatus}
+            </if>
+            <if test="plan.progressStatusList != null and plan.progressStatusList.size > 0">
+                and t.progress_status in
+                <foreach collection="plan.progressStatusList" item="progressStatus" separator="," open="(" close=")">
+                    #{progressStatus}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY t.start_date DESC,t.create_time DESC
+    </select>
+
+    <select id="selectTaskCount" resultType="java.lang.Integer">
+        select count(id)
+        from bu_repair_plan_task
+        where plan_id = #{planId}
+    </select>
+
+    <select id="selectTaskSuccessCount" resultType="java.lang.Integer">
+        select count(id)
+        from bu_repair_plan_task
+        where plan_id = #{planId}
+          and status = 2
+    </select>
+
+    <select id="selectPlanRelevanceInfo" resultMap="ResultMap_BuRepairPlan_Relation">
+        select id
+        from bu_repair_plan
+        where id = #{id}
+    </select>
+
+    <select id="selectPlanByPlanId" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        SELECT t.*,
+               t1.name                       AS depotName,
+               t9.name                       AS workshopName,
+               t2.line_name                  as linename,
+               t3.name                       AS repairProgramName,
+               t4.tp_name                    AS planTemplateName,
+               t5.name                       AS reguName,
+               NVL(t6.process_status, '未发起') AS wfStatus,
+               t6.process_candidate,
+               t7.train_type_id              AS trainTypeId,
+               t8.code                       AS trainTypeCode,
+               t8.name                       AS trainTypeName,
+               t10.code                      as fdProjectCode,
+               t10.name                      as fdProjectName,
+               t11.code                      as fdTaskCode,
+               t11.name                      as fdTaskName
+        FROM bu_repair_plan t
+                 LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+                 LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+                 LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+                 LEFT JOIN bu_tp_repair_plan t4 ON t4.id = t.plan_template_id
+                 LEFT JOIN bu_repair_regu_info t5 ON t5.id = t.regu_id
+                 LEFT JOIN wf_biz_status t6 ON t6.business_key = t.id
+                 LEFT JOIN bu_train_info t7 ON t7.train_no = t.train_no
+                 LEFT JOIN bu_train_type t8 ON t8.id = t7.train_type_id
+                 LEFT JOIN bu_mtr_workshop t9 ON t9.id = t.workshop_id
+                 LEFT JOIN bu_maximo_finance_item t10 ON t10.id = t.fd_project
+                 LEFT JOIN bu_maximo_finance_item t11 ON t11.id = t.fd_task
+        WHERE t.id = #{planId}
+    </select>
+
+    <select id="selectPlanByPlanIdList" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        SELECT t.*,
+        t1.name AS depotName,
+        t9.name AS workshopName,
+        t2.line_name as linename,
+        t3.name AS repairProgramName,
+        t4.tp_name AS planTemplateName,
+        t5.name AS reguName,
+        NVL(t6.process_status, '未发起') AS wfStatus,
+        t6.process_candidate,
+        t7.train_type_id AS trainTypeId,
+        t8.code AS trainTypeCode,
+        t8.name AS trainTypeName,
+        t10.code as fdProjectCode,
+        t10.name as fdProjectName,
+        t11.code as fdTaskCode,
+        t11.name as fdTaskName
+        FROM bu_repair_plan t
+        LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+        LEFT JOIN bu_mtr_line t2 ON t2.line_id = t.line_id
+        LEFT JOIN bu_repair_program t3 ON t3.id = t.repair_program_id
+        LEFT JOIN bu_tp_repair_plan t4 ON t4.id = t.plan_template_id
+        LEFT JOIN bu_repair_regu_info t5 ON t5.id = t.regu_id
+        LEFT JOIN wf_biz_status t6 ON t6.business_key = t.id
+        LEFT JOIN bu_train_info t7 ON t7.train_no = t.train_no
+        LEFT JOIN bu_train_type t8 ON t8.id = t7.train_type_id
+        LEFT JOIN bu_mtr_workshop t9 ON t9.id = t.workshop_id
+        LEFT JOIN bu_maximo_finance_item t10 ON t10.id = t.fd_project
+        LEFT JOIN bu_maximo_finance_item t11 ON t11.id = t.fd_task
+        WHERE t.id
+        <choose>
+            <when test="planIdList != null and planIdList.size > 0">
+                in
+                <foreach collection="planIdList" item="planId" open="(" close=")" separator=",">
+                    #{planId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="noRelevanceCount" resultType="java.lang.Integer">
+        SELECT COUNT(t.id)
+        FROM bu_repair_regu_detail t
+        WHERE t.regu_id = #{reguId}
+          AND t.type = 2
+          AND t.id NOT IN (
+            SELECT regu_detail_id
+            FROM bu_repair_task_regu
+            WHERE task_id IN (
+                SELECT id
+                FROM bu_repair_plan_task
+                WHERE plan_id = #{planId}
+            )
+        )
+    </select>
+
+    <select id="noRelevanceDetail" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairReguDetail">
+        SELECT t.*,
+               t1.name  AS assetTypeName,
+               t2.title AS parentName
+        FROM bu_repair_regu_detail t
+                 LEFT JOIN bu_train_asset_type t1 ON t1.id = t.asset_type_id
+                 LEFT JOIN bu_repair_regu_detail t2 ON t2.id = t.parent_id
+        WHERE t.regu_id = #{reguId}
+          AND t.type = 2
+          AND t.id NOT IN (
+            SELECT regu_detail_id
+            FROM bu_repair_task_regu
+            WHERE task_id IN (
+                SELECT id
+                FROM bu_repair_plan_task
+                WHERE plan_id = #{planId}
+            )
+        )
+        order by t.no
+    </select>
+
+    <select id="selectApprovedNotFinishedPlanList"
+            resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        select t.*
+        from bu_repair_plan t
+        where t.progress_status in (0, 1, 2)
+        and t.status = 2
+        <if test="planId != null and planId != ''">
+            and t.id = #{planId}
+        </if>
+    </select>
+
+    <select id="selectRelationReguDetailIdListByPlanId" resultType="java.lang.String">
+        select t.regu_detail_id
+        from bu_repair_task_regu t
+        where t.task_id in (select id from bu_repair_plan_task where plan_id = #{planId})
+    </select>
+
+    <select id="selectAllWorkGroupList" resultType="org.jeecg.modules.dispatch.workorder.bean.BuMtrWorkshopGroup">
+        select t.*
+        from bu_mtr_workshop_group t
+    </select>
+
+    <select id="selectTrainMileageByTrainNo" resultType="java.lang.Double">
+        select mileage
+        from bu_train_info
+        where train_no = #{trainNo}
+    </select>
+
+    <select id="mustMaterialLack" resultType="org.jeecg.modules.dispatch.serialplan.bean.MustMaterialLack">
+        select t.material_type_id,
+               t3.code,
+               t3.name,
+               t1.need_amount               as needAmount,
+               t.receive,
+               (t1.need_amount - t.receive) as lack
+        from bu_material_apply_detail t
+                 inner join bu_material_must_list t1 on t1.material_type_id = t.material_type_id
+                 left join bu_material_apply t2 on t2.id = t.apply_id
+                 left join bu_material_type t3 on t3.id = t.material_type_id
+        where t2.work_order_id in (
+            select id
+            from bu_work_order
+            where plan_id in
+                  (
+                      select id
+                      from BU_REPAIR_PLAN
+                      where progress_status in (1, 2)
+                  )
+        )
+          and t.receive &lt; t1.need_amount
+    </select>
+
+    <select id="selectFinishedListByYear" resultType="org.jeecg.modules.dispatch.serialplan.bean.BuRepairPlan">
+        select *
+        from bu_repair_plan
+        where TO_NUMBER(TO_CHAR(start_date, 'yyyy')) = #{year}
+          and progress_status in (3, 4, 5)
+    </select>
+
+    <select id="selectDepotNameId" resultType="java.util.Map">
+        select id   as id,
+               name as name
+        from bu_mtr_depot
+    </select>
+
+</mapper>

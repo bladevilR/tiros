@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuMaterialStockThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuMaterialStock">
+        <id column="id" property="id"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="material_type_id" property="materialTypeId"/>
+        <result column="amount" property="amount"/>
+        <result column="price" property="price"/>
+        <result column="entry_detail_id" property="entryDetailId"/>
+        <result column="trade_no" property="tradeNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, warehouse_id, material_type_id, amount, price, entry_detail_id, trade_no, company_id, workshop_id, line_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.warehouseId, jdbcType=VARCHAR},
+            #{item.materialTypeId, jdbcType=VARCHAR},
+            #{item.amount, jdbcType=DECIMAL},
+            #{item.price, jdbcType=DECIMAL},
+            #{item.entryDetailId, jdbcType=VARCHAR},
+            #{item.tradeNo, jdbcType=VARCHAR},
+            #{item.companyId, jdbcType=VARCHAR},
+            #{item.workshopId, jdbcType=VARCHAR},
+            #{item.lineId, jdbcType=VARCHAR},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_material_stock
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <update id="updateListAmountPrice">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_stock
+                set
+                amount = #{item.amount, jdbcType=NUMERIC},
+                price = #{item.price, jdbcType=DECIMAL}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListAmount">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_stock
+                set amount = #{item.amount, jdbcType=NUMERIC}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateListPrice">
+        <if test="list != null and list.size > 0">
+            <foreach collection="list" item="item" index="index" open="begin" close=";end;" separator=";">
+                update bu_material_stock
+                set
+                price = #{item.price,jdbcType=DECIMAL}
+                where id = #{item.id, jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </update>
+
+    <!--    <delete id="deleteAllNot4levelStock">-->
+    <!--        delete-->
+    <!--        from bu_material_stock-->
+    <!--        where warehouse_id not in (select id from bu_mtr_warehouse where wh_level > 4)-->
+    <!--    </delete>-->
+
+    <!--    <delete id="deleteZeroAmount">-->
+    <!--        delete-->
+    <!--        from bu_material_stock-->
+    <!--        where amount is null-->
+    <!--           or amount &lt;= 0-->
+    <!--    </delete>-->
+
+    <select id="selectListByMaxLevel" resultType="org.jeecg.modules.third.jdx.bean.BuMaterialStock">
+        select t.*
+        from bu_material_stock t
+                 left join bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+        where t1.wh_level &lt;= #{level}
+    </select>
+
+    <select id="selectListByMaxLevelAndMaterialTypeIdList"
+            resultType="org.jeecg.modules.third.jdx.bean.BuMaterialStock">
+        select t.*
+        from bu_material_stock t
+        left join bu_mtr_warehouse t1 on t1.id = t.warehouse_id
+        where t1.wh_level &lt;= #{level}
+        and t.material_type_id
+        <choose>
+            <when test="materialTypeIdList != null and materialTypeIdList.size > 0">
+                in
+                <foreach collection="materialTypeIdList" item="materialTypeId" open="(" separator="," close=")">
+                    #{materialTypeId}
+                </foreach>
+            </when>
+            <otherwise>
+                = '-1'
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

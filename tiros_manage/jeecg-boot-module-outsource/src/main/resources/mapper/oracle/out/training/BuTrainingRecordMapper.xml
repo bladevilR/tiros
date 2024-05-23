@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.outsource.training.mapper.BuTrainingRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.outsource.training.bean.BuTrainingRecord">
+        <id column="id" property="id"/>
+        <result column="contract_id" property="contractId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="title" property="title"/>
+        <result column="start_date" property="startDate"/>
+        <result column="finish_date" property="finishDate"/>
+        <result column="days" property="days"/>
+        <result column="man_times" property="manTimes"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="contractName" property="contractName"/>
+        <result column="contractNo" property="contractNo"/>
+        <collection property="trainingUsersList" ofType="org.jeecg.modules.outsource.training.bean.BuTrainingUsers"
+                    select="selectTrainingUsersList" column="id"/>
+        <collection property="trainingAnnexList" ofType="org.jeecg.modules.outsource.training.bean.BuTrainingAnnex"
+                    select="selectTrainingAnnexList" column="id"/>
+    </resultMap>
+    <select id="selectTrainingUsersList" parameterType="string"
+            resultType="org.jeecg.modules.outsource.training.bean.BuTrainingUsers">
+        select t.*, t2.depart_name as groupName, t3.work_no as workNo
+        from bu_training_users t
+                 left JOIN sys_user_depart t1 on t1.user_id = t.user_id
+                 left join sys_depart t2 on t2.id = t1.dep_id
+                 left join sys_user t3 on t3.id = t.user_id
+        where t.training_id = #{id}
+    </select>
+    <select id="selectTrainingAnnexList" parameterType="string"
+            resultType="org.jeecg.modules.outsource.training.bean.BuTrainingAnnex">
+
+        select t.*
+        from bu_training_annex t
+        where t.training_id = #{id}
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, contract_id, supplier_name, title, start_date, finish_date, days, man_times, remark,
+        create_time, create_by, update_time, update_by, company_id, workshop_id, line_id
+    </sql>
+
+
+    <select id="selectPageByCondition" resultMap="BaseResultMap">
+        select t.* ,t1.contract_name as contractName,t1.contract_no as contractNo
+        from bu_training_record t
+        left join bu_contract_info t1 on t1.id=t.contract_id
+        <where>
+            <if test="queryVO.searchText!=null and queryVO.searchText!=''">
+                and (t1.contract_name like '%'||#{queryVO.searchText}||'%'
+                or t1.contract_no like '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.lineId!=null and queryVO.lineId!=''">
+                and t1.line_id =#{queryVO.lineId}
+            </if>
+            <if test="queryVO.supplier!=null and queryVO.supplier!=''">
+                and t.supplier_name like '%'||#{queryVO.supplier}||'%'
+            </if>
+            <if test="queryVO.startTime!=null and queryVO.endTime!=null">
+                and t.start_date between #{queryVO.startTime} AND #{queryVO.endTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUserPageByCondition" resultMap="BaseResultMap">
+        select t1.* ,t2.contract_name as contractName,t2.contract_no as contractNo
+        from bu_training_users t
+        left join bu_training_record t1 on t.training_id=t1.id
+        left join bu_contract_info t2 on t2.id=t1.contract_id
+        <where>
+            <if test="queryVO.searchText!=null and queryVO.searchText!=''">
+                and (t2.contract_name like '%'||#{queryVO.searchText}||'%'
+                or t2.contract_no like '%'||#{queryVO.searchText}||'%'
+                )
+            </if>
+            <if test="queryVO.userId!=null and queryVO.userId!=''">
+                and t.user_id=#{queryVO.userId}
+            </if>
+            <if test="queryVO.lineId!=null and queryVO.lineId!=''">
+                and t2.line_id =#{queryVO.lineId}
+            </if>
+            <if test="queryVO.supplier!=null and queryVO.supplier!=''">
+                and t1.supplier_name like '%'||#{queryVO.supplier}||'%'
+            </if>
+            <if test="queryVO.startTime!=null and queryVO.endTime!=null">
+                and t1.start_date between #{queryVO.startTime} AND #{queryVO.endTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>

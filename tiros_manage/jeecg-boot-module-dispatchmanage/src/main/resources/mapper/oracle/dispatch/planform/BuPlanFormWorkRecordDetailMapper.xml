@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.planform.mapper.BuPlanFormWorkRecordDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.planform.bean.BuPlanFormWorkRecordDetail">
+        <id column="id" property="id"/>
+        <result column="work_record_id" property="workRecordId"/>
+        <result column="work_rec_detail_id" property="workRecDetailId"/>
+        <result column="regu_detail_id" property="reguDetailId"/>
+        <result column="work_info" property="workInfo"/>
+        <result column="result" property="result"/>
+        <result column="is_ignore" property="isIgnore"/>
+        <result column="ignore_desc" property="ignoreDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, work_record_id, work_rec_detail_id, regu_detail_id, work_info, result, is_ignore, ignore_desc,
+        create_time, create_by, update_time, update_by,detail_line_num
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id, jdbcType=VARCHAR},
+            #{item.workRecordId, jdbcType=VARCHAR},
+            #{item.workRecDetailId, jdbcType=VARCHAR},
+            #{item.reguDetailId, jdbcType=VARCHAR},
+            #{item.workInfo, jdbcType=VARCHAR},
+            #{item.result, jdbcType=INTEGER},
+            #{item.isIgnore, jdbcType=INTEGER},
+            #{item.ignoreDesc, jdbcType=VARCHAR},
+            #{item.createTime, jdbcType=TIMESTAMP},
+            #{item.createBy, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=TIMESTAMP},
+            #{item.updateBy, jdbcType=VARCHAR},
+            #{item.detailLineNum, jdbcType=INTEGER},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_pl_work_record_detail
+            (
+            <include refid="Base_Column_List"/>
+            )
+            <foreach collection="list" item="item" index="index" separator="union all">
+                (
+                select
+                <include refid="insertValueItems"/>
+                from dual
+                )
+            </foreach>
+        </if>
+    </insert>
+
+</mapper>

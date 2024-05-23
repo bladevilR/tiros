@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.jdx.mapper.BuTrainHistoryFaultThirdMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.jdx.bean.BuTrainHistoryFault">
+        <id column="id" property="id"/>
+        <result column="fault_sn" property="faultSn"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="fault_code_id" property="faultCodeId"/>
+        <result column="fault_code_name" property="faultCodeName"/>
+        <result column="line_id" property="lineId"/>
+        <result column="line_name" property="lineName"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_name" property="trainName"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="sub_sys_id" property="subSysId"/>
+        <result column="sub_sys_name" property="subSysName"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="fault_asset_name" property="faultAssetName"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="work_order_id" property="workOrderId"/>
+        <result column="work_order_name" property="workOrderName"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="order_task_name" property="orderTaskName"/>
+        <result column="work_station_id" property="workStationId"/>
+        <result column="phase" property="phase"/>
+        <result column="fault_level" property="faultLevel"/>
+        <result column="f_online" property="faultOnline"/>
+        <result column="has_duty" property="hasDuty"/>
+        <result column="outsource" property="outsource"/>
+        <result column="report_group" property="reportGroup"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="report_time" property="reportTime"/>
+        <result column="duty_engineer" property="dutyEngineer"/>
+        <result column="status" property="status"/>
+        <result column="handle_status" property="handleStatus"/>
+        <result column="handle_time" property="handleTime"/>
+        <result column="handle_group" property="handleGroup"/>
+        <result column="handle_user" property="handleUser"/>
+        <result column="remark" property="remark"/>
+        <result column="ex_location" property="exLocation"/>
+        <result column="ex_fault_detail" property="exFaultDetail"/>
+        <result column="ex_fault_type" property="exFaultType"/>
+        <result column="ex_effect" property="exEffect"/>
+        <result column="ex_typical" property="exTypical"/>
+        <result column="archive_type" property="archiveType"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, fault_sn, fault_desc, category_id, category_name, fault_code_id, fault_code_name, line_id, line_name,
+        train_id, train_name, sys_id, sys_name, sub_sys_id, sub_sys_name, fault_asset_id, fault_asset_name,
+        happen_time, work_order_id, work_order_name, order_task_id, order_task_name, work_station_id, phase, fault_level,
+        f_online, has_duty, outsource, report_group, report_user_id, report_time, duty_engineer, status, handle_status,
+        handle_time, handle_group, handle_user, remark, ex_location, ex_fault_detail, ex_fault_type, ex_effect, ex_typical,
+        archive_type
+    </sql>
+
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.faultSn},
+            #{item.faultDesc},
+            #{item.categoryId},
+            #{item.categoryName},
+            #{item.faultCodeId},
+            #{item.faultCodeName},
+            #{item.lineId},
+            #{item.lineName},
+            #{item.trainId},
+            #{item.trainName},
+            #{item.sysId},
+            #{item.sysName},
+            #{item.subSysId},
+            #{item.subSysName},
+            #{item.faultAssetId},
+            #{item.faultAssetName},
+            #{item.happenTime},
+            #{item.workOrderId},
+            #{item.workOrderName},
+            #{item.orderTaskId},
+            #{item.orderTaskName},
+            #{item.workStationId},
+            #{item.phase},
+            #{item.faultLevel},
+            #{item.faultOnline},
+            #{item.hasDuty},
+            #{item.outsource},
+            #{item.reportGroup},
+            #{item.reportUserId},
+            #{item.reportTime},
+            #{item.dutyEngineer},
+            #{item.status},
+            #{item.handleStatus},
+            #{item.handleTime},
+            #{item.handleGroup},
+            #{item.handleUser},
+            #{item.remark},
+            #{item.exLocation},
+            #{item.exFaultDetail},
+            #{item.exFaultType},
+            #{item.exEffect},
+            #{item.exTypical},
+            #{item.archiveType},
+        </trim>
+    </sql>
+
+    <insert id="insertList" parameterType="java.util.List">
+        INSERT INTO bu_train_history_fault
+        (
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            <include refid="insertValueItems"/>
+            )
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.workstation.mapper.BuBaseWorkstationMapper">
+
+    <resultMap id="ResultMap_CompanyTree" type="org.jeecg.modules.basemanage.workstation.entity.CompanyTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.workstation.entity.DepotTree"
+                    select="selectDepotTree"/>
+    </resultMap>
+    <select id="selectDepotTree" resultMap="ResultMap_DepotTree">
+        SELECT
+        id,
+        name,
+        2 AS type
+        FROM bu_mtr_depot
+        WHERE company_id = #{id}
+        ORDER BY code
+    </select>
+    <resultMap id="ResultMap_DepotTree" type="org.jeecg.modules.basemanage.workstation.entity.DepotTree">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <collection property="children" column="id"
+                    ofType="org.jeecg.modules.basemanage.workstation.entity.WorkshopTree"
+                    select="selectWorkshopTree"/>
+    </resultMap>
+    <select id="selectWorkshopTree" resultType="org.jeecg.modules.basemanage.workstation.entity.WorkshopTree">
+        SELECT
+        id,
+        name,
+        3 AS type
+        FROM bu_mtr_workshop
+        WHERE depot_id = #{id}
+        ORDER BY code
+    </select>
+
+    <select id="selectCompanyTree" resultMap="ResultMap_CompanyTree">
+        SELECT
+        id,
+        name,
+        1 AS type
+        FROM bu_mtr_company
+        ORDER BY code
+    </select>
+
+    <select id="selectWorkstationPage" resultType="org.jeecg.modules.basemanage.workstation.entity.BuBaseWorkstation">
+        select
+        a1.*,
+        a2.name as workshopName,
+        a3.name as depotName,
+        a4.name as companyName,
+        a6.group_name as groupName,
+        a6.id as groupId
+        from bu_mtr_workstation a1
+        left join bu_mtr_workshop a2 on a2.id=a1.workshop_id
+        left join bu_mtr_depot a3 on a3.id=a2.depot_id
+        left join bu_mtr_company a4 on a4.id=a3.company_id
+        left Join bu_group_workstation a5 on a5.workstation_id=a1.id
+        left join bu_mtr_workshop_group a6 on a6.id=a5.group_id
+        <where>
+            <if test="workstation.name!=null and workstation.name!=''">
+                and a1.name like CONCAT('%',#{workstation.name},'%')
+            </if>
+            <if test="workstation.location!=null and workstation.location!=''">
+                and a1.location like CONCAT('%',#{workstation.location},'%')
+            </if>
+            <if test="workstation.id!=null and workstation.id!=''">
+                and
+                (
+                a2.id = #{workstation.id}
+                or a3.id = #{workstation.id}
+                or a4.id = #{workstation.id}
+                or a1.id = #{workstation.id}
+                )
+            </if>
+            <if test="workstation.groupId!=null and workstation.groupId!=''">
+                and a6.id=#{workstation.groupId}
+            </if>
+        </where>
+        ORDER BY CAST(a1.station_no AS UNSIGNED)
+    </select>
+
+    <select id="selectByWorkGroupId" resultType="org.jeecg.modules.basemanage.workstation.entity.BuBaseWorkstation">
+      SELECT
+      t.*
+      FROM bu_mtr_workstation t
+      WHERE t.id IN (SELECT workstation_id FROM bu_group_workstation WHERE group_id = #{workGroupId})
+    </select>
+
+</mapper>

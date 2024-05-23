@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.exchange.mapper.BuRepairExchangRectifyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchangRectify">
+        <id column="id" property="id"/>
+        <result column="exchange_id" property="exchangeId"/>
+        <result column="change_name" property="changeName"/>
+        <result column="change_desc" property="changeDesc"/>
+        <result column="dept" property="dept"/>
+        <result column="duty_man" property="dutyMan"/>
+        <result column="change_date" property="changeDate"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="annex" property="annex"/>
+        <result column="change_result" property="changeResult"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, exchange_id, change_name, change_desc, dept, duty_man, change_date, check_date, annex, change_result, create_time, create_by, update_time, update_by
+    </sql>
+
+    <!-- 分页查询交接车整改项记录 -->
+    <select id="selectExchangRectifyPage" resultType="org.jeecg.modules.dispatch.exchange.bean.BuRepairExchangRectify">
+        SELECT
+        t1.*,
+        t2.depart_name AS deptName,
+        t3.realname AS dutyManName
+        FROM bu_repair_exchang_rectify t1
+        LEFT JOIN sys_depart t2 ON t2.id = t1.dept
+        LEFT JOIN sys_user t3 ON t3.id = t1.duty_man
+        <where>
+            <if test="exchangeId != null and exchangeId != ''">
+                AND t1.exchange_id = #{exchangeId}
+            </if>
+        </where>
+        ORDER BY t1.change_date
+    </select>
+
+</mapper>

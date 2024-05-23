@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.third.maximo.mapper.JdxFailurelistOutMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.third.maximo.bean.JdxFailurelistOut">
+        <result column="ACTIVE" property="active"/>
+        <result column="C_FAILURELISTID" property="cFailurelistid"/>
+        <result column="DESCRIPTION" property="description"/>
+        <result column="FAILTYPE" property="failtype"/>
+        <result column="FAILURECODE" property="failurecode"/>
+        <result column="PARENT" property="parent"/>
+        <result column="SEQUENCE" property="sequence"/>
+        <result column="SITEID" property="siteid"/>
+        <result column="SPECIALTY" property="specialty"/>
+        <result column="TRANSID" property="transid"/>
+        <result column="TRANSSEQ" property="transseq"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ACTIVE, C_FAILURELISTID, DESCRIPTION, FAILTYPE, FAILURECODE, PARENT, SEQUENCE, SITEID, SPECIALTY, TRANSID, TRANSSEQ
+    </sql>
+
+</mapper>

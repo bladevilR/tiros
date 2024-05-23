@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.dispatch.display.mapper.BuDisplayConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.dispatch.display.bean.BuDisplayConfig">
+        <id column="id" property="id"/>
+        <result column="screen_id" property="screenId"/>
+        <result column="resource_type" property="resourceType"/>
+        <result column="resource_id" property="resourceId"/>
+        <result column="title" property="title"/>
+        <result column="address" property="address"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, screen_id, resource_type, resource_id, title, address
+    </sql>
+
+    <select id="selectListByScreenIdAndResourceType"
+            resultType="org.jeecg.modules.dispatch.display.bean.BuDisplayConfig">
+        select t.*,
+        t1.screen_type,
+        t1.screen_code,
+        t1.screen_name,
+        t1.address as screenAddress,
+        t1.group_id,
+        t2.depart_name as groupName
+        from bu_display_config t
+        left join bu_display_screen t1 on t1.id = t.screen_id
+        left join sys_depart t2 on t2.id = t1.group_id
+        where t.screen_id = #{screenId}
+        <if test="resourceType != null">
+            and t.resource_type = #{resourceType}
+        </if>
+    </select>
+
+</mapper>

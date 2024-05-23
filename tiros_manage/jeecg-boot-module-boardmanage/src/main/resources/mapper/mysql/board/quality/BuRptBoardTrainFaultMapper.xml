@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.board.quality.mapper.BuRptBoardTrainFaultMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.board.quality.bean.BuRptBoardTrainFault">
+        <id column="id" property="id"/>
+        <result column="depot_id" property="depotId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_period" property="repairPeriod"/>
+        <result column="train_id" property="trainId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="repair_index" property="repairIndex"/>
+        <result column="year" property="year"/>
+        <result column="month" property="month"/>
+        <result column="program_id" property="programId"/>
+        <result column="sum1" property="sum1"/>
+        <result column="sum2" property="sum2"/>
+        <result column="sum3" property="sum3"/>
+        <result column="sum4" property="sum4"/>
+        <result column="sum5" property="sum5"/>
+        <result column="sum6" property="sum6"/>
+        <result column="sum7" property="sum7"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, depot_id, line_id, repair_period, train_id, train_no, repair_index, year, month,
+        program_id, sum1, sum2, sum3, sum4, sum5, sum6, sum7, company_id, workshop_id
+    </sql>
+
+    <!-- 插入value sql -->
+    <sql id="insertValueItems">
+        <trim suffixOverrides=",">
+            #{item.id},
+            #{item.depotId},
+            #{item.lineId},
+            #{item.repairPeriod},
+            #{item.trainId},
+            #{item.trainNo},
+            #{item.repairIndex},
+            #{item.year},
+            #{item.month},
+            #{item.programId},
+            #{item.sum1},
+            #{item.sum2},
+            #{item.sum3},
+            #{item.sum4},
+            #{item.sum5},
+            #{item.sum6},
+            #{item.sum7},
+            #{item.companyId},
+            #{item.workshopId},
+        </trim>
+    </sql>
+
+
+    <insert id="insertList" parameterType="java.util.List">
+        <if test="list != null and list.size > 0">
+            INSERT INTO bu_rpt_board_train_fault
+            (
+            <include refid="Base_Column_List"/>
+            )
+            VALUES
+            <foreach collection="list" item="item" index="index" separator=",">
+                (
+                <include refid="insertValueItems"/>
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <select id="listByCondition" resultType="org.jeecg.modules.board.quality.bean.BuRptBoardTrainFault">
+        SELECT
+        t.*,
+        t1.name AS depotName,
+        t2.name AS programName
+        FROM bu_rpt_board_train_fault t
+        LEFT JOIN bu_mtr_depot t1 ON t1.id = t.depot_id
+        LEFT JOIN bu_repair_program t2 ON t2.id = t.program_id
+        <where>
+            AND t.year = #{year}
+            <if test="queryVO.depotId != null and queryVO.depotId != ''">
+                AND t.depot_id = #{queryVO.depotId}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.programType != null and queryVO.programType != 0">
+                AND t2.pro_type = #{queryVO.programType}
+            </if>
+        </where>
+        ORDER BY t.month DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.formtemplate.mapper.BuBaseFormTemplateMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.formtemplate.entity.BuBaseFormTemplate">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="category" property="category"/>
+        <result column="status" property="status"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="content" property="content"/>
+        <result column="datajson" property="datajson"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="asset_type_id" property="assetTypeId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="create_group_id" property="createGroupId"/>
+        <result column="regu_id" property="reguId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <resultMap id="formTemplateResult" type="org.jeecg.modules.basemanage.formtemplate.entity.FormTemplateTree">
+        <result column="type" property="type"/>
+        <collection property="children" column="type"
+                    ofType="org.jeecg.modules.basemanage.formtemplate.entity.Workstation"
+                    select="selectCategory"/>
+    </resultMap>
+    <select id="selectCategory" resultType="org.jeecg.modules.basemanage.formtemplate.entity.Workstation">
+        SELECT id,
+               name
+        FROM bu_mtr_workstation
+        WHERE id IN (SELECT category FROM bu_base_form_template WHERE TYPE = #{type})
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, code, name, category, status, type, remark, content, datajson, create_time, create_by,
+        update_time, update_by, asset_type_id, line_id, repair_program_id, create_group_id, regu_id,
+        company_id, workshop_id
+    </sql>
+
+    <sql id="Column_List_Alias_t_No_Content">
+        t.id, t.code, t.name, t.category, t.status, t.type, t.remark, t.create_time, t.create_by,
+        t.update_time, t.update_by, t.asset_type_id, t.line_id, t.repair_program_id, t.create_group_id, t.regu_id,
+        t.company_id, t.workshop_id
+    </sql>
+
+
+    <select id="selectFormTemplatePage"
+            resultType="org.jeecg.modules.basemanage.formtemplate.entity.BuBaseFormTemplate">
+        SELECT
+        t.name AS title,
+        t1.name AS categoryName,
+        t2.name as assetTypeName,
+        t3.line_name,
+        t4.name as repairProgramName,
+        t5.depart_name as createGroupName,
+        t6.name as reguName,
+        t6.version as reguVersion,
+        <include refid="Column_List_Alias_t_No_Content"/>
+        FROM bu_base_form_template t
+        LEFT JOIN sys_category t1 ON t1.id = t.category
+        left join bu_train_asset_type t2 on t2.id = t.asset_type_id
+        left join bu_mtr_line t3 on t3.line_id = t.line_id
+        left join bu_repair_program t4 on t4.id = t.repair_program_id
+        LEFT JOIN sys_depart t5 ON t5.id = t.create_group_id
+        LEFT JOIN bu_repair_regu_info t6 ON t6.id = t.regu_id
+        <where>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.repairProId != null and queryVO.repairProId != ''">
+                AND t.repair_program_id = #{queryVO.repairProId}
+            </if>
+            <if test="queryVO.name != null and queryVO.name != ''">
+                AND
+                (
+                t.name LIKE '%'||#{queryVO.name}||'%'
+                or
+                t.code LIKE '%'||#{queryVO.name}||'%'
+                )
+            </if>
+            <if test="queryVO.category != null and queryVO.category != ''">
+                AND t.category = #{queryVO.category}
+            </if>
+            <if test="queryVO.type != null">
+                AND t.type = #{queryVO.type}
+            </if>
+            <if test="queryVO.status != null">
+                AND t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.createGroupId != null and queryVO.createGroupId != ''">
+                AND t.create_group_Id = #{queryVO.createGroupId}
+            </if>
+        </where>
+    </select>
+
+</mapper>
