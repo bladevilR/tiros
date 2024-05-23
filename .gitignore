@@ -1,0 +1,20 @@
+# 忽略除指定文件夹外的所有其他文件和文件夹
+/*
+!/.gitignore
+!/tiros_manage
+!/tiros_web
+
+# Java后端项目 tiros_manage 的忽略规则
+/tiros_manage/.idea/
+/tiros_manage/*.iml
+/tiros_manage/**/target/    # 优化：忽略所有子目录下的target
+
+# Vue前端项目 tiros_web 的忽略规则
+/tiros_web/node_modules/
+/tiros_web/dist/
+/tiros_web/.idea/
+/tiros_web/*.log
+/tiros_web/yarn-error.log
+/tiros_web/*.DS_Store
+/tiros_web/coverage/
+/tiros_web/package-lock.json
