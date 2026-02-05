@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0e4a5e"],{"90b3":function(n,t,e){"use strict";e.r(t);var o=function(){var n=this,t=n._self._c;return t("ProcessSolution",{staticStyle:{height:"calc(100% - 10px)"}})},c=[],s={name:"workflow_solution"},l=s,u=e("2877"),a=Object(u["a"])(l,o,c,!1,null,"6d396f39",null);t["default"]=a.exports}}]);

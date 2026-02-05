@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0d05b7"],{6843:function(n,t,e){"use strict";e.r(t);var c=function(){var n=this,t=n._self._c;return t("div",{staticStyle:{"margin-top":"20px"},attrs:{align:"center"}},[n._v(" 暂无数据 ")])},a=[],r={name:"DocRecord"},i=r,o=e("2877"),s=Object(o["a"])(i,c,a,!1,null,"bd4f3064",null);t["default"]=s.exports}}]);

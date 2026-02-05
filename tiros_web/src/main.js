@@ -53,8 +53,8 @@ import '@/assets/less/index.less'
 import '@/assets/less/gantt.less'
 import VueAreaLinkage from 'vue-area-linkage'
 
-import workflow from 'nannar-workflow-plus';
-import 'nannar-workflow-plus/workflow-plus.css';
+// import workflow from 'nannar-workflow-plus';
+// import 'nannar-workflow-plus/workflow-plus.css';
 import { WebuiMixin } from '@/mixins/WebuiMixin'
 import { windowClient } from '@/utils/class/windowClient.class'
 
@@ -63,12 +63,12 @@ Vue.config.productionTip = false
 
 // 设置工作流接口组件的服务地址 add by jakgong
 // http://106.53.225.45:8088/wf
-let wfUrl = window._CONFIG['workflowURL'] || process.env.domianURL;
-if (wfUrl) {
-    Vue.use(workflow, wfUrl)
-} else {
-    console.error("流程服务地址为空，则无法使用工作流相关功能")
-}
+// let wfUrl = window._CONFIG['workflowURL'] || process.env.domianURL;
+// if (wfUrl) {
+//     Vue.use(workflow, wfUrl)
+// } else {
+//     console.error("流程服务地址为空，则无法使用工作流相关功能")
+// }
 
 // add by jakgong
 VXETable.setup({

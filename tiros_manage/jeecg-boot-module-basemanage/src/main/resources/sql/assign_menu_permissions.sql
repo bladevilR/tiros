@@ -1,0 +1,28 @@
+-- 给testuser的角色(管理员)分配TIROS基础管理菜单权限
+-- 角色ID: f6817f48af4fb3af11b9e8bf182f618b
+
+-- 1. 父菜单: TIROS基础管理
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_basic_manage_parent', NULL);
+
+-- 2. 生产通知单
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_production_notice', NULL);
+
+-- 3. 质量过程
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_quality_process', NULL);
+
+-- 4. 定额BOM
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_quota_bom', NULL);
+
+-- 5. 标准工艺
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_standard_process', NULL);
+
+-- 6. 工艺电子手册
+INSERT INTO SYS_ROLE_PERMISSION (ID, ROLE_ID, PERMISSION_ID, DATA_RULE_IDS)
+VALUES (REPLACE(SYS_GUID(), '-', ''), 'f6817f48af4fb3af11b9e8bf182f618b', 'tiros_tech_manual', NULL);
+
+COMMIT;

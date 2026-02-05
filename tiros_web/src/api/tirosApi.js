@@ -227,6 +227,34 @@ const listRepairAttrProgRelByAttributeId = (attributeId) => getAction('/base/rep
 const saveRepairAttrProgRel = (params) => postAction('/base/repair/attr-rel/save', params)
 const deleteRepairAttrProgRel = (params) => postAction('/base/repair/attr-rel/delete', params)
 
+// 生产通知单管理
+const pageProductionNotice = (params) => getAction('/base/production-notice/page', params)
+const getProductionNotice = (params) => getAction('/base/production-notice/get', params)
+const saveProductionNotice = (params) => postAction('/base/production-notice/save', params)
+const updateProductionNotice = (params) => putAction('/base/production-notice/update', params)
+const deleteProductionNotice = (params) => deleteAction('/base/production-notice/delete', params)
+
+// 标准工序管理
+const pageStandardProcess = (params) => getAction('/base/standard-process/page', params)
+const getStandardProcess = (params) => getAction('/base/standard-process/get', params)
+const saveStandardProcess = (params) => postAction('/base/standard-process/save', params)
+const updateStandardProcess = (params) => putAction('/base/standard-process/update', params)
+const deleteStandardProcess = (params) => deleteAction('/base/standard-process/delete', params)
+
+// 定额BOM管理
+const pageQuotaBom = (params) => getAction('/base/quota-bom/page', params)
+const getQuotaBom = (params) => getAction('/base/quota-bom/get', params)
+const saveQuotaBom = (params) => postAction('/base/quota-bom/save', params)
+const updateQuotaBom = (params) => putAction('/base/quota-bom/update', params)
+const deleteQuotaBom = (params) => deleteAction('/base/quota-bom/delete', params)
+
+// 质量可视化管理
+const pageQualityVisual = (params) => getAction('/base/quality-visual/page', params)
+const getQualityVisual = (params) => getAction('/base/quality-visual/get', params)
+const saveQualityVisual = (params) => postAction('/base/quality-visual/save', params)
+const updateQualityVisual = (params) => putAction('/base/quality-visual/update', params)
+const deleteQualityVisual = (params) => deleteAction('/base/quality-visual/delete', params)
+
 export {
   getOrgTree,
   pageUser,
@@ -392,5 +420,25 @@ export {
   deleteRepairAttribute,
   listRepairAttrProgRelByAttributeId,
   saveRepairAttrProgRel,
-  deleteRepairAttrProgRel
+  deleteRepairAttrProgRel,
+  pageProductionNotice,
+  getProductionNotice,
+  saveProductionNotice,
+  updateProductionNotice,
+  deleteProductionNotice,
+  pageStandardProcess,
+  getStandardProcess,
+  saveStandardProcess,
+  updateStandardProcess,
+  deleteStandardProcess,
+  pageQuotaBom,
+  getQuotaBom,
+  saveQuotaBom,
+  updateQuotaBom,
+  deleteQuotaBom,
+  pageQualityVisual,
+  getQualityVisual,
+  saveQualityVisual,
+  updateQualityVisual,
+  deleteQualityVisual
 }

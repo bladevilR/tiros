@@ -10,7 +10,7 @@ import { checkRefreshToken } from '@views/tiros/util/TokenUtil'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/sso/login','/sso/check','/user/login', '/user/register', '/user/register-result', '/user/alteration', '/403', '/404', '/500'] // no redirect whitelist
+const whiteList = ['/sso/login','/user/login', '/user/register', '/user/register-result', '/user/alteration', '/403', '/404', '/500'] // no redirect whitelist
 
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
@@ -71,9 +71,9 @@ router.beforeEach((to, from, next) => {
               next({ path: '/403', query: { msg: '你的管理员可能忘记给你授权了，请立即找他' } })
             } else {
               if (to.fullPath && to.fullPath !== '') {
-                next({ path: '/sso/check', query: { redirect: to.fullPath } })
+                next({ path: '/user/login', query: { redirect: to.fullPath } })
               } else {
-                next({ path: '/sso/check', query: {} })
+                next({ path: '/user/login', query: {} })
               }
               store.commit('SET_ACTIVELOGOUT', true)
             }
@@ -90,9 +90,9 @@ router.beforeEach((to, from, next) => {
     } else {
       // 增加判断要去网的地址是否为空，为空则不用redirect了
       if (to.fullPath && to.fullPath !== '') {
-        next({ path: '/sso/check', query: { redirect: to.fullPath } })
+        next({ path: '/user/login', query: { redirect: to.fullPath } })
       } else {
-        next({ path: '/sso/check', query: {} })
+        next({ path: '/user/login', query: {} })
       }
       NProgress.done() // if current page is login will not trigger afterEach hook, so manually handle it
     }

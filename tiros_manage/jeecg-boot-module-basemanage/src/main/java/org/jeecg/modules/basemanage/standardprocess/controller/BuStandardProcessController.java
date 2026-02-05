@@ -1,0 +1,67 @@
+package org.jeecg.modules.basemanage.standardprocess.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.jeecg.common.api.vo.Result;
+import org.jeecg.common.aspect.annotation.OperationLog;
+import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.modules.basemanage.standardprocess.entity.BuStandardProcess;
+import org.jeecg.modules.basemanage.standardprocess.service.IBuStandardProcessService;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+
+@Api(tags = "标准工序管理")
+@Slf4j
+@RestController
+@RequestMapping("/base/standard-process")
+public class BuStandardProcessController {
+
+    @Resource
+    private IBuStandardProcessService service;
+
+    @GetMapping("/page")
+    @ApiOperation(value = "标准工序-分页查询")
+    @OperationLog()
+    public Result<IPage<BuStandardProcess>> queryPage(BuStandardProcess query,
+                                                       @RequestParam(defaultValue = "1") Integer pageNo,
+                                                       @RequestParam(defaultValue = "10") Integer pageSize) {
+        IPage<BuStandardProcess> page = service.queryPage(query, pageNo, pageSize);
+        return new Result<IPage<BuStandardProcess>>().successResult(page);
+    }
+
+    @GetMapping("/get")
+    @ApiOperation(value = "标准工序-根据id查询")
+    @OperationLog()
+    public Result<BuStandardProcess> get(@RequestParam @ApiParam(value = "id", required = true) String id) {
+        BuStandardProcess record = service.getById(id);
+        return new Result<BuStandardProcess>().successResult(record);
+    }
+
+    @PostMapping("/save")
+    @ApiOperation(value = "标准工序-新增")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_2)
+    public Result<Boolean> save(@RequestBody BuStandardProcess record) {
+        boolean flag = service.saveRecord(record);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @PutMapping("/update")
+    @ApiOperation(value = "标准工序-修改")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_3)
+    public Result<Boolean> update(@RequestBody BuStandardProcess record) {
+        boolean flag = service.updateRecord(record);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @DeleteMapping("/delete")
+    @ApiOperation(value = "标准工序-批量删除")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_4)
+    public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
+        boolean flag = service.deleteRecord(ids);
+        return new Result<Boolean>().successResult(flag);
+    }
+}

@@ -78,7 +78,7 @@ public class BuOrgUserController {
     @ApiOperation(value = "删除人员信息")
     @OperationLog(operateType = CommonConstant.OPERATE_TYPE_4)
     public Result<Object> deleteUser(@RequestParam @ApiParam(value = "人员id,多个逗号分隔", required = true) String ids) {
-        return Result.ok(buUserService.deleteUser(ids));
+        return (Result)Result.ok(buUserService.deleteUser(ids));
     }
 
     @GetMapping("/user/skill-compare")

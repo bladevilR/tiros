@@ -56,6 +56,27 @@ module.exports = {
             .use()
             .loader('file-loader')
             .end()
+
+        // 配置 webpack 处理 .mjs 文件（用于 Editor.js 插件）
+        config.module
+            .rule('mjs')
+            .test(/\.mjs$/)
+            .include.add(/node_modules\/@editorjs/).end()
+            .type('javascript/auto')
+            .use('babel-loader')
+            .loader('babel-loader')
+            .options({
+                presets: [
+                    ['@babel/preset-env', {
+                        targets: { esmodules: true }
+                    }]
+                ],
+                plugins: [
+                    '@babel/plugin-transform-nullish-coalescing-operator',
+                    '@babel/plugin-transform-optional-chaining'
+                ]
+            })
+            .end()
     },
 
     css: {

@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0b6c8b"],{"1f44":function(n,e,c){"use strict";c.r(e);var t=function(){var n=this,e=n._self._c;return e("EventHandleConfig")},o=[],s={name:"ProcessEventConfig"},a=s,u=c("2877"),i=Object(u["a"])(a,t,o,!1,null,"95b6ac90",null);e["default"]=i.exports}}]);

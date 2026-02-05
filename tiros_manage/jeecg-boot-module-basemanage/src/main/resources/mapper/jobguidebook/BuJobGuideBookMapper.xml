@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.jobguidebook.mapper.BuJobGuideBookMapper">
+
+    <select id="selectPageBySearchText" resultType="org.jeecg.modules.basemanage.jobguidebook.bean.BuJobGuideBook">
+        SELECT * FROM bu_job_guide_book
+        <where>
+            <if test="queryVO.bookCode != null and queryVO.bookCode != ''">
+                AND book_code LIKE CONCAT('%', #{queryVO.bookCode}, '%')
+            </if>
+            <if test="queryVO.bookName != null and queryVO.bookName != ''">
+                AND book_name LIKE CONCAT('%', #{queryVO.bookName}, '%')
+            </if>
+            <if test="queryVO.contentType != null and queryVO.contentType != ''">
+                AND content_type = #{queryVO.contentType}
+            </if>
+            <if test="queryVO.approvalStatus != null and queryVO.approvalStatus != ''">
+                AND approval_status = #{queryVO.approvalStatus}
+            </if>
+            <if test="queryVO.status != null">
+                AND status = #{queryVO.status}
+            </if>
+            <if test="queryVO.processId != null and queryVO.processId != ''">
+                AND process_id = #{queryVO.processId}
+            </if>
+            <if test="queryVO.targetStaffLevel != null and queryVO.targetStaffLevel != ''">
+                AND target_staff_level = #{queryVO.targetStaffLevel}
+            </if>
+            <if test="queryVO.companyId != null and queryVO.companyId != ''">
+                AND company_id = #{queryVO.companyId}
+            </if>
+            <if test="queryVO.workshopId != null and queryVO.workshopId != ''">
+                AND workshop_id = #{queryVO.workshopId}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectJobGuideBookById" resultType="org.jeecg.modules.basemanage.jobguidebook.bean.BuJobGuideBook">
+        SELECT * FROM bu_job_guide_book WHERE id = #{id}
+    </select>
+
+</mapper>

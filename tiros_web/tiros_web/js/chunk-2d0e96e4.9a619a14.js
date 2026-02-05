@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0e96e4"],{"8e01":function(e,n,t){"use strict";t.r(n);var c=function(){var e=this,n=e._self._c;return n("ProcessInstance",{staticStyle:{height:"calc(100vh -  115px)"}})},s=[],a={name:"workflow_instances"},o=a,i=t("2877"),l=Object(i["a"])(o,c,s,!1,null,"03ee2e26",null);n["default"]=l.exports}}]);
