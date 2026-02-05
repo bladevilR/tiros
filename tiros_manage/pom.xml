@@ -42,7 +42,9 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <!-- 注释掉私有仓库以使用公开镜像 -->
     <repositories>
+        <!-- nannar私有仓库需要认证，暂时注释
         <repository>
             <id>nannar</id>
             <name>nannar Repository</name>
@@ -51,6 +53,7 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        -->
         <repository>
             <id>jeecg</id>
             <name>jeecg Repository</name>
@@ -188,13 +191,13 @@
             <version>4.0</version>
             <scope>runtime</scope>
         </dependency>-->
-        <!-- oracle驱动 -->
-        <dependency>
+        <!-- oracle驱动 - 不依赖oracle jdbc编译，运行时可选 -->
+        <!--<dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>11.2.0.3</version>
-<!--            <scope>runtime</scope>-->
-        </dependency>
+            <version>11.2.0.3.0</version>
+            <scope>runtime</scope>
+        </dependency>-->
         <!-- postgresql驱动 -->
         <!--<dependency>
             <groupId>org.postgresql</groupId>
@@ -485,6 +488,13 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.10</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
             <!-- 打包跳过测试 -->
