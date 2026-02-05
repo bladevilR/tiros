@@ -1,0 +1,10 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Feb 05 13:51:49 CST 2026
+@default-nannar-https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.lastUpdated=1770270709797
+https\://maven.aliyun.com/repository/spring/.lastUpdated=1770270709559
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.lastUpdated=1770270709923
+https\://maven.aliyun.com/repository/public/.error=
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.error=
+https\://maven.aliyun.com/repository/spring/.error=
+https\://maven.aliyun.com/repository/public/.lastUpdated=1770270709480
+https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.error=Could not transfer artifact com.oracle.database.jdbc\:ojdbc11\:pom\:21.0.0.0 from/to nannar (https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/)\: Authentication failed for https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/com/oracle/database/jdbc/ojdbc11/21.0.0.0/ojdbc11-21.0.0.0.pom 401 Unauthorized

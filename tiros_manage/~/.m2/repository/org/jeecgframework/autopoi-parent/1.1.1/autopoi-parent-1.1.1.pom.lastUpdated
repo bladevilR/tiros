@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Feb 05 13:52:07 CST 2026
+@default-nannar-https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.lastUpdated=1770270727734
+https\://maven.aliyun.com/repository/spring/.lastUpdated=1770270727573
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.lastUpdated=1770270727836
+https\://maven.aliyun.com/repository/public/.error=
+https\://maven.aliyun.com/repository/spring/.error=
+https\://maven.aliyun.com/repository/public/.lastUpdated=1770270727446
+https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.error=Could not transfer artifact org.jeecgframework\:autopoi-parent\:pom\:1.1.1 from/to nannar (https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/)\: Authentication failed for https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/org/jeecgframework/autopoi-parent/1.1.1/autopoi-parent-1.1.1.pom 401 Unauthorized

@@ -1,0 +1,681 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------< org.nannar:jeecg-boot-module-basemanage >---------------
+[INFO] Building jeecg-boot-module-basemanage 2.2.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:3.1.0:resources (default-resources) @ jeecg-boot-module-basemanage ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 169 resources
+[INFO] Copying 0 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.8.0:compile (default-compile) @ jeecg-boot-module-basemanage ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 378 source files to D:\tiros\jdx\tiros_manage\jeecg-boot-module-basemanage\target\classes
+[INFO] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/controller/AppTrainInfoController.java: 某些输入文件使用了未经检查或不安全的操作。
+[INFO] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/controller/AppTrainInfoController.java: 有关详细信息, 请使用 -Xlint:unchecked 重新编译。
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/productionnotice/entity/BuProductionNotice.java:[30,27] 找不到符号
+  符号:   变量 ASSIGN_ID
+  位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/standardprocess/entity/BuStandardProcess.java:[27,27] 找不到符号
+  符号:   变量 ASSIGN_ID
+  位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/qualityvisual/entity/BuQualityVisual.java:[27,27] 找不到符号
+  符号:   变量 ASSIGN_ID
+  位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/quotabom/entity/BuQuotaBom.java:[27,27] 找不到符号
+  符号:   变量 ASSIGN_ID
+  位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[38,35] 方法引用无效
+  找不到符号
+    符号:   方法 getYear()
+    位置: 类 org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[92,46] 找不到符号
+  符号:   方法 getStartTime()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[94,33] 找不到符号
+  符号:   方法 getDays()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[95,32] 找不到符号
+  符号:   方法 getWork()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[101,43] 找不到符号
+  符号:   方法 getDays()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[103,48] 找不到符号
+  符号:   方法 getStartTime()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[106,32] 找不到符号
+  符号:   方法 getWork()
+  位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[89,39] 找不到符号
+  符号:   方法 getChildId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[93,32] 找不到符号
+  符号:   方法 getChildId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[94,38] 找不到符号
+  符号:   方法 getTrainStructId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[95,53] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[95,84] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[104,49] 方法引用无效
+  找不到符号
+    符号:   方法 getSortNum()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[105,32] 方法引用无效
+  找不到符号
+    符号:   方法 getWbs()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[109,22] 方法引用无效
+  找不到符号
+    符号:   方法 getId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[112,76] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[125,89] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[129,72] 找不到符号
+  符号:   方法 setTrainStructId(java.lang.String)
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[158,67] 找不到符号
+  符号:   方法 getTrainStructId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[175,112] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[176,69] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[176,36] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 dbTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[179,71] 找不到符号
+  符号:   方法 getTrainStructId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[199,83] 找不到符号
+  符号:   方法 getWbs()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[198,86] 找不到符号
+  符号:   方法 getTrainStructId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[198,29] 方法引用无效
+  找不到符号
+    符号:   方法 getTrainStructId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[199,36] 方法引用无效
+  找不到符号
+    符号:   方法 getWbs()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[213,26] 方法引用无效
+  找不到符号
+    符号:   方法 getTrainStructId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[220,50] 找不到符号
+  符号:   方法 getStructType()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[221,47] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[224,37] 找不到符号
+  符号:   方法 setStructType(int)
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[227,45] 找不到符号
+  符号:   方法 getStructType()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[228,37] 找不到符号
+  符号:   方法 setStructType(int)
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[234,42] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[238,31] 找不到符号
+  符号:   方法 getWbs()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[241,38] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[257,21] 方法引用无效
+  找不到符号
+    符号:   方法 getTrainStructId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[259,24] 方法引用无效
+  找不到符号
+    符号:   方法 getParentId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[262,29] 方法引用无效
+  找不到符号
+    符号:   方法 getParentId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[264,25] 方法引用无效
+  找不到符号
+    符号:   方法 getParentId()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[266,24] 方法引用无效
+  找不到符号
+    符号:   方法 getCode()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[267,30] 方法引用无效
+  找不到符号
+    符号:   方法 getCode()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[272,35] 找不到符号
+  符号:   方法 getCode()
+  位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[279,24] 找不到符号
+  符号:   方法 setCode(java.lang.String)
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[289,37] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[291,75] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetTypeItem
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[296,19] 找不到符号
+  符号:   方法 setChildren(java.util.List<org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType>)
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[309,49] 方法引用无效
+  找不到符号
+    符号:   方法 getSortNum()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[310,32] 方法引用无效
+  找不到符号
+    符号:   方法 getWbs()
+    位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[315,30] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[316,31] 找不到符号
+  符号:   方法 getWbs()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[334,43] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[335,44] 找不到符号
+  符号:   方法 getInitNum()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[335,73] 找不到符号
+  符号:   方法 getInitNum()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[347,40] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[348,40] 找不到符号
+  符号:   方法 getName()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[370,45] 找不到符号
+  符号:   方法 getSortNum()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[369,53] 找不到符号
+  符号:   方法 getStatus()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[369,81] 找不到符号
+  符号:   方法 getStatus()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[368,45] 找不到符号
+  符号:   方法 getRemark()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[367,48] 找不到符号
+  符号:   方法 getPlaceDesc()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[366,46] 找不到符号
+  符号:   方法 getPlaceId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[365,43] 找不到符号
+  符号:   方法 getUnit()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[364,55] 找不到符号
+  符号:   方法 getTurnover()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[364,85] 找不到符号
+  符号:   方法 getTurnover()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[363,58] 找不到符号
+  符号:   方法 getSubjunctive()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[363,91] 找不到符号
+  符号:   方法 getSubjunctive()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[362,49] 找不到符号
+  符号:   方法 getMaterialId()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[361,49] 找不到符号
+  符号:   方法 getStructType()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[355,25] 找不到符号
+  符号:   方法 setId(java.lang.String)
+  位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[373,60] 找不到符号
+  符号:   方法 getChildren()
+  位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[86,61] 找不到符号
+  符号:   方法 getLineId()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[87,37] 找不到符号
+  符号:   方法 getTrainTypeId()
+  位置: 类型为org.jeecg.modules.basemanage.line.entity.BuMtrLine的变量 line
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[89,44] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[107,62] 找不到符号
+  符号:   方法 getName()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[111,35] 找不到符号
+  符号:   方法 getCode()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[109,17] 找不到符号
+  符号:   方法 setId(java.lang.String)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[116,21] 方法引用无效
+  找不到符号
+    符号:   方法 getReguId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[120,26] 方法引用无效
+  找不到符号
+    符号:   方法 getId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[131,45] 找不到符号
+  符号:   方法 getId()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 oldReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[132,51] 找不到符号
+  符号:   方法 getParentId()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 oldReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[138,30] 找不到符号
+  符号:   方法 setReguId(java.lang.String)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[141,42] 找不到符号
+  符号:   方法 getMeasure()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[142,34] 找不到符号
+  符号:   方法 setMeasure(int)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[144,42] 找不到符号
+  符号:   方法 getMustReplace()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[145,34] 找不到符号
+  符号:   方法 setMustReplace(int)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[147,42] 找不到符号
+  符号:   方法 getOutsource()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[148,34] 找不到符号
+  符号:   方法 setOutsource(int)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[150,42] 找不到符号
+  符号:   方法 getImportant()
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[151,34] 找不到符号
+  符号:   方法 setImportant(int)
+  位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[158,25] 方法引用无效
+  找不到符号
+    符号:   方法 getReguDetailId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[161,25] 方法引用无效
+  找不到符号
+    符号:   方法 getReguDetailId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[164,25] 方法引用无效
+  找不到符号
+    符号:   方法 getReguDetailId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[167,25] 方法引用无效
+  找不到符号
+    符号:   方法 getReguDetailId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[170,25] 方法引用无效
+  找不到符号
+    符号:   方法 getReguDetailId()
+    位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechBookDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[230,21] 方法引用无效
+  找不到符号
+    符号:   方法 getReguId()
+    位置: 类 org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlan
+[INFO] 100 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.018 s
+[INFO] Finished at: 2026-02-05T13:44:53+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.8.0:compile (default-compile) on project jeecg-boot-module-basemanage: Compilation failure: Compilation failure: 
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/productionnotice/entity/BuProductionNotice.java:[30,27] 找不到符号
+[ERROR]   符号:   变量 ASSIGN_ID
+[ERROR]   位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/standardprocess/entity/BuStandardProcess.java:[27,27] 找不到符号
+[ERROR]   符号:   变量 ASSIGN_ID
+[ERROR]   位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/qualityvisual/entity/BuQualityVisual.java:[27,27] 找不到符号
+[ERROR]   符号:   变量 ASSIGN_ID
+[ERROR]   位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/quotabom/entity/BuQuotaBom.java:[27,27] 找不到符号
+[ERROR]   符号:   变量 ASSIGN_ID
+[ERROR]   位置: 类 com.baomidou.mybatisplus.annotation.IdType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[38,35] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getYear()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[92,46] 找不到符号
+[ERROR]   符号:   方法 getStartTime()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[94,33] 找不到符号
+[ERROR]   符号:   方法 getDays()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[95,32] 找不到符号
+[ERROR]   符号:   方法 getWork()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[101,43] 找不到符号
+[ERROR]   符号:   方法 getDays()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[103,48] 找不到符号
+[ERROR]   符号:   方法 getStartTime()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/holiday/service/impl/HolidayServiceImpl.java:[106,32] 找不到符号
+[ERROR]   符号:   方法 getWork()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.holiday.entity.BuBaseHoliday的变量 baseHoliday
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[89,39] 找不到符号
+[ERROR]   符号:   方法 getChildId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[93,32] 找不到符号
+[ERROR]   符号:   方法 getChildId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[94,38] 找不到符号
+[ERROR]   符号:   方法 getTrainStructId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[95,53] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[95,84] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.vo.BuTrainAssetTypeCopyVO的变量 copyVO
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[104,49] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getSortNum()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[105,32] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getWbs()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[109,22] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[112,76] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[125,89] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[129,72] 找不到符号
+[ERROR]   符号:   方法 setTrainStructId(java.lang.String)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[158,67] 找不到符号
+[ERROR]   符号:   方法 getTrainStructId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[175,112] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[176,69] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[176,36] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 dbTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[179,71] 找不到符号
+[ERROR]   符号:   方法 getTrainStructId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[199,83] 找不到符号
+[ERROR]   符号:   方法 getWbs()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[198,86] 找不到符号
+[ERROR]   符号:   方法 getTrainStructId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[198,29] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getTrainStructId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[199,36] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getWbs()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[213,26] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getTrainStructId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[220,50] 找不到符号
+[ERROR]   符号:   方法 getStructType()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[221,47] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[224,37] 找不到符号
+[ERROR]   符号:   方法 setStructType(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[227,45] 找不到符号
+[ERROR]   符号:   方法 getStructType()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[228,37] 找不到符号
+[ERROR]   符号:   方法 setStructType(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 trainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[234,42] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[238,31] 找不到符号
+[ERROR]   符号:   方法 getWbs()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[241,38] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[257,21] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getTrainStructId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[259,24] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getParentId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[262,29] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getParentId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[264,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getParentId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[266,24] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getCode()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[267,30] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getCode()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[272,35] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[279,24] 找不到符号
+[ERROR]   符号:   方法 setCode(java.lang.String)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 structureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[289,37] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[291,75] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetTypeItem
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[296,19] 找不到符号
+[ERROR]   符号:   方法 setChildren(java.util.List<org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType>)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[309,49] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getSortNum()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[310,32] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getWbs()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[315,30] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[316,31] 找不到符号
+[ERROR]   符号:   方法 getWbs()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail的变量 parent
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[334,43] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[335,44] 找不到符号
+[ERROR]   符号:   方法 getInitNum()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[335,73] 找不到符号
+[ERROR]   符号:   方法 getInitNum()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[347,40] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[348,40] 找不到符号
+[ERROR]   符号:   方法 getName()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[370,45] 找不到符号
+[ERROR]   符号:   方法 getSortNum()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[369,53] 找不到符号
+[ERROR]   符号:   方法 getStatus()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[369,81] 找不到符号
+[ERROR]   符号:   方法 getStatus()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[368,45] 找不到符号
+[ERROR]   符号:   方法 getRemark()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[367,48] 找不到符号
+[ERROR]   符号:   方法 getPlaceDesc()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[366,46] 找不到符号
+[ERROR]   符号:   方法 getPlaceId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[365,43] 找不到符号
+[ERROR]   符号:   方法 getUnit()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[364,55] 找不到符号
+[ERROR]   符号:   方法 getTurnover()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[364,85] 找不到符号
+[ERROR]   符号:   方法 getTurnover()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[363,58] 找不到符号
+[ERROR]   符号:   方法 getSubjunctive()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[363,91] 找不到符号
+[ERROR]   符号:   方法 getSubjunctive()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[362,49] 找不到符号
+[ERROR]   符号:   方法 getMaterialId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[361,49] 找不到符号
+[ERROR]   符号:   方法 getStructType()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[355,25] 找不到符号
+[ERROR]   符号:   方法 setId(java.lang.String)
+[ERROR]   位置: 类 org.jeecg.modules.basemanage.traininfo.entity.BuTrainStructureDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/traininfo/service/impl/BuTrainStructureDetailServiceImpl.java:[373,60] 找不到符号
+[ERROR]   符号:   方法 getChildren()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.traininfo.entity.BuTrainAssetType的变量 assetType
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[86,61] 找不到符号
+[ERROR]   符号:   方法 getLineId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[87,37] 找不到符号
+[ERROR]   符号:   方法 getTrainTypeId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.line.entity.BuMtrLine的变量 line
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[89,44] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[107,62] 找不到符号
+[ERROR]   符号:   方法 getName()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[111,35] 找不到符号
+[ERROR]   符号:   方法 getCode()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[109,17] 找不到符号
+[ERROR]   符号:   方法 setId(java.lang.String)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguInfo的变量 reguInfo
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[116,21] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[120,26] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[131,45] 找不到符号
+[ERROR]   符号:   方法 getId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 oldReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[132,51] 找不到符号
+[ERROR]   符号:   方法 getParentId()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 oldReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[138,30] 找不到符号
+[ERROR]   符号:   方法 setReguId(java.lang.String)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[141,42] 找不到符号
+[ERROR]   符号:   方法 getMeasure()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[142,34] 找不到符号
+[ERROR]   符号:   方法 setMeasure(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[144,42] 找不到符号
+[ERROR]   符号:   方法 getMustReplace()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[145,34] 找不到符号
+[ERROR]   符号:   方法 setMustReplace(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[147,42] 找不到符号
+[ERROR]   符号:   方法 getOutsource()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[148,34] 找不到符号
+[ERROR]   符号:   方法 setOutsource(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[150,42] 找不到符号
+[ERROR]   符号:   方法 getImportant()
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[151,34] 找不到符号
+[ERROR]   符号:   方法 setImportant(int)
+[ERROR]   位置: 类型为org.jeecg.modules.basemanage.regu.bean.BuRepairReguDetail的变量 newReguDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[158,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguDetailId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechFile
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[161,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguDetailId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguMaterial
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[164,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguDetailId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguPerson
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[167,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguDetailId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTools
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[170,25] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguDetailId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.regu.bean.BuRepairReguTechBookDetail
+[ERROR] /D:/tiros/jdx/tiros_manage/jeecg-boot-module-basemanage/src/main/java/org/jeecg/modules/basemanage/regu/service/impl/BuRepairReguInfoServiceImpl.java:[230,21] 方法引用无效
+[ERROR]   找不到符号
+[ERROR]     符号:   方法 getReguId()
+[ERROR]     位置: 类 org.jeecg.modules.basemanage.tpplan.bean.BuTpRepairPlan
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

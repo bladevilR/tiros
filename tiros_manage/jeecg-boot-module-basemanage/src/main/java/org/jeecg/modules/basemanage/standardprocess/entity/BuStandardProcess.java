@@ -24,7 +24,7 @@ public class BuStandardProcess implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(type = IdType.ASSIGN_ID)
+    @TableId(type = IdType.UUID)
     @ApiModelProperty(value = "主键ID")
     private String id;
 

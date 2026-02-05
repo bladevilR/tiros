@@ -1,0 +1,9 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Thu Feb 05 13:54:42 CST 2026
+@default-nannar-https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.lastUpdated=1770270726512
+https\://maven.aliyun.com/repository/spring/.lastUpdated=1770270882741
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.lastUpdated=1770270726656
+https\://maven.aliyun.com/repository/public/.error=
+https\://maven.aliyun.com/repository/spring/.error=
+https\://maven.aliyun.com/repository/public/.lastUpdated=1770270882674
+https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/.error=Could not transfer artifact org.jeecgframework.boot\:codegenerate\:pom\:1.2.0 from/to nannar (https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/)\: Authentication failed for https\://packages.aliyun.com/maven/repository/2109138-release-gUx4Zy/org/jeecgframework/boot/codegenerate/1.2.0/codegenerate-1.2.0.pom 401 Unauthorized
