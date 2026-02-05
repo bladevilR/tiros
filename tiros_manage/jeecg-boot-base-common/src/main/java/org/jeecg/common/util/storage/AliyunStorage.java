@@ -79,6 +79,26 @@ public class AliyunStorage {
     }
 
     /**
+     * 上传文件到OSS（带自定义文件名）
+     *
+     * @param file 文件
+     * @param baseName 基础文件名
+     * @return 文件URL
+     * @throws IOException IO异常
+     */
+    public static String storeFile(MultipartFile file, String baseName) throws IOException {
+        OSSClient ossClient = getOSSClient();
+        String originalFilename = file.getOriginalFilename();
+        String extension = FilenameUtils.getExtension(originalFilename);
+        String fileName = baseName + "_" + RandomStringUtils.randomAlphanumeric(6) + "." + extension;
+
+        InputStream inputStream = file.getInputStream();
+        ossClient.putObject(OSS_BUCKET_NAME, fileName, inputStream);
+        URL url = ossClient.generatePresignedUrl(OSS_BUCKET_NAME, fileName, OSS_URL_EXPIRATION);
+        return url.toString();
+    }
+
+    /**
      * 删除OSS文件
      *
      * @param fileName 文件名

@@ -45,12 +45,10 @@ public class DataTypeCastUtil {
     }
 
     public static boolean isDate(Object obj) {
-        if (obj instanceof oracle.sql.TIMESTAMP) {
-            return true;
-        }
-        if (obj instanceof oracle.sql.DATE) {
-            return true;
-        }
+        // Oracle-specific types support (optional, requires ojdbc driver)
+        // if (obj instanceof oracle.sql.TIMESTAMP) { return true; }
+        // if (obj instanceof oracle.sql.DATE) { return true; }
+
         if (obj instanceof java.sql.Date) {
             return true;
         }
@@ -115,6 +113,8 @@ public class DataTypeCastUtil {
             throw new RuntimeException("对象不是已知日期类型");
         }
 
+        // Oracle-specific types support (optional, requires ojdbc driver)
+        /*
         if (obj instanceof oracle.sql.TIMESTAMP) {
             try {
                 return new Date(((oracle.sql.TIMESTAMP) obj).timestampValue().getTime());
@@ -126,6 +126,8 @@ public class DataTypeCastUtil {
         if (obj instanceof oracle.sql.DATE) {
             return new Date(((oracle.sql.DATE) obj).timestampValue().getTime());
         }
+        */
+
         if (obj instanceof java.sql.Date) {
             return new Date(((java.sql.Date) obj).getTime());
         }
