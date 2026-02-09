@@ -116,4 +116,13 @@ public class BuRepairTechBookController {
         return new Result<Boolean>().successResult(flag);
     }
 
+    @PostMapping("/revise")
+    @ApiOperation(value = "指导书-修订升版", notes = "复制当前指导书并生成新版本草稿")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<String> revise(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id,
+                                 @RequestParam @ApiParam(value = "新版本号", required = true) String newVersion) throws Exception {
+        String newId = buRepairTechBookService.reviseWithNewVersion(id, newVersion);
+        return new Result<String>().successResult(newId);
+    }
+
 }

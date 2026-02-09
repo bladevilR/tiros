@@ -10,6 +10,7 @@ import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.quotabom.entity.BuQuotaBom;
+import org.jeecg.modules.basemanage.quotabom.entity.vo.BuQuotaBomTreeNodeVO;
 import org.jeecg.modules.basemanage.quotabom.service.IBuQuotaBomService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Api(tags = "定额BOM管理")
 @Slf4j
@@ -67,6 +69,14 @@ public class BuQuotaBomController extends JeecgController<BuQuotaBom, IBuQuotaBo
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
         boolean flag = service.deleteRecord(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @GetMapping("/tree")
+    @ApiOperation(value = "定额BOM-结构树")
+    @OperationLog()
+    public Result<List<BuQuotaBomTreeNodeVO>> tree(@RequestParam(required = false) String trainType) {
+        List<BuQuotaBomTreeNodeVO> tree = service.listTree(trainType);
+        return new Result<List<BuQuotaBomTreeNodeVO>>().successResult(tree);
     }
 
     @RequestMapping("/exportXls")

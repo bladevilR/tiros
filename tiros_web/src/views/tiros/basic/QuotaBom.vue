@@ -75,7 +75,19 @@
       </a-form>
     </div>
 
-    <div style="height: calc(100vh - 225px)">
+    <a-row :gutter="12">
+      <a-col :span="7">
+        <a-card title="BOM结构树" :bordered="false" style="height: calc(100vh - 225px); overflow: auto;">
+          <a-tree
+            :treeData="treeData"
+            :defaultExpandAll="true"
+            :replaceFields="{ children: 'children', title: 'title', key: 'key' }"
+            @select="onTreeSelect"
+          />
+        </a-card>
+      </a-col>
+      <a-col :span="17">
+        <div style="height: calc(100vh - 225px)">
       <vxe-table
         border
         auto-resize
@@ -107,7 +119,9 @@
         :layouts="['PrevJump', 'PrevPage', 'Number', 'NextPage', 'NextJump', 'Sizes', 'FullJump', 'Total']"
         @page-change="handlePageChange"
       ></vxe-pager>
-    </div>
+        </div>
+      </a-col>
+    </a-row>
 
     <quota-bom-modal ref="quotaModal" @ok="loadData()"></quota-bom-modal>
   </div>
@@ -117,7 +131,7 @@
 import moment from 'moment'
 import 'moment/locale/zh-cn'
 import QuotaBomModal from './modules/quotabom/QuotaBomModal'
-import { pageQuotaBom, deleteQuotaBom } from '@/api/tirosApi'
+import { pageQuotaBom, deleteQuotaBom, listQuotaBomTree } from '@/api/tirosApi'
 import { downFile } from '@/api/manage'
 import Vue from 'vue'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
@@ -149,10 +163,13 @@ export default {
       allAlign: 'center',
       tableData: [],
       loading: false
+      ,
+      treeData: []
     }
   },
   created () {
     this.loadData()
+    this.loadTree()
   },
   methods: {
     checkboxChange (e) {
@@ -169,9 +186,27 @@ export default {
         this.loading = false
       })
     },
+    loadTree () {
+      listQuotaBomTree({ trainType: this.queryParam.trainType }).then((res) => {
+        if (res && res.success) {
+          this.treeData = res.result || []
+        }
+      })
+    },
+    onTreeSelect (keys, e) {
+      const node = e && e.node && e.node.dataRef
+      if (node && node.level === 6 && node.bomId) {
+        const target = (this.tableData || []).find(item => item.id === node.bomId)
+        this.selectRows = target ? [target] : []
+        if (target) {
+          this.$message.info(`已定位到BOM：${target.bomCode}`)
+        }
+      }
+    },
     handleSearch () {
       this.queryParam.pageNo = 1
       this.loadData()
+      this.loadTree()
     },
     handlePageChange ({ currentPage, pageSize }) {
       this.queryParam.pageNo = currentPage
@@ -199,6 +234,7 @@ export default {
               this.$message.success('删除成功')
               this.selectRows = []
               this.loadData()
+              this.loadTree()
             }
           })
         }

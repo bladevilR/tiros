@@ -211,6 +211,7 @@ const updateSopStatus = (params) => postAction(`/base/tech-book/status?${qs.stri
 const saveSopAsTemplate = (params) => postAction(`/base/tech-book/saveTemplate?${qs.stringify(params)}`)
 const submitSopReview = (params) => postAction(`/base/tech-book/review/submit?${qs.stringify(params)}`)
 const decisionSopReview = (params) => postAction(`/base/tech-book/review/decision?${qs.stringify(params)}`)
+const reviseSopVersion = (params) => postAction(`/base/tech-book/revise?${qs.stringify(params)}`)
 
 const getSopDetailPage = (params) => getAction('/base/tech-book/detail/page', params)
 const getSopDetailRecord = (params) => getAction('/base/tech-book/detail/get', params)
@@ -256,6 +257,7 @@ const getQuotaBom = (params) => getAction('/base/quota-bom/get', params)
 const saveQuotaBom = (params) => postAction('/base/quota-bom/save', params)
 const updateQuotaBom = (params) => putAction('/base/quota-bom/update', params)
 const deleteQuotaBom = (params) => deleteAction('/base/quota-bom/delete', params)
+const listQuotaBomTree = (params) => getAction('/base/quota-bom/tree', params)
 
 // 质量可视化管理
 const pageQualityVisual = (params) => getAction('/base/quality-visual/page', params)
@@ -263,6 +265,8 @@ const getQualityVisual = (params) => getAction('/base/quality-visual/get', param
 const saveQualityVisual = (params) => postAction('/base/quality-visual/save', params)
 const updateQualityVisual = (params) => putAction('/base/quality-visual/update', params)
 const deleteQualityVisual = (params) => deleteAction('/base/quality-visual/delete', params)
+const refreshQualityVisual = (params) => postAction('/base/quality-visual/refresh?' + qs.stringify(params))
+const refreshQualityVisualByPlan = (params) => postAction('/base/quality-visual/refresh-by-plan?' + qs.stringify(params))
 
 export {
   getOrgTree,
@@ -415,6 +419,7 @@ export {
   saveSopAsTemplate,
   submitSopReview,
   decisionSopReview,
+  reviseSopVersion,
   getSopDetailPage,
   saveSopDetailRecord,
   delSopDetailRecord,
@@ -454,9 +459,12 @@ export {
   saveQuotaBom,
   updateQuotaBom,
   deleteQuotaBom,
+  listQuotaBomTree,
   pageQualityVisual,
   getQualityVisual,
   saveQualityVisual,
   updateQualityVisual,
-  deleteQualityVisual
+  deleteQualityVisual,
+  refreshQualityVisual,
+  refreshQualityVisualByPlan
 }

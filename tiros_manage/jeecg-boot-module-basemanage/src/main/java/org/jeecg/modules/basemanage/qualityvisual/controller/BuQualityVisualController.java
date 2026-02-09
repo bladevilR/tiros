@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Api(tags = "质量可视化管理")
 @Slf4j
@@ -67,6 +68,25 @@ public class BuQualityVisualController extends JeecgController<BuQualityVisual, 
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
         boolean flag = service.deleteRecord(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/refresh")
+    @ApiOperation(value = "质量可视化-按列计划和车号刷新")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<BuQualityVisual> refresh(@RequestParam @ApiParam(value = "列计划ID", required = true) String planId,
+                                           @RequestParam @ApiParam(value = "车号", required = true) String trainNo,
+                                           @RequestParam(required = false) String trainType,
+                                           @RequestParam(required = false) String projectName) {
+        BuQualityVisual visual = service.refreshByPlanAndTrain(planId, trainNo, trainType, projectName);
+        return new Result<BuQualityVisual>().successResult(visual);
+    }
+
+    @PostMapping("/refresh-by-plan")
+    @ApiOperation(value = "质量可视化-按列计划批量刷新")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<List<BuQualityVisual>> refreshByPlan(@RequestParam @ApiParam(value = "列计划ID", required = true) String planId) {
+        List<BuQualityVisual> list = service.batchRefreshByPlan(planId);
+        return new Result<List<BuQualityVisual>>().successResult(list);
     }
 
     @RequestMapping("/exportXls")

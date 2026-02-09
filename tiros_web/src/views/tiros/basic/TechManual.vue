@@ -31,6 +31,7 @@
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑基础信息</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEditContent(selectRows[0])">编辑正文</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleSaveAsTemplate">保存为模板</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handleReviseVersion(selectRows[0])">修订升版</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
                 <a-button @click="handleSearch">查询</a-button>
               </a-space>
@@ -91,6 +92,7 @@
               <a @click="handleSubmitReview(row)">提交审阅</a>
               <a @click="handleReviewDecision(row)">审阅</a>
               <a @click="handlePublish(row)">更新指导书</a>
+              <a @click="handleReviseVersion(row)">修订升版</a>
             </a-space>
           </template>
         </vxe-table-column>
@@ -119,7 +121,7 @@ import TechmanualDetailModal from './modules/techmanual/TechmanualDetailModal'
 import TechBookEditorModal from './modules/techmanual/TechBookEditorModal'
 import TechBookReviewModal from './modules/techmanual/TechBookReviewModal'
 import UserList from '@views/tiros/common/selectModules/UserList'
-import { getSopPage, delSopRecord, saveSopAsTemplate, updateSopStatus, submitSopReview, getSopDetailPage, getSopDetailRecord, saveSopContent } from '@/api/tirosApi'
+import { getSopPage, delSopRecord, saveSopAsTemplate, reviseSopVersion, updateSopStatus, submitSopReview, getSopDetailPage, getSopDetailRecord, saveSopContent } from '@/api/tirosApi'
 
 export default {
   components: { TechmanualDetailModal, TechBookEditorModal, TechBookReviewModal, UserList },
@@ -215,6 +217,50 @@ export default {
           this.$message.error(res.message || '操作失败')
         }
       })
+    },
+    handleReviseVersion (record) {
+      if (!record || !record.id) {
+        this.$message.warning('请选择指导书')
+        return
+      }
+      const currentVer = String(record.fileVer || '').trim()
+      this.$confirm({
+        title: '修订升版',
+        content: `将版本【${currentVer || '-'}】升版并生成新草稿，是否继续？`,
+        onOk: () => {
+          const newVersion = this.buildNextVersion(currentVer)
+          if (!newVersion) {
+            this.$message.warning('无法自动计算新版本号，请先补充当前版本号')
+            return
+          }
+          reviseSopVersion({ id: record.id, newVersion }).then(res => {
+            if (res.success) {
+              this.$message.success(`修订升版成功，新版本：${newVersion}`)
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '修订升版失败')
+            }
+          })
+        }
+      })
+    },
+    buildNextVersion (version) {
+      const ver = String(version || '').trim()
+      if (!ver) {
+        return 'V2.0'
+      }
+      const vMatch = ver.match(/^([Vv])(\d+)(?:\.(\d+))?$/)
+      if (vMatch) {
+        const major = Number(vMatch[2] || 0)
+        return `V${major + 1}.0`
+      }
+      const numberMatch = ver.match(/(\d+)(?!.*\d)/)
+      if (numberMatch) {
+        const oldNum = numberMatch[1]
+        const nextNum = String(Number(oldNum) + 1)
+        return ver.replace(new RegExp(`${oldNum}(?!.*\\d)`), nextNum)
+      }
+      return ''
     },
     handleSubmitReview (record) {
       if (record.reviewStatus === 1) {

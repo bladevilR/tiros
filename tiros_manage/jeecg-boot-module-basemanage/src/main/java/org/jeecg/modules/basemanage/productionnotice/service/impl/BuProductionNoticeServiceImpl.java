@@ -119,7 +119,21 @@ public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNotic
         if (notices.stream().anyMatch(item -> "1".equals(item.getStatus()) || "2".equals(item.getStatus()))) {
             throw new JeecgBootException("审核中或已发布的通知单不允许删除");
         }
-        return this.removeByIds(idArray);
+        Date now = new Date();
+        UpdateWrapper<BuProductionNotice> wrapper = new UpdateWrapper<>();
+        wrapper.in("id", idArray)
+                .eq("del_flag", 0)
+                .set("del_flag", 1)
+                .set("update_time", now);
+        this.update(wrapper);
+
+        UpdateWrapper<BuProductionNoticeOrderRel> relWrapper = new UpdateWrapper<>();
+        relWrapper.in("notice_id", idArray)
+                .eq("del_flag", 0)
+                .set("del_flag", 1)
+                .set("update_time", now);
+        noticeOrderRelMapper.update(null, relWrapper);
+        return true;
     }
 
     @Override
@@ -215,7 +229,7 @@ public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNotic
 
         QueryWrapper<BuProductionNoticeOrderRel> existWrapper = new QueryWrapper<>();
         existWrapper.eq("notice_id", noticeId)
-                .eq("order_id", orderId)
+                .eq("train_no", trainNo)
                 .eq("del_flag", 0);
         Integer count = noticeOrderRelMapper.selectCount(existWrapper);
         if (count != null && count > 0) {

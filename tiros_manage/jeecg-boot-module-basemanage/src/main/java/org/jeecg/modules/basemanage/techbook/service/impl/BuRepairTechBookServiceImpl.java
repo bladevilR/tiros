@@ -308,6 +308,37 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
                         .eq("id", id)) > 0;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String reviseWithNewVersion(String id, String newVersion) throws Exception {
+        if (StringUtils.isBlank(id)) {
+            throw new JeecgBootException("指导书ID不能为空");
+        }
+        if (StringUtils.isBlank(newVersion)) {
+            throw new JeecgBootException("新版本号不能为空");
+        }
+        BuRepairTechBook source = getByIdOrThrow(id);
+        String newId = cloneAsTemplate(id);
+        BuRepairTechBook revised = getByIdOrThrow(newId);
+        revised.setTemplateFlag(0);
+        revised.setFileVer(newVersion.trim());
+        revised.setStatus(0);
+        revised.setReviewStatus(0);
+        revised.setReviewerId(null);
+        revised.setReviewerName(null);
+        revised.setReviewComment(null);
+        revised.setReviewTime(null);
+        buRepairTechBookMapper.updateById(revised);
+
+        if (!Integer.valueOf(0).equals(source.getStatus())) {
+            buRepairTechBookMapper.update(null,
+                    new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<BuRepairTechBook>()
+                            .set("status", 0)
+                            .eq("id", source.getId()));
+        }
+        return newId;
+    }
+
 
     private void checkReguRelation(List<String> idList) {
         LambdaQueryWrapper<BuRepairReguTechBookDetail> reguTechBookQueryWrapper = new LambdaQueryWrapper<BuRepairReguTechBookDetail>()

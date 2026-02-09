@@ -78,5 +78,7 @@ public interface BuRepairTechBookService extends IService<BuRepairTechBook> {
      */
     boolean reviewDecision(String id, Integer reviewStatus, String reviewComment) throws Exception;
 
+    String reviseWithNewVersion(String id, String newVersion) throws Exception;
+
 
 }

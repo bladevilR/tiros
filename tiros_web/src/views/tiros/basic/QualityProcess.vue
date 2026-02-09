@@ -53,6 +53,7 @@
                 <a-button type="primary" @click="handleAdd">新增</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
+                <a-button @click="handleBatchRefreshByPlan">按计划批量刷新</a-button>
                 <a-button @click="handleExport">导出</a-button>
                 <a-upload
                   name="file"
@@ -117,7 +118,7 @@
 import moment from 'moment'
 import 'moment/locale/zh-cn'
 import QualityVisualModal from './modules/qualityvisual/QualityVisualModal'
-import { pageQualityVisual, deleteQualityVisual } from '@/api/tirosApi'
+import { pageQualityVisual, deleteQualityVisual, refreshQualityVisualByPlan } from '@/api/tirosApi'
 import { downFile } from '@/api/manage'
 import Vue from 'vue'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
@@ -198,6 +199,28 @@ export default {
               this.$message.success('删除成功')
               this.selectRows = []
               this.loadData()
+            }
+          })
+        }
+      })
+    },
+    handleBatchRefreshByPlan () {
+      const planId = this.queryParam.planId
+      if (!planId) {
+        this.$message.warning('请先在查询条件输入计划ID')
+        return
+      }
+      this.$confirm({
+        title: '批量刷新确认',
+        content: `确认按计划【${planId}】批量刷新质量可视化数据吗？`,
+        onOk: () => {
+          refreshQualityVisualByPlan({ planId }).then((res) => {
+            if (res.success) {
+              const count = (res.result || []).length
+              this.$message.success(`批量刷新完成，共处理 ${count} 列车`)
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '批量刷新失败')
             }
           })
         }

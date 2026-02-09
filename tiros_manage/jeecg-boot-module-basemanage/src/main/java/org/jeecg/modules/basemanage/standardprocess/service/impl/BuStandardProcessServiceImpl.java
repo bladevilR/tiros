@@ -1,6 +1,7 @@
 package org.jeecg.modules.basemanage.standardprocess.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -79,7 +80,14 @@ public class BuStandardProcessServiceImpl extends ServiceImpl<BuStandardProcessM
         if (idArray.isEmpty()) {
             throw new JeecgBootException("标准工序ID不能为空");
         }
-        return this.removeByIds(idArray);
+        Date now = new Date();
+        UpdateWrapper<BuStandardProcess> wrapper = new UpdateWrapper<>();
+        wrapper.in("id", idArray)
+                .eq("del_flag", 0)
+                .set("del_flag", 1)
+                .set("update_time", now);
+        this.update(wrapper);
+        return true;
     }
 
     private List<String> parseIdList(String ids) {

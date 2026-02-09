@@ -43,6 +43,17 @@
         </a-row>
 
         <a-row>
+          <a-col :span="24">
+            <a-form-model-item label="数据汇总" :label-col="{ span: 3 }" :wrapper-col="{ span: 20 }">
+              <a-space>
+                <a-button type="dashed" icon="sync" :loading="refreshLoading" @click="handleAutoRefresh">自动汇总</a-button>
+                <span style="color: rgba(0, 0, 0, 0.45)">根据计划ID+车号自动汇总工单与质量问题数据</span>
+              </a-space>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+
+        <a-row>
           <a-col :span="12">
             <a-form-model-item label="质量等级">
               <a-select v-model="model.qualityLevel" placeholder="请选择质量等级">
@@ -115,7 +126,7 @@
 </template>
 
 <script>
-import { saveQualityVisual, updateQualityVisual } from '@/api/tirosApi'
+import { saveQualityVisual, updateQualityVisual, refreshQualityVisual } from '@/api/tirosApi'
 
 export default {
   name: 'QualityVisualModal',
@@ -124,6 +135,7 @@ export default {
       title: '',
       visible: false,
       confirmLoading: false,
+      refreshLoading: false,
       model: {},
       validatorRules: {
         projectName: [{ required: true, message: '请输入项目名称', trigger: 'blur' }]
@@ -135,6 +147,7 @@ export default {
       this.title = '新增质量可视化'
       this.visible = true
       this.model = {
+        trainType: '电客车',
         qualityLevel: 'A',
         completedProcesses: 0,
         totalProcesses: 0,
@@ -146,6 +159,28 @@ export default {
       this.title = '编辑质量可视化'
       this.visible = true
       this.model = Object.assign({}, record)
+    },
+    handleAutoRefresh() {
+      if (!this.model.planId || !this.model.trainNo) {
+        this.$message.warning('请先输入计划ID和车号')
+        return
+      }
+      this.refreshLoading = true
+      refreshQualityVisual({
+        planId: this.model.planId,
+        trainNo: this.model.trainNo,
+        trainType: this.model.trainType,
+        projectName: this.model.projectName
+      }).then(res => {
+        if (res.success && res.result) {
+          this.model = Object.assign({}, this.model, res.result)
+          this.$message.success('自动汇总成功，已回填数据')
+        } else {
+          this.$message.error(res.message || '自动汇总失败')
+        }
+      }).finally(() => {
+        this.refreshLoading = false
+      })
     },
     handleOk() {
       this.$refs.form.validate(valid => {
