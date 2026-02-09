@@ -88,6 +88,21 @@
                 />
               </a-form-item>
             </a-col>
+            <a-col :span="12" v-if="orderType === 3">
+              <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="生产通知单">
+                <a-select
+                  :allowClear="true"
+                  :disabled="generate === 1"
+                  v-decorator="['productionNoticeId']"
+                  placeholder="请选择技术类生产通知单"
+                  @dropdownVisibleChange="onNoticeDropdownVisibleChange"
+                >
+                  <a-select-option v-for="item in productionNoticeOptions" :key="item.id" :value="item.id">
+                    {{ item.noticeNo }} - {{ item.title }}
+                  </a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
             <a-col :span="12">
               <a-form-item :labelCol="labelCol" :wrapperCol="wrapperCol" label="所属车间">
                 <j-dict-select-tag
@@ -390,7 +405,7 @@ import SuperviseItemDetailModal from '@views/tiros/outsource/modules/SuperviseIt
 import TargetDeviceListOrder from '@/views/tiros/dispatch/workOrder/TargetDeviceListOrder.vue'
 
 import moment from 'moment'
-import { addWorkOrder, editWorkOrder, getWorkOrderDetail, getTrainPlanDetail } from '@api/tirosDispatchApi'
+import { addWorkOrder, editWorkOrder, getWorkOrderDetail, getTrainPlanDetail, listPendingProductionNotice } from '@api/tirosDispatchApi'
 import { submitOrderToDispatcher, getOutTaskInfo, getTaskRelevanceInfo } from '@api/tirosGroupApi'
 import LineSelectList from '@views/tiros/common/selectModules/LineSelectList'
 import { randomUUID } from '@/utils/util'
@@ -487,6 +502,7 @@ export default {
       tableDataFiles: [],
       tableAttachedFiles: [],
       tableStaffArranges: [],
+      productionNoticeOptions: [],
       workOrderInfo: {},
       allAlign: 'center',
       basicInfoForm: this.$form.createForm(this),
@@ -703,7 +719,18 @@ export default {
                 fdTask: detail.fdTask,
                 fdCostType: detail.fdCostType,
                 remark: detail.remark,
+                productionNoticeId: detail.productionNoticeId,
               })
+
+              if (detail.orderType === 3) {
+                this.loadPendingProductionNotice(
+                  detail.lineId,
+                  detail.trainNo,
+                  detail.productionNoticeId,
+                  detail.productionNoticeNo,
+                  detail.productionNoticeTitle
+                )
+              }
 
               this.planId = detail.planId
               this.getTrainPlanDetail()
@@ -784,6 +811,7 @@ export default {
         this.tableDataFiles = []
         this.tableAttachedFiles = []
         this.tableStaffArranges = []
+        this.productionNoticeOptions = []
         this.model = {}
 
         if (this.operator != 2 && this.operator != 3) {
@@ -829,6 +857,7 @@ export default {
       this.tableDataTools = []
       this.tableDataForms = []
       this.tableDataFiles = []
+      this.productionNoticeOptions = []
 
       this.$emit('loaded')
     },
@@ -1541,6 +1570,9 @@ export default {
       } else {
         this.dictTrainStr = ''
       }
+      if (this.orderType === 3) {
+        this.loadPendingProductionNotice(value, this.trainNo)
+      }
     },
     onTrainNoSelect(value, itemData) {
       this.trainNo = value
@@ -1549,6 +1581,9 @@ export default {
       }
       if (itemData.extFields && itemData.extFields.train_struct_id) {
         this.structureId = itemData.extFields.train_struct_id
+      }
+      if (this.orderType === 3) {
+        this.loadPendingProductionNotice(this.lineId, value)
       }
     },
     onWorkshopSelect(value, itemData) {
@@ -1592,6 +1627,39 @@ export default {
     },
     onSelectOrderType(value, itemData) {
       this.orderType = parseInt(value)
+      if (this.orderType === 3) {
+        this.loadPendingProductionNotice(this.lineId, this.trainNo)
+      } else {
+        this.productionNoticeOptions = []
+        this.basicInfoForm.setFieldsValue({
+          productionNoticeId: undefined,
+        })
+      }
+    },
+    onNoticeDropdownVisibleChange(visible) {
+      if (visible && this.orderType === 3) {
+        this.loadPendingProductionNotice(this.lineId, this.trainNo)
+      }
+    },
+    loadPendingProductionNotice(lineId, trainNo, currentNoticeId, currentNoticeNo, currentNoticeTitle) {
+      listPendingProductionNotice({ lineId, trainNo }).then((res) => {
+        if (res.success) {
+          const options = res.result || []
+          const currentId = currentNoticeId || this.basicInfoForm.getFieldValue('productionNoticeId')
+          if (currentId && options.findIndex(item => item.id === currentId) === -1) {
+            options.unshift({
+              id: currentId,
+              noticeNo: currentNoticeNo || this.model.productionNoticeNo || '已绑定通知单',
+              title: currentNoticeTitle || this.model.productionNoticeTitle || ''
+            })
+          }
+          this.productionNoticeOptions = options
+        } else {
+          this.productionNoticeOptions = []
+        }
+      }).catch(() => {
+        this.productionNoticeOptions = []
+      })
     },
     onSelectUser() {
       this.updateStaffArranges()

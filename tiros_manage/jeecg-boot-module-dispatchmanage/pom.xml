@@ -15,5 +15,10 @@
             <artifactId>jeecg-boot-base-common</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.nannar</groupId>
+            <artifactId>jeecg-boot-module-basemanage</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
     </dependencies>
 </project>

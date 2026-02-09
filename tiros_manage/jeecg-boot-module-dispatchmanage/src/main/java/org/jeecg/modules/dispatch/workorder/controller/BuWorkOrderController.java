@@ -17,6 +17,8 @@ import org.jeecg.modules.dispatch.workorder.bean.vo.BuMaterialApplyOrderCreateVO
 import org.jeecg.modules.dispatch.workorder.bean.vo.BuWorkOrderQueryVO;
 import org.jeecg.modules.dispatch.workorder.service.BuWorkOrderMaterialService;
 import org.jeecg.modules.dispatch.workorder.service.BuWorkOrderService;
+import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,12 +40,15 @@ public class BuWorkOrderController {
 
     private final BuWorkOrderService buWorkOrderService;
     private final BuWorkOrderMaterialService buWorkOrderMaterialService;
+    private final IBuProductionNoticeService productionNoticeService;
 
 
     public BuWorkOrderController(BuWorkOrderService buWorkOrderService,
-                                 BuWorkOrderMaterialService buWorkOrderMaterialService) {
+                                 BuWorkOrderMaterialService buWorkOrderMaterialService,
+                                 IBuProductionNoticeService productionNoticeService) {
         this.buWorkOrderService = buWorkOrderService;
         this.buWorkOrderMaterialService = buWorkOrderMaterialService;
+        this.productionNoticeService = productionNoticeService;
     }
 
 
@@ -63,6 +68,15 @@ public class BuWorkOrderController {
     public Result<WorkOrderRelevanceInfo> relevanceInfo(@ApiParam(value = "工单id") @PathVariable String id) throws Exception {
         WorkOrderRelevanceInfo relevanceInfo = buWorkOrderService.selectWorkOrderRelevanceInfo(id);
         return new Result<WorkOrderRelevanceInfo>().successResult(relevanceInfo);
+    }
+
+    @GetMapping("/list-pending-production-notice")
+    @ApiOperation(value = "查询可关联的待执行生产通知单")
+    @OperationLog()
+    public Result<List<BuProductionNotice>> listPendingProductionNotice(@RequestParam(required = false) String lineId,
+                                                                        @RequestParam(required = false) String trainNo) {
+        List<BuProductionNotice> notices = productionNoticeService.listPendingTechnicalNotices(lineId, trainNo);
+        return new Result<List<BuProductionNotice>>().successResult(notices);
     }
 
     @GetMapping("/list-material-assign")

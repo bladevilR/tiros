@@ -42,6 +42,7 @@ import org.jeecg.common.workflow.bean.vo.StartVO;
 import org.jeecg.common.workflow.constant.WfConstant;
 import org.jeecg.common.workflow.service.WfBizStatusService;
 import org.jeecg.common.workflow.service.WorkflowForwardService;
+import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.jeecg.modules.dispatch.fault.bean.BuFaultInfo;
 import org.jeecg.modules.dispatch.fault.mapper.BuFaultInfoMapper;
 import org.jeecg.modules.dispatch.planform.bean.*;
@@ -178,6 +179,8 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
     private WfBizStatusService wfBizStatusService;
     @Resource
     private BuMaterialStockChangeService buMaterialStockChangeService;
+    @Resource
+    private IBuProductionNoticeService productionNoticeService;
 
     private static final List<Integer> MATERIAL_ORDER_TYPE = Arrays.asList(4, 5);
 
@@ -338,6 +341,7 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
     @Transactional(rollbackFor = Exception.class)
     @Override
     public boolean saveWorkOrder(BuWorkOrder order) throws Exception {
+        validateProductionNoticeOrder(order);
         // 设置物资属性，班长和工期
         setOrderProperties(order);
         // 插入工单
@@ -350,6 +354,7 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
             order.setWorkStatus(0);
         }
         buWorkOrderMapper.insert(order);
+        bindProductionNoticeOrder(order);
 
         // 插入关联信息
         insertWorkOrderRelevanceInfo(order, true);
@@ -520,6 +525,10 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
 
         BuWorkOrder dbOrder = buWorkOrderMapper.selectById(order.getId());
         Integer currentOrderStatus = dbOrder.getOrderStatus();
+        validateProductionNoticeOrder(order);
+        if (StringUtils.isNotBlank(dbOrder.getProductionNoticeId()) && !StringUtils.equals(dbOrder.getProductionNoticeId(), order.getProductionNoticeId())) {
+            throw new JeecgBootException("已绑定生产通知单的工单不允许更换通知单");
+        }
 
         // 设置物资属性，班长和工期
         setOrderProperties(order);
@@ -618,6 +627,8 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
                     order.setActStart(null != issuingTime ? issuingTime : new Date(now.getTime() - 60000L));
                 }
                 buWorkOrderMapper.updateById(order);
+
+                productionNoticeService.refreshProgressByOrder(order.getId(), order.getTrainNo());
             }
 
             // 故障工单关闭后，处理对应故障处理流程
@@ -649,11 +660,17 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
             rebuildMaterialRptDataByNewThread(Collections.singletonList(order.getTrainNo()));
             // 开线程统计工时绩效
             rebuildKpiRptDataByNewThread(Collections.singletonList(orderId));
+
+            productionNoticeService.refreshProgressByOrder(order.getId(), order.getTrainNo());
         }
 
         // 启动流程，转移到controller层，不在同一事务中
 //        // 启动工单流程
 //        startOrderWorkflow(order);
+
+        if (StringUtils.isBlank(dbOrder.getProductionNoticeId())) {
+            bindProductionNoticeOrder(order);
+        }
 
         // 更新首页数据区数据
         homepageItemRptService.rewriteDataItem();
@@ -816,6 +833,10 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
                 deleteWorkOrderRelevanceInfo(idList);
                 // 删除表单实例和工单任务的关联
                 deleteWorkOrderFormsInst(idList);
+
+                for (String id : idList) {
+                    productionNoticeService.unbindOrder(id);
+                }
 
                 buWorkOrderMapper.deleteBatchIds(idList);
             }
@@ -1687,6 +1708,7 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
 
             // 更新工单为取消状态
             buWorkOrderMapper.updateById(new BuWorkOrder().setId(orderId).setOrderStatus(9));
+            productionNoticeService.refreshProgressByOrder(orderId, order.getTrainNo());
             // 删除流程状态
             wfBizStatusService.removeById(orderId);
         }
@@ -3489,6 +3511,29 @@ public class BuWorkOrderServiceImpl extends ServiceImpl<BuWorkOrderMapper, BuWor
         } else {
             groupStock.setUsedDetailInfo("工单" + usedOrderCode + usedTypeString + "占用" + usedAmount.stripTrailingZeros().toString());
         }
+    }
+
+    private void validateProductionNoticeOrder(BuWorkOrder order) {
+        if (order == null) {
+            return;
+        }
+        String noticeId = order.getProductionNoticeId();
+        if (StringUtils.isBlank(noticeId)) {
+            return;
+        }
+        if (order.getOrderType() == null || order.getOrderType() != 3) {
+            throw new JeecgBootException("仅临时工单允许关联技术类生产通知单");
+        }
+        if (StringUtils.isBlank(order.getTrainNo())) {
+            throw new JeecgBootException("关联生产通知单时必须选择车号");
+        }
+    }
+
+    private void bindProductionNoticeOrder(BuWorkOrder order) {
+        if (order == null || StringUtils.isBlank(order.getProductionNoticeId())) {
+            return;
+        }
+        productionNoticeService.bindOrder(order.getProductionNoticeId(), order.getId(), order.getOrderCode(), order.getTrainNo());
     }
 
 }

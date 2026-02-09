@@ -134,6 +134,9 @@ public class BuWorkOrder extends Model<BuWorkOrder> {
     @ApiModelProperty(value = "工单创建来源 1自动生成 2调度创建 3班组创建")
     private Integer fromType;
 
+    @ApiModelProperty(value = "关联生产通知单ID")
+    private String productionNoticeId;
+
     @ApiModelProperty(value = "工单暂停前状态 字典dicCode=bu_order_status")
     @Dict(dicCode = "bu_order_status")
     private Integer suspendStatus;
@@ -279,6 +282,14 @@ public class BuWorkOrder extends Model<BuWorkOrder> {
     @ApiModelProperty(value = "流程操作属性")
     @TableField(exist = false)
     private String wfAttrKey;
+
+    @ApiModelProperty(value = "生产通知单号")
+    @TableField(exist = false)
+    private String productionNoticeNo;
+
+    @ApiModelProperty(value = "生产通知单标题")
+    @TableField(exist = false)
+    private String productionNoticeTitle;
 
 
     @Override

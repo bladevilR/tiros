@@ -238,6 +238,10 @@ const getProductionNotice = (params) => getAction('/base/production-notice/get',
 const saveProductionNotice = (params) => postAction('/base/production-notice/save', params)
 const updateProductionNotice = (params) => putAction('/base/production-notice/update', params)
 const deleteProductionNotice = (params) => deleteAction('/base/production-notice/delete', params)
+const submitProductionNotice = (params) => postAction('/base/production-notice/submit?' + qs.stringify(params))
+const publishProductionNotice = (params) => postAction('/base/production-notice/publish?' + qs.stringify(params))
+const closeProductionNotice = (params) => postAction('/base/production-notice/close?' + qs.stringify(params))
+const listProductionNoticeProgressDetail = (params) => getAction('/base/production-notice/progress-detail', params)
 
 // 标准工序管理
 const pageStandardProcess = (params) => getAction('/base/standard-process/page', params)
@@ -436,6 +440,10 @@ export {
   saveProductionNotice,
   updateProductionNotice,
   deleteProductionNotice,
+  submitProductionNotice,
+  publishProductionNotice,
+  closeProductionNotice,
+  listProductionNoticeProgressDetail,
   pageStandardProcess,
   getStandardProcess,
   saveStandardProcess,

@@ -810,7 +810,9 @@
                t5.code                          as fdProjectCode,
                t5.name                          as fdProjectName,
                t6.code                          as fdTaskCode,
-               t6.name                          as fdTaskName
+               t6.name                          as fdTaskName,
+               t7.notice_no                     as productionNoticeNo,
+               t7.title                         as productionNoticeTitle
         from bu_work_order t
                  left join bu_mtr_workshop_group t1 on t.group_id = t1.id
                  left join bu_mtr_line t2 on t.line_id = t2.line_id
@@ -818,6 +820,7 @@
                  left join bu_repair_plan t4 on t4.id = t.plan_id
                  left join bu_maximo_finance_item t5 on t5.id = t.fd_project
                  left join bu_maximo_finance_item t6 on t6.id = t.fd_task
+                 left join bu_production_notice t7 on t7.id = t.production_notice_id
         where t.id = #{id}
     </select>
 
@@ -863,7 +866,9 @@
                t7.code       as fdProjectCode,
                t7.name       as fdProjectName,
                t8.code       as fdTaskCode,
-               t8.name       as fdTaskName
+               t8.name       as fdTaskName,
+               t9.notice_no  as productionNoticeNo,
+               t9.title      as productionNoticeTitle
         from bu_work_order t
                  left join bu_repair_plan t1 on t1.id = t.plan_id
                  left join bu_repair_program t2 on t2.id = t1.repair_program_id
@@ -873,6 +878,7 @@
                  left join bu_mtr_workshop_group t6 on t6.id = t.group_id
                  left join bu_maximo_finance_item t7 on t7.id = t.fd_project
                  left join bu_maximo_finance_item t8 on t8.id = t.fd_task
+                 left join bu_production_notice t9 on t9.id = t.production_notice_id
         where t.id = #{orderId}
     </select>
 

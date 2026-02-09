@@ -63,6 +63,10 @@
                 <a-button type="primary" @click="handleAdd">新增</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
+                <a-button :disabled="!canSubmit" @click="handleSubmit">提交审核</a-button>
+                <a-button :disabled="!canPublish" @click="handlePublish">发布</a-button>
+                <a-button :disabled="!canClose" @click="handleClose">关闭</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="loadProgressDetail">进度明细</a-button>
                 <a-button @click="handleExport">导出</a-button>
                 <a-upload
                   name="file"
@@ -126,6 +130,29 @@
     </div>
 
     <production-notice-modal ref="noticeModal" @ok="loadData()"></production-notice-modal>
+
+    <a-modal
+      title="生产通知执行进度明细"
+      :visible="progressVisible"
+      :footer="null"
+      :width="860"
+      @cancel="progressVisible = false"
+      :maskClosable="false"
+    >
+      <vxe-table
+        border
+        auto-resize
+        max-height="420"
+        :align="allAlign"
+        :data="progressDetails"
+      >
+        <vxe-table-column field="trainNo" title="车号" width="180"></vxe-table-column>
+        <vxe-table-column field="totalOrders" title="关联工单数" width="140"></vxe-table-column>
+        <vxe-table-column field="completedOrders" title="已完成工单数" width="140"></vxe-table-column>
+        <vxe-table-column field="progressText" title="列车进度" width="120"></vxe-table-column>
+        <vxe-table-column field="lastFinishTime" title="最近完成时间" min-width="220" :formatter="formatDate"></vxe-table-column>
+      </vxe-table>
+    </a-modal>
   </div>
 </template>
 
@@ -133,7 +160,14 @@
 import moment from 'moment'
 import 'moment/locale/zh-cn'
 import ProductionNoticeModal from './modules/productionnotice/ProductionNoticeModal'
-import { pageProductionNotice, deleteProductionNotice } from '@/api/tirosApi'
+import {
+  pageProductionNotice,
+  deleteProductionNotice,
+  submitProductionNotice,
+  publishProductionNotice,
+  closeProductionNotice,
+  listProductionNoticeProgressDetail
+} from '@/api/tirosApi'
 import { downFile } from '@/api/manage'
 import Vue from 'vue'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
@@ -142,6 +176,15 @@ export default {
   name: 'ProductionNotice',
   components: { ProductionNoticeModal },
   computed: {
+    canSubmit() {
+      return this.selectRows.length === 1 && this.selectRows[0].status === '0'
+    },
+    canPublish() {
+      return this.selectRows.length === 1 && this.selectRows[0].status === '1'
+    },
+    canClose() {
+      return this.selectRows.length === 1 && this.selectRows[0].status === '2'
+    },
     importExcelUrl() {
       return `${window._CONFIG['domianURL']}/base/production-notice/importExcel`
     }
@@ -164,7 +207,9 @@ export default {
       totalResult: 0,
       allAlign: 'center',
       tableData: [],
-      loading: false
+      loading: false,
+      progressVisible: false,
+      progressDetails: []
     }
   },
   created() {
@@ -242,6 +287,88 @@ export default {
         link.click()
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
+      })
+    },
+    handleSubmit() {
+      if (!this.canSubmit) {
+        return
+      }
+      const row = this.selectRows[0]
+      this.$confirm({
+        title: '提交审核确认',
+        content: `确认提交通知单【${row.noticeNo}】进入审核流程吗？`,
+        onOk: () => {
+          submitProductionNotice({ id: row.id }).then(res => {
+            if (res.success) {
+              this.$message.success('提交审核成功')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '提交失败')
+            }
+          })
+        }
+      })
+    },
+    handlePublish() {
+      if (!this.canPublish) {
+        return
+      }
+      const row = this.selectRows[0]
+      this.$confirm({
+        title: '发布确认',
+        content: `确认发布通知单【${row.noticeNo}】吗？`,
+        onOk: () => {
+          publishProductionNotice({ id: row.id }).then(res => {
+            if (res.success) {
+              this.$message.success('发布成功')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '发布失败')
+            }
+          })
+        }
+      })
+    },
+    handleClose() {
+      if (!this.canClose) {
+        return
+      }
+      const row = this.selectRows[0]
+      this.$confirm({
+        title: '关闭确认',
+        content: `确认关闭通知单【${row.noticeNo}】吗？关闭前会校验执行进度是否100%。`,
+        onOk: () => {
+          closeProductionNotice({ id: row.id }).then(res => {
+            if (res.success) {
+              this.$message.success('关闭成功')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '关闭失败')
+            }
+          })
+        }
+      })
+    },
+    loadProgressDetail() {
+      if (this.selectRows.length !== 1) {
+        return
+      }
+      const row = this.selectRows[0]
+      listProductionNoticeProgressDetail({ id: row.id }).then(res => {
+        if (res.success) {
+          this.progressDetails = (res.result || []).map(item => {
+            const totalOrders = Number(item.totalOrders || 0)
+            const completedOrders = Number(item.completedOrders || 0)
+            const progressText = totalOrders > 0 ? `${Math.round((completedOrders * 100) / totalOrders)}%` : '0%'
+            return {
+              ...item,
+              progressText
+            }
+          })
+          this.progressVisible = true
+        } else {
+          this.$message.error(res.message || '加载进度明细失败')
+        }
       })
     },
     handleImportExcel(info) {

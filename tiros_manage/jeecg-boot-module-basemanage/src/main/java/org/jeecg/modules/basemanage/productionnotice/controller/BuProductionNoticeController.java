@@ -10,6 +10,7 @@ import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeProgressDetailVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
 import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.springframework.validation.annotation.Validated;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @Api(tags = "生产通知单管理")
 @Slf4j
@@ -69,6 +71,47 @@ public class BuProductionNoticeController extends JeecgController<BuProductionNo
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "通知单ids，多个逗号分隔", required = true) String ids) {
         boolean flag = productionNoticeService.deleteNotice(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/submit")
+    @ApiOperation(value = "生产通知单-提交审核")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_3)
+    public Result<Boolean> submit(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        boolean flag = productionNoticeService.submitNotice(id);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/publish")
+    @ApiOperation(value = "生产通知单-发布")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_3)
+    public Result<Boolean> publish(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        boolean flag = productionNoticeService.publishNotice(id);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/close")
+    @ApiOperation(value = "生产通知单-关闭")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_3)
+    public Result<Boolean> close(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        boolean flag = productionNoticeService.closeNotice(id);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @GetMapping("/pending-technical")
+    @ApiOperation(value = "生产通知单-待派工技术通知单")
+    @OperationLog()
+    public Result<List<BuProductionNotice>> listPendingTechnical(@RequestParam(required = false) String lineId,
+                                                                  @RequestParam(required = false) String trainNo) {
+        List<BuProductionNotice> list = productionNoticeService.listPendingTechnicalNotices(lineId, trainNo);
+        return new Result<List<BuProductionNotice>>().successResult(list);
+    }
+
+    @GetMapping("/progress-detail")
+    @ApiOperation(value = "生产通知单-进度明细")
+    @OperationLog()
+    public Result<List<BuProductionNoticeProgressDetailVO>> progressDetail(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        List<BuProductionNoticeProgressDetailVO> details = productionNoticeService.listProgressDetails(id);
+        return new Result<List<BuProductionNoticeProgressDetailVO>>().successResult(details);
     }
 
     @RequestMapping("/exportXls")

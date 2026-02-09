@@ -58,3 +58,30 @@ COMMENT ON COLUMN bu_production_notice.del_flag IS '删除标志：0-未删除 1
 CREATE INDEX idx_notice_no ON bu_production_notice(notice_no);
 CREATE INDEX idx_status ON bu_production_notice(status);
 CREATE INDEX idx_create_time ON bu_production_notice(create_time);
+
+-- 生产通知单与工单关联表
+CREATE TABLE bu_production_notice_order_rel (
+    id VARCHAR2(36) NOT NULL,
+    notice_id VARCHAR2(36) NOT NULL,
+    order_id VARCHAR2(36) NOT NULL,
+    order_code VARCHAR2(50),
+    train_no VARCHAR2(50),
+    del_flag NUMBER(1) DEFAULT 0,
+    create_time DATE DEFAULT SYSDATE,
+    update_time DATE DEFAULT SYSDATE,
+    CONSTRAINT pk_bu_production_notice_order_rel PRIMARY KEY (id)
+);
+
+COMMENT ON TABLE bu_production_notice_order_rel IS '生产通知单与工单关联表';
+COMMENT ON COLUMN bu_production_notice_order_rel.id IS '主键ID';
+COMMENT ON COLUMN bu_production_notice_order_rel.notice_id IS '生产通知单ID';
+COMMENT ON COLUMN bu_production_notice_order_rel.order_id IS '工单ID';
+COMMENT ON COLUMN bu_production_notice_order_rel.order_code IS '工单编号';
+COMMENT ON COLUMN bu_production_notice_order_rel.train_no IS '车号';
+COMMENT ON COLUMN bu_production_notice_order_rel.del_flag IS '删除标记：0-未删除 1-已删除';
+COMMENT ON COLUMN bu_production_notice_order_rel.create_time IS '创建时间';
+COMMENT ON COLUMN bu_production_notice_order_rel.update_time IS '更新时间';
+
+CREATE INDEX idx_notice_order_rel_notice ON bu_production_notice_order_rel(notice_id);
+CREATE INDEX idx_notice_order_rel_order ON bu_production_notice_order_rel(order_id);
+CREATE INDEX idx_notice_order_rel_train ON bu_production_notice_order_rel(train_no);

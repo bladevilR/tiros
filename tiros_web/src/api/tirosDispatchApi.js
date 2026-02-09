@@ -94,6 +94,7 @@ const suspendWorkOrder = (params) => postAction('/workorder/order/suspend', para
 const activityWorkOrder = (params) => postAction('/workorder/order/activity', params)
 const cancelWorkOrder = (params) => postAction('/workorder/order/cancel', params)
 const updateFormTitleOrAsset = (params) => postAction('/serialPlan/plan/forms/edit/titleOrAsset', params)
+const listPendingProductionNotice = (params) => getAction('/workorder/order/list-pending-production-notice', params)
 
 
 //车号
@@ -264,5 +265,6 @@ export {
   suspendWorkOrder,
   activityWorkOrder,
   updateFormTitleOrAsset,
+  listPendingProductionNotice,
   cancelWorkOrder
 }

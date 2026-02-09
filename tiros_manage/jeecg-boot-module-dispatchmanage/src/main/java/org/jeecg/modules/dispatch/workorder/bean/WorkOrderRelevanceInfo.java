@@ -41,6 +41,15 @@ public class WorkOrderRelevanceInfo implements Serializable {
     @ApiModelProperty(value = "工单创建来源 1  自动生成  2 调度创建   3   班组创建")
     private Integer fromType;
 
+    @ApiModelProperty(value = "关联生产通知单ID")
+    private String productionNoticeId;
+
+    @ApiModelProperty(value = "生产通知单号")
+    private String productionNoticeNo;
+
+    @ApiModelProperty(value = "生产通知单标题")
+    private String productionNoticeTitle;
+
     @ApiModelProperty(value = "列计划id 根据列计划自动生成的工单填写")
     private String planId;
 
