@@ -8,17 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.quotabom.entity.BuQuotaBom;
 import org.jeecg.modules.basemanage.quotabom.service.IBuQuotaBomService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Api(tags = "定额BOM管理")
 @Slf4j
 @RestController
 @RequestMapping("/base/quota-bom")
-public class BuQuotaBomController {
+public class BuQuotaBomController extends JeecgController<BuQuotaBom, IBuQuotaBomService> {
 
     @Resource
     private IBuQuotaBomService service;
@@ -63,5 +67,17 @@ public class BuQuotaBomController {
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
         boolean flag = service.deleteRecord(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @RequestMapping("/exportXls")
+    @ApiOperation(value = "定额BOM-导出")
+    public ModelAndView exportXls(HttpServletRequest request, BuQuotaBom record) {
+        return super.exportXls(request, record, BuQuotaBom.class, "定额BOM");
+    }
+
+    @PostMapping("/importExcel")
+    @ApiOperation(value = "定额BOM-导入")
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        return super.importExcel(request, response, BuQuotaBom.class);
     }
 }

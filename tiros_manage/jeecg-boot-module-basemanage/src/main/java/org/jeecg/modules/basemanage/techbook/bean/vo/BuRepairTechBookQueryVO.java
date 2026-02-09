@@ -18,4 +18,6 @@ public class BuRepairTechBookQueryVO {
     private String repairProId;
     @ApiModelProperty(value = "名称或编码")
     private String formName;
+    @ApiModelProperty(value = "是否模板 0-否 1-模板")
+    private Integer templateFlag;
 }

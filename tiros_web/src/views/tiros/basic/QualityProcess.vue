@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="table-page-search-wrapper">
-      <a-form layout="inline">
+      <a-form layout="inline" @keyup.enter.native="handleSearch">
         <a-row :gutter="24">
           <a-col :md="6" :sm="24">
             <a-form-item label="项目名称">
-              <a-input placeholder="请输入项目名称" v-model="queryParam.name" allowClear></a-input>
+              <a-input placeholder="请输入项目名称" v-model="queryParam.projectName" allowClear></a-input>
             </a-form-item>
           </a-col>
 
@@ -23,13 +23,52 @@
             </a-form-item>
           </a-col>
 
+          <template v-if="advanced">
+            <a-col :md="6" :sm="24">
+              <a-form-item label="车号">
+                <a-input placeholder="请输入车号" v-model="queryParam.trainNo" allowClear></a-input>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="计划ID">
+                <a-input placeholder="请输入计划ID" v-model="queryParam.planId" allowClear></a-input>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="质量等级">
+                <a-select v-model="queryParam.qualityLevel" placeholder="请选择质量等级" allowClear>
+                  <a-select-option value="">全部</a-select-option>
+                  <a-select-option value="A">A</a-select-option>
+                  <a-select-option value="B">B</a-select-option>
+                  <a-select-option value="C">C</a-select-option>
+                  <a-select-option value="D">D</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :md="6" :sm="8">
             <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
               <a-space>
                 <a-button type="primary" @click="handleAdd">新增</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
+                <a-button @click="handleExport">导出</a-button>
+                <a-upload
+                  name="file"
+                  :showUploadList="false"
+                  :multiple="false"
+                  :headers="tokenHeader"
+                  :action="importExcelUrl"
+                  @change="handleImportExcel"
+                >
+                  <a-button>导入</a-button>
+                </a-upload>
                 <a-button @click="handleSearch">查询</a-button>
+                <a @click="advanced = !advanced">
+                  {{ advanced ? '收起' : '展开' }}
+                  <a-icon :type="advanced ? 'up' : 'down'" />
+                </a>
               </a-space>
             </span>
           </a-col>
@@ -52,9 +91,11 @@
         :checkbox-config="{trigger: 'row', highlight: true, range: true}"
       >
         <vxe-table-column type="checkbox" width="40"></vxe-table-column>
-        <vxe-table-column field="name" title="项目名称" width="20%" header-align="center" align="left"></vxe-table-column>
-        <vxe-table-column field="trainType" title="车型" width="15%" header-align="center" align="center"></vxe-table-column>
-        <vxe-table-column field="qualityLevel" title="质量等级" width="15%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="projectName" title="项目名称" width="20%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="trainType" title="车型" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="trainNo" title="车号" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="qualityLevel" title="质量等级" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="progress" title="进度" width="12%" header-align="center" align="center"></vxe-table-column>
         <vxe-table-column field="createTime" title="创建日期" width="18%" :formatter="formatDate"></vxe-table-column>
         <vxe-table-column field="remark" title="备注" width="15%" header-align="center" align="left"></vxe-table-column>
       </vxe-table>
@@ -68,22 +109,38 @@
       ></vxe-pager>
     </div>
 
-    <a-empty v-if="tableData.length === 0 && !loading" description="后端接口待实现" style="margin-top: 100px;" />
+    <quality-visual-modal ref="qualityModal" @ok="loadData()"></quality-visual-modal>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
 import 'moment/locale/zh-cn'
+import QualityVisualModal from './modules/qualityvisual/QualityVisualModal'
 import { pageQualityVisual, deleteQualityVisual } from '@/api/tirosApi'
+import { downFile } from '@/api/manage'
+import Vue from 'vue'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
+  name: 'QualityProcess',
+  components: { QualityVisualModal },
+  computed: {
+    importExcelUrl() {
+      return `${window._CONFIG['domianURL']}/base/quality-visual/importExcel`
+    }
+  },
   data () {
     return {
       selectRows: [],
+      advanced: false,
+      tokenHeader: { 'X-Access-Token': Vue.ls.get(ACCESS_TOKEN) },
       queryParam: {
-        name: '',
+        projectName: '',
         trainType: '',
+        trainNo: '',
+        planId: '',
+        qualityLevel: '',
         pageNo: 1,
         pageSize: 10
       },
@@ -121,10 +178,10 @@ export default {
       this.loadData()
     },
     handleAdd () {
-      this.$message.info('新增功能开发中')
+      this.$refs.qualityModal.add()
     },
     handleEdit (record) {
-      this.$message.info('编辑功能开发中')
+      this.$refs.qualityModal.edit(record)
     },
     handleDelete () {
       if (this.selectRows.length === 0) {
@@ -145,6 +202,37 @@ export default {
           })
         }
       })
+    },
+    handleExport() {
+      const params = { ...this.queryParam }
+      downFile('/base/quality-visual/exportXls', params).then((data) => {
+        if (!data) {
+          this.$message.warning('文件下载失败')
+          return
+        }
+        const blob = new Blob([data], { type: 'application/vnd.ms-excel' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '质量可视化.xls')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      })
+    },
+    handleImportExcel(info) {
+      if (info.file.status === 'done') {
+        if (info.file.response && info.file.response.success) {
+          this.$message.success(info.file.response.message || `${info.file.name} 导入成功`)
+          this.loadData()
+        } else {
+          this.$message.error(info.file.response ? info.file.response.message : '导入失败')
+        }
+      } else if (info.file.status === 'error') {
+        this.$message.error('文件上传失败')
+      }
     },
     formatDate (row) {
       if (row.createTime) {

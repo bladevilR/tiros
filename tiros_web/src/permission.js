@@ -5,7 +5,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { ACCESS_TOKEN, INDEX_MAIN_PAGE_PATH, LAST_REFRESH_TIME, USER_NAME, USER_INFO, USER_LINES } from '@/store/mutation-types'
 import { generateIndexRouter } from '@/utils/util'
-import { checkRefreshToken } from '@views/tiros/util/TokenUtil'
+import { checkRefreshToken, isTokenExpired } from '@views/tiros/util/TokenUtil'
 
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -15,16 +15,28 @@ const whiteList = ['/sso/login','/user/login', '/user/register', '/user/register
 router.beforeEach((to, from, next) => {
   NProgress.start() // start progress bar
 
-  if (Vue.ls.get(ACCESS_TOKEN)) {
+  const accessToken = Vue.ls.get(ACCESS_TOKEN)
+  if (accessToken) {
+    if (isTokenExpired(accessToken)) {
+      store.dispatch('Logout').then(() => {
+        if (to.fullPath && to.fullPath !== '') {
+          next({ path: '/user/login', query: { redirect: to.fullPath } })
+        } else {
+          next({ path: '/user/login', query: {} })
+        }
+      })
+      NProgress.done()
+      return
+    }
 
     checkRefreshToken(to.path)
 
     /* has token */
     // 设置工作流接口组件的当前用户和Token（用于用户验证)
     if (Vue.prototype.$workflowApi) {
-      Vue.prototype.$workflowApi.addHeader('X-Access-Token', Vue.ls.get(ACCESS_TOKEN))
+      Vue.prototype.$workflowApi.addHeader('X-Access-Token', accessToken)
     } else {
-      console.error('没有找到流程组件对象,无法设置流程组件的当前用户的Token')
+      console.warn('未启用流程组件，跳过设置流程组件Token')
     }
     if (to.path === '/user/login' || to.path === '/sso/login') {
       next({ path: INDEX_MAIN_PAGE_PATH })

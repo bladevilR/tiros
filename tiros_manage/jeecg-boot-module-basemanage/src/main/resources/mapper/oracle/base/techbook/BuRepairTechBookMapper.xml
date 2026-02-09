@@ -12,6 +12,13 @@
         <result column="repair_program_id" property="repairProgramId"/>
         <result column="exe_time" property="exeTime"/>
         <result column="status" property="status"/>
+        <result column="template_flag" property="templateFlag"/>
+        <result column="content_html" property="contentHtml"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="review_comment" property="reviewComment"/>
+        <result column="review_time" property="reviewTime"/>
         <result column="create_time" property="createTime"/>
         <result column="create_by" property="createBy"/>
         <result column="update_time" property="updateTime"/>
@@ -23,6 +30,8 @@
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, file_no, file_name, file_ver, line_id, repair_program_id, exe_time, status,
+        template_flag, content_html,
+        review_status, reviewer_id, reviewer_name, review_comment, review_time,
         create_time, create_by, update_time, update_by, company_id, workshop_id
     </sql>
 
@@ -46,6 +55,9 @@
             </if>
             <if test="queryVO.repairProId!=null and queryVO.repairProId!=''">
                 and t.repair_program_id=#{queryVO.repairProId}
+            </if>
+            <if test="queryVO.templateFlag!=null">
+                and t.template_flag = #{queryVO.templateFlag}
             </if>
         </where>
     </select>

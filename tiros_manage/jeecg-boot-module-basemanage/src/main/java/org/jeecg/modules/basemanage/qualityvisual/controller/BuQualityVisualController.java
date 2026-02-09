@@ -8,17 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.qualityvisual.entity.BuQualityVisual;
 import org.jeecg.modules.basemanage.qualityvisual.service.IBuQualityVisualService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Api(tags = "质量可视化管理")
 @Slf4j
 @RestController
 @RequestMapping("/base/quality-visual")
-public class BuQualityVisualController {
+public class BuQualityVisualController extends JeecgController<BuQualityVisual, IBuQualityVisualService> {
 
     @Resource
     private IBuQualityVisualService service;
@@ -63,5 +67,17 @@ public class BuQualityVisualController {
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
         boolean flag = service.deleteRecord(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @RequestMapping("/exportXls")
+    @ApiOperation(value = "质量可视化-导出")
+    public ModelAndView exportXls(HttpServletRequest request, BuQualityVisual record) {
+        return super.exportXls(request, record, BuQualityVisual.class, "质量可视化");
+    }
+
+    @PostMapping("/importExcel")
+    @ApiOperation(value = "质量可视化-导入")
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        return super.importExcel(request, response, BuQualityVisual.class);
     }
 }

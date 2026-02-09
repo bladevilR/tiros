@@ -206,6 +206,11 @@ const getSharedDir = (params) => getAction(`/doc/file/shared/${params}`)
 const getSopPage = (params) => getAction('/base/tech-book/page', params)
 const saveSopRecord = (params) => postAction('/base/tech-book/save', params)
 const delSopRecord = (params) => postAction('/base/tech-book/delete', params)
+const saveSopContent = (id, contentHtml) => postAction(`/base/tech-book/content/save?id=${id}`, { contentHtml })
+const updateSopStatus = (params) => postAction(`/base/tech-book/status?${qs.stringify(params)}`)
+const saveSopAsTemplate = (params) => postAction(`/base/tech-book/saveTemplate?${qs.stringify(params)}`)
+const submitSopReview = (params) => postAction(`/base/tech-book/review/submit?${qs.stringify(params)}`)
+const decisionSopReview = (params) => postAction(`/base/tech-book/review/decision?${qs.stringify(params)}`)
 
 const getSopDetailPage = (params) => getAction('/base/tech-book/detail/page', params)
 const getSopDetailRecord = (params) => getAction('/base/tech-book/detail/get', params)
@@ -401,6 +406,11 @@ export {
   getSopPage,
   saveSopRecord,
   delSopRecord,
+  saveSopContent,
+  updateSopStatus,
+  saveSopAsTemplate,
+  submitSopReview,
+  decisionSopReview,
   getSopDetailPage,
   saveSopDetailRecord,
   delSopDetailRecord,

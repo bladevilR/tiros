@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
 import org.jeecg.modules.basemanage.productionnotice.mapper.BuProductionNoticeMapper;
@@ -12,7 +13,10 @@ import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNotice
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNoticeMapper, BuProductionNotice> implements IBuProductionNoticeService {
@@ -49,23 +53,45 @@ public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNotic
 
     @Override
     public boolean saveNotice(BuProductionNotice notice) {
+        if (notice == null) {
+            throw new JeecgBootException("参数不能为空");
+        }
         notice.setCreateTime(new Date());
-        notice.setDelFlag(0);
+        if (StringUtils.isBlank(notice.getStatus())) {
+            notice.setStatus("0");
+        }
+        if (notice.getDelFlag() == null) {
+            notice.setDelFlag(0);
+        }
         return this.save(notice);
     }
 
     @Override
     public boolean updateNotice(BuProductionNotice notice) {
+        if (notice == null || StringUtils.isBlank(notice.getId())) {
+            throw new JeecgBootException("通知单ID不能为空");
+        }
         notice.setUpdateTime(new Date());
         return this.updateById(notice);
     }
 
     @Override
     public boolean deleteNotice(String ids) {
-        if (StringUtils.isBlank(ids)) {
-            return false;
+        List<String> idArray = parseIdList(ids);
+        if (idArray.isEmpty()) {
+            throw new JeecgBootException("通知单ID不能为空");
         }
-        String[] idArray = ids.split(",");
-        return this.removeByIds(Arrays.asList(idArray));
+        return this.removeByIds(idArray);
+    }
+
+    private List<String> parseIdList(String ids) {
+        if (StringUtils.isBlank(ids)) {
+            return Collections.emptyList();
+        }
+        return Arrays.stream(ids.split(","))
+                .map(StringUtils::trimToNull)
+                .filter(StringUtils::isNotBlank)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

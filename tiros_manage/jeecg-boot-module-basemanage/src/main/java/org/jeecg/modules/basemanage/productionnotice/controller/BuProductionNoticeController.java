@@ -8,19 +8,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
 import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Api(tags = "生产通知单管理")
 @Slf4j
 @RestController
 @RequestMapping("/base/production-notice")
-public class BuProductionNoticeController {
+public class BuProductionNoticeController extends JeecgController<BuProductionNotice, IBuProductionNoticeService> {
 
     @Resource
     private IBuProductionNoticeService productionNoticeService;
@@ -65,5 +69,17 @@ public class BuProductionNoticeController {
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "通知单ids，多个逗号分隔", required = true) String ids) {
         boolean flag = productionNoticeService.deleteNotice(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @RequestMapping("/exportXls")
+    @ApiOperation(value = "生产通知单-导出")
+    public ModelAndView exportXls(HttpServletRequest request, BuProductionNotice notice) {
+        return super.exportXls(request, notice, BuProductionNotice.class, "生产通知单");
+    }
+
+    @PostMapping("/importExcel")
+    @ApiOperation(value = "生产通知单-导入")
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        return super.importExcel(request, response, BuProductionNotice.class);
     }
 }

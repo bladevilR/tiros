@@ -53,5 +53,30 @@ public interface BuRepairTechBookService extends IService<BuRepairTechBook> {
      */
     boolean deleteBatch(String ids) throws Exception;
 
+    /**
+     * 保存/更新正文
+     */
+    boolean saveContent(String id, String contentHtml) throws Exception;
+
+    /**
+     * 审阅/发布等状态更新
+     */
+    boolean updateStatus(String id, Integer status) throws Exception;
+
+    /**
+     * 以现有指导书另存为模板（复制基本信息与明细）
+     */
+    String cloneAsTemplate(String sourceId) throws Exception;
+
+    /**
+     * 提交审阅
+     */
+    boolean submitReview(String id, String reviewerId, String reviewerName) throws Exception;
+
+    /**
+     * 审阅结论
+     */
+    boolean reviewDecision(String id, Integer reviewStatus, String reviewComment) throws Exception;
+
 
 }

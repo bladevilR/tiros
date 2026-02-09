@@ -69,6 +69,29 @@ public class BuRepairTechBook extends Model<BuRepairTechBook> {
     @Dict(dicCode = "bu_valid_status")
     private Integer status;
 
+    @ApiModelProperty(value = "是否模板：0-否 1-模板")
+    private Integer templateFlag;
+
+    @ApiModelProperty(value = "正文(HTML)")
+    private String contentHtml;
+
+    @ApiModelProperty(value = "审阅状态：0-草稿 1-待审 2-通过 3-驳回")
+    private Integer reviewStatus;
+
+    @ApiModelProperty(value = "审阅人ID")
+    private String reviewerId;
+
+    @ApiModelProperty(value = "审阅人姓名")
+    private String reviewerName;
+
+    @ApiModelProperty(value = "审阅意见")
+    private String reviewComment;
+
+    @ApiModelProperty(value = "审阅时间")
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date reviewTime;
+
     @JsonIgnore
     private Date createTime;
     @JsonIgnore

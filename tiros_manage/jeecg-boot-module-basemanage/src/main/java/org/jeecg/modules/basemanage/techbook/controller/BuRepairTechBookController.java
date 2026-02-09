@@ -69,5 +69,51 @@ public class BuRepairTechBookController {
         return new Result<Boolean>().successResult(flag);
     }
 
-}
+    @PostMapping("/content/save")
+    @ApiOperation(value = "指导书-保存正文(HTML)")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7, saveParam = false)
+    public Result<Boolean> saveContent(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id,
+                                       @RequestBody java.util.Map<String, String> body) throws Exception {
+        String contentHtml = body.getOrDefault("contentHtml", "");
+        boolean flag = buRepairTechBookService.saveContent(id, contentHtml);
+        return new Result<Boolean>().successResult(flag);
+    }
 
+    @PostMapping("/status")
+    @ApiOperation(value = "指导书-更新状态", notes = "status: 0-草稿/审阅中, 1-发布")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<Boolean> updateStatus(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id,
+                                        @RequestParam @ApiParam(value = "状态", required = true) Integer status) throws Exception {
+        boolean flag = buRepairTechBookService.updateStatus(id, status);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/saveTemplate")
+    @ApiOperation(value = "指导书-另存为模板", notes = "复制当前指导书及明细")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<String> saveAsTemplate(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id) throws Exception {
+        String newId = buRepairTechBookService.cloneAsTemplate(id);
+        return new Result<String>().successResult(newId);
+    }
+
+    @PostMapping("/review/submit")
+    @ApiOperation(value = "指导书-提交审阅")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<Boolean> submitReview(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id,
+                                        @RequestParam @ApiParam(value = "审阅人ID", required = true) String reviewerId,
+                                        @RequestParam @ApiParam(value = "审阅人姓名", required = true) String reviewerName) throws Exception {
+        boolean flag = buRepairTechBookService.submitReview(id, reviewerId, reviewerName);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+    @PostMapping("/review/decision")
+    @ApiOperation(value = "指导书-审阅结论", notes = "reviewStatus: 2-通过 3-驳回")
+    @OperationLog(operateType = CommonConstant.OPERATE_TYPE_7)
+    public Result<Boolean> reviewDecision(@RequestParam @ApiParam(value = "作业指导书id", required = true) String id,
+                                          @RequestParam @ApiParam(value = "审阅状态", required = true) Integer reviewStatus,
+                                          @RequestParam @ApiParam(value = "审阅意见", required = true) String reviewComment) throws Exception {
+        boolean flag = buRepairTechBookService.reviewDecision(id, reviewStatus, reviewComment);
+        return new Result<Boolean>().successResult(flag);
+    }
+
+}

@@ -8,17 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.jeecg.common.api.vo.Result;
 import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
+import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.standardprocess.entity.BuStandardProcess;
 import org.jeecg.modules.basemanage.standardprocess.service.IBuStandardProcessService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Api(tags = "标准工序管理")
 @Slf4j
 @RestController
 @RequestMapping("/base/standard-process")
-public class BuStandardProcessController {
+public class BuStandardProcessController extends JeecgController<BuStandardProcess, IBuStandardProcessService> {
 
     @Resource
     private IBuStandardProcessService service;
@@ -63,5 +67,17 @@ public class BuStandardProcessController {
     public Result<Boolean> deleteBatch(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids) {
         boolean flag = service.deleteRecord(ids);
         return new Result<Boolean>().successResult(flag);
+    }
+
+    @RequestMapping("/exportXls")
+    @ApiOperation(value = "标准工序-导出")
+    public ModelAndView exportXls(HttpServletRequest request, BuStandardProcess record) {
+        return super.exportXls(request, record, BuStandardProcess.class, "标准工序");
+    }
+
+    @PostMapping("/importExcel")
+    @ApiOperation(value = "标准工序-导入")
+    public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        return super.importExcel(request, response, BuStandardProcess.class);
     }
 }

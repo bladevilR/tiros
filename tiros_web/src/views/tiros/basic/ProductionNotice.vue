@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="table-page-search-wrapper">
-      <a-form layout="inline">
+      <a-form layout="inline" @keyup.enter.native="handleSearch">
         <a-row :gutter="24">
           <a-col :md="6" :sm="24">
             <a-form-item label="通知单号">
@@ -26,13 +26,59 @@
             </a-form-item>
           </a-col>
 
+          <template v-if="advanced">
+            <a-col :md="6" :sm="24">
+              <a-form-item label="标题">
+                <a-input placeholder="请输入标题" v-model="queryParam.title" allowClear></a-input>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="类型">
+                <a-select
+                  placeholder="请选择类型"
+                  v-model="queryParam.noticeType"
+                  allowClear
+                >
+                  <a-select-option value="">全部</a-select-option>
+                  <a-select-option value="1">技术类</a-select-option>
+                  <a-select-option value="2">变更类</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="车型">
+                <a-input placeholder="请输入车型" v-model="queryParam.trainType" allowClear></a-input>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item label="线别">
+                <a-input placeholder="请输入线别" v-model="queryParam.line" allowClear></a-input>
+              </a-form-item>
+            </a-col>
+          </template>
+
           <a-col :md="6" :sm="8">
             <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
               <a-space>
-                <a-button type="primary" @click="handleAdd" v-has="'production-notice:add'">新增</a-button>
+                <a-button type="primary" @click="handleAdd">新增</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
-                <a-button :disabled="selectRows.length < 1" @click="handleDelete" v-has="'production-notice:delete'">删除</a-button>
+                <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
+                <a-button @click="handleExport">导出</a-button>
+                <a-upload
+                  name="file"
+                  :showUploadList="false"
+                  :multiple="false"
+                  :headers="tokenHeader"
+                  :action="importExcelUrl"
+                  @change="handleImportExcel"
+                >
+                  <a-button>导入</a-button>
+                </a-upload>
                 <a-button @click="handleSearch">查询</a-button>
+                <a @click="advanced = !advanced">
+                  {{ advanced ? '收起' : '展开' }}
+                  <a-icon :type="advanced ? 'up' : 'down'" />
+                </a>
               </a-space>
             </span>
           </a-col>
@@ -88,16 +134,30 @@ import moment from 'moment'
 import 'moment/locale/zh-cn'
 import ProductionNoticeModal from './modules/productionnotice/ProductionNoticeModal'
 import { pageProductionNotice, deleteProductionNotice } from '@/api/tirosApi'
+import { downFile } from '@/api/manage'
+import Vue from 'vue'
+import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'ProductionNotice',
   components: { ProductionNoticeModal },
+  computed: {
+    importExcelUrl() {
+      return `${window._CONFIG['domianURL']}/base/production-notice/importExcel`
+    }
+  },
   data() {
     return {
       selectRows: [],
+      advanced: false,
+      tokenHeader: { 'X-Access-Token': Vue.ls.get(ACCESS_TOKEN) },
       queryParam: {
         noticeNo: '',
         status: '',
+        title: '',
+        noticeType: '',
+        trainType: '',
+        line: '',
         pageNo: 1,
         pageSize: 10
       },
@@ -164,6 +224,37 @@ export default {
           })
         }
       })
+    },
+    handleExport() {
+      const params = { ...this.queryParam }
+      downFile('/base/production-notice/exportXls', params).then((data) => {
+        if (!data) {
+          this.$message.warning('文件下载失败')
+          return
+        }
+        const blob = new Blob([data], { type: 'application/vnd.ms-excel' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '生产通知单.xls')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+      })
+    },
+    handleImportExcel(info) {
+      if (info.file.status === 'done') {
+        if (info.file.response && info.file.response.success) {
+          this.$message.success(info.file.response.message || `${info.file.name} 导入成功`)
+          this.loadData()
+        } else {
+          this.$message.error(info.file.response ? info.file.response.message : '导入失败')
+        }
+      } else if (info.file.status === 'error') {
+        this.$message.error('文件上传失败')
+      }
     },
     formatDate(row) {
       if (row.createTime) {
