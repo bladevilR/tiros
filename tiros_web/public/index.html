@@ -286,10 +286,10 @@
     window._CONFIG = {}
     window._CONFIG['systemName'] = '车辆架大修信息管理系统'
     //本机环境
-    window._CONFIG['domianURL'] = 'http://localhost:8080/tiros'
+    window._CONFIG['domianURL'] = window.location.protocol + '//' + window.location.hostname + ':8080/tiros'
     window._CONFIG['syncMaximo'] = 'http://localhost:8090'
     window._CONFIG['workflowURL'] = 'http://localhost:9096/'
-    window._CONFIG['fileServiceUrl'] = 'http://localhost:9002/tiros'
+    window._CONFIG['fileServiceUrl'] = window.location.protocol + '//' + window.location.hostname + ':8080/tiros'
     window._CONFIG['onlinePreviewDomainURL'] = 'http://localhost:9003/onlinePreview'
 
     //开发环境-本地

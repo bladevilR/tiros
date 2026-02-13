@@ -224,9 +224,10 @@
           <a-col>
             <span class='table-page-search-submitButtons'>
               <a-space>
-                <a-button @click='findList'>查询</a-button>
+              <a-button @click='findList'>查询</a-button>
                 <a-button @click='resetSearch'>重置</a-button>
               <a-button :disabled='!(records.length ==1 && records[0].status!==2)' @click.stop='handleEdit(records[0])'>编辑</a-button>
+              <a-button :disabled='records.length !== 1' @click='createExceptionTransfer'>例外转序</a-button>
               <a-button :disabled='records.length < 1' @click='deleteRecord'>取消</a-button>
               <a-button><a :style="{fontSize: '12px'}" @click='toggle'>
               更多条件 <a-icon :type="expand ? 'up' : 'down'" />
@@ -538,6 +539,30 @@ export default {
       } else {
         this.$message.error('尚未选中任何数据!')
       }
+    },
+    createExceptionTransfer() {
+      const selectRecords = this.$refs.listTable.getCheckboxRecords()
+      if (!selectRecords || selectRecords.length !== 1) {
+        this.$message.warning('请选择一条故障记录')
+        return
+      }
+      const fault = selectRecords[0]
+      if (!fault.workOrderId) {
+        this.$message.warning('所选故障未关联工单，无法发起例外转序')
+        return
+      }
+      this.$router.push({
+        path: '/tiros/quality/exception-transfer',
+        query: {
+          create: '1',
+          faultId: fault.id || '',
+          faultSn: fault.faultSn || '',
+          orderId: fault.workOrderId || '',
+          orderTaskId: fault.orderTaskId || '',
+          processName: fault.sysName || '',
+          transferDesc: fault.faultDesc || ''
+        }
+      })
     },
     // 弹出日历和关闭日历的回调
     handleOpenChange(

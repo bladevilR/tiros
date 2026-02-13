@@ -7,6 +7,7 @@ import { getAction } from '@/api/manage'
 import { Modal } from 'ant-design-vue'
 import store from '@/store'
 import router from '../../router'
+import { isTokenExpired } from '@views/tiros/util/TokenUtil'
 
 const user = {
   state: {
@@ -140,6 +141,10 @@ const user = {
     GetPermissionList({ commit }) {
       return new Promise((resolve, reject) => {
         let v_token = Vue.ls.get(ACCESS_TOKEN);
+        if (!v_token || isTokenExpired(v_token)) {
+          reject(new Error('token expired'))
+          return
+        }
         let params = {token:v_token};
         queryPermissionsByUser(params).then(response => {
           console.log('user Permissions: ', response.result)

@@ -1,115 +1,106 @@
--- 作业指导书管理模块SQL脚本
+-- ============================================================
+-- 作业指导书模块 Oracle DDL
+-- ============================================================
 
 -- 1. 作业指导书主表
 CREATE TABLE bu_job_guide_book (
-    id VARCHAR(64) PRIMARY KEY COMMENT '主键',
-    book_code VARCHAR(100) NOT NULL UNIQUE COMMENT '指导书编号',
-    book_name VARCHAR(255) NOT NULL COMMENT '指导书名称',
-    process_id VARCHAR(64) COMMENT '关联标准工序ID',
-    process_name VARCHAR(255) COMMENT '工序名称',
-    target_staff_level VARCHAR(50) COMMENT '目标员工等级（新员工/普通/高级）',
-    content_type VARCHAR(50) COMMENT '内容类型（简易/详细/对标）',
-    estimated_time INT COMMENT '预计时长（分钟）',
-    difficulty_level INT COMMENT '难度级别（1-5）',
-    has_video TINYINT DEFAULT 0 COMMENT '是否有视频',
-    has_images TINYINT DEFAULT 0 COMMENT '是否有图片',
-    quality_checklist LONGTEXT COMMENT '质量检查项JSON',
-    safety_warnings LONGTEXT COMMENT '安全警示JSON',
-    version VARCHAR(50) DEFAULT '1.0' COMMENT '版本号',
-    approval_status VARCHAR(50) DEFAULT 'DRAFT' COMMENT '审批状态（DRAFT-草稿,SUBMITTED-已提交,APPROVED-已批准,REJECTED-已驳回）',
-    approver VARCHAR(64) COMMENT '审批人ID',
-    approver_name VARCHAR(255) COMMENT '审批人名称',
-    approval_time DATETIME COMMENT '审批时间',
-    approval_comment TEXT COMMENT '审批意见',
-    status INT DEFAULT 0 COMMENT '状态（0-草稿,1-已发布,2-已作��）',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_by VARCHAR(64) COMMENT '创建人ID',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    update_by VARCHAR(64) COMMENT '更新人ID',
-    company_id VARCHAR(64) COMMENT '公司ID',
-    workshop_id VARCHAR(64) COMMENT '车间ID',
-    remarks TEXT COMMENT '备注',
-    INDEX idx_book_code (book_code),
-    INDEX idx_approval_status (approval_status),
-    INDEX idx_status (status),
-    INDEX idx_create_time (create_time)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='作业指导书主表';
+    id                  VARCHAR2(64)    PRIMARY KEY,
+    file_no             VARCHAR2(100)   NOT NULL,
+    file_name           VARCHAR2(255)   NOT NULL,
+    file_ver            VARCHAR2(50)    NOT NULL,
+    line_id             VARCHAR2(64),
+    train_type_id       VARCHAR2(64),
+    repair_program_id   VARCHAR2(64),
+    project             VARCHAR2(200),
+    exe_time            DATE,
+    status              NUMBER(2)       DEFAULT 0,
+    template_flag       NUMBER(1)       DEFAULT 0,
+    content_html        CLOB,
+    review_status       NUMBER(2)       DEFAULT 0,
+    reviewer_id         VARCHAR2(64),
+    reviewer_name       VARCHAR2(100),
+    review_comment      VARCHAR2(1000),
+    review_time         TIMESTAMP,
+    approver_id         VARCHAR2(64),
+    approver_name       VARCHAR2(100),
+    approve_comment     VARCHAR2(1000),
+    approve_time        TIMESTAMP,
+    company_id          VARCHAR2(64),
+    workshop_id         VARCHAR2(64),
+    remark              VARCHAR2(500),
+    create_by           VARCHAR2(64),
+    create_time         TIMESTAMP       DEFAULT SYSTIMESTAMP,
+    update_by           VARCHAR2(64),
+    update_time         TIMESTAMP       DEFAULT SYSTIMESTAMP
+);
 
--- 2. 作业指导书章节表
-CREATE TABLE bu_job_guide_book_section (
-    id VARCHAR(64) PRIMARY KEY COMMENT '主键',
-    book_id VARCHAR(64) NOT NULL COMMENT '指导书ID',
-    section_code VARCHAR(100) COMMENT '章节编码',
-    section_name VARCHAR(255) NOT NULL COMMENT '章节名称',
-    section_order INT COMMENT '章节顺序',
-    section_type VARCHAR(50) COMMENT '章节类型（文本/图片/视频/步骤/表格）',
-    content LONGTEXT COMMENT '章节内容',
-    media_urls LONGTEXT COMMENT '多媒体URLs JSON',
-    parent_section_id VARCHAR(64) COMMENT '父章节ID（支持多级结构）',
-    status INT DEFAULT 1 COMMENT '状态',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_by VARCHAR(64) COMMENT '创建人ID',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    update_by VARCHAR(64) COMMENT '更新人ID',
-    FOREIGN KEY (book_id) REFERENCES bu_job_guide_book(id) ON DELETE CASCADE,
-    INDEX idx_book_id (book_id),
-    INDEX idx_section_order (section_order),
-    INDEX idx_section_type (section_type)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='作业指导书章节表';
+COMMENT ON TABLE bu_job_guide_book IS '作业指导书主表';
+COMMENT ON COLUMN bu_job_guide_book.file_no IS '文件编号';
+COMMENT ON COLUMN bu_job_guide_book.file_name IS '文件名称';
+COMMENT ON COLUMN bu_job_guide_book.file_ver IS '版本号';
+COMMENT ON COLUMN bu_job_guide_book.line_id IS '所属线路ID';
+COMMENT ON COLUMN bu_job_guide_book.train_type_id IS '车型ID';
+COMMENT ON COLUMN bu_job_guide_book.repair_program_id IS '修程ID';
+COMMENT ON COLUMN bu_job_guide_book.project IS '项目';
+COMMENT ON COLUMN bu_job_guide_book.exe_time IS '实施日期';
+COMMENT ON COLUMN bu_job_guide_book.status IS '状态：0-草稿 1-发布 2-审批中 3-审批通过 9-作废';
+COMMENT ON COLUMN bu_job_guide_book.template_flag IS '是否模板：0-正式 1-模板';
+COMMENT ON COLUMN bu_job_guide_book.content_html IS '正文HTML';
+COMMENT ON COLUMN bu_job_guide_book.review_status IS '审核状态：0-草稿 1-待审核 2-审核通过 3-审核驳回';
+COMMENT ON COLUMN bu_job_guide_book.reviewer_id IS '审核人ID';
+COMMENT ON COLUMN bu_job_guide_book.reviewer_name IS '审核人姓名';
+COMMENT ON COLUMN bu_job_guide_book.review_comment IS '审核意见';
+COMMENT ON COLUMN bu_job_guide_book.review_time IS '审核时间';
+COMMENT ON COLUMN bu_job_guide_book.approver_id IS '审批人ID';
+COMMENT ON COLUMN bu_job_guide_book.approver_name IS '审批人姓名';
+COMMENT ON COLUMN bu_job_guide_book.approve_comment IS '审批意见';
+COMMENT ON COLUMN bu_job_guide_book.approve_time IS '审批时间';
 
--- 3. 作业指导书步骤表
-CREATE TABLE bu_job_guide_book_step (
-    id VARCHAR(64) PRIMARY KEY COMMENT '主键',
-    section_id VARCHAR(64) NOT NULL COMMENT '章节ID',
-    step_order INT COMMENT '步骤顺序',
-    step_title VARCHAR(255) COMMENT '步骤标题',
-    step_content TEXT COMMENT '步骤内容',
-    operation_time INT COMMENT '操作时长（分钟）',
-    is_critical TINYINT DEFAULT 0 COMMENT '是否关键步骤',
-    images_urls LONGTEXT COMMENT '图片URLs JSON',
-    video_url VARCHAR(500) COMMENT '视频URL',
-    tools_required LONGTEXT COMMENT '所需工具JSON',
-    materials_required LONGTEXT COMMENT '所需物料JSON',
-    safety_notes TEXT COMMENT '安全注意事项',
-    quality_checkpoints LONGTEXT COMMENT '质量检查点JSON',
-    status INT DEFAULT 1 COMMENT '状态',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_by VARCHAR(64) COMMENT '创建人ID',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    update_by VARCHAR(64) COMMENT '更新人ID',
-    FOREIGN KEY (section_id) REFERENCES bu_job_guide_book_section(id) ON DELETE CASCADE,
-    INDEX idx_section_id (section_id),
-    INDEX idx_step_order (step_order),
-    INDEX idx_is_critical (is_critical)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='作业指导书步骤表';
+CREATE INDEX idx_jgb_file_no ON bu_job_guide_book(file_no);
+CREATE INDEX idx_jgb_status ON bu_job_guide_book(status);
+CREATE INDEX idx_jgb_line_id ON bu_job_guide_book(line_id);
+CREATE INDEX idx_jgb_train_type ON bu_job_guide_book(train_type_id);
+CREATE INDEX idx_jgb_repair_prog ON bu_job_guide_book(repair_program_id);
+CREATE INDEX idx_jgb_create_time ON bu_job_guide_book(create_time);
 
--- 4. 质量检查项表
-CREATE TABLE bu_job_guide_book_quality_check (
-    id VARCHAR(64) PRIMARY KEY COMMENT '主键',
-    book_id VARCHAR(64) COMMENT '指导书ID',
-    step_id VARCHAR(64) COMMENT '步骤ID',
-    check_order INT COMMENT '检查项顺序',
-    check_item VARCHAR(255) NOT NULL COMMENT '检查项目',
-    check_method TEXT COMMENT '检查方法',
-    acceptance_criteria TEXT COMMENT '验收标准',
-    is_mandatory TINYINT DEFAULT 1 COMMENT '是否必检',
-    reference_standard VARCHAR(500) COMMENT '参考标准',
-    status INT DEFAULT 1 COMMENT '状态',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    create_by VARCHAR(64) COMMENT '创建人ID',
-    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    update_by VARCHAR(64) COMMENT '更新人ID',
-    FOREIGN KEY (book_id) REFERENCES bu_job_guide_book(id) ON DELETE CASCADE,
-    FOREIGN KEY (step_id) REFERENCES bu_job_guide_book_step(id) ON DELETE SET NULL,
-    INDEX idx_book_id (book_id),
-    INDEX idx_step_id (step_id),
-    INDEX idx_is_mandatory (is_mandatory)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='质量检查项表';
+-- 2. 作业指导书明细(步骤)表
+CREATE TABLE bu_job_guide_book_detail (
+    id              VARCHAR2(64)    PRIMARY KEY,
+    book_id         VARCHAR2(64)    NOT NULL,
+    step_num        NUMBER(5)       NOT NULL,
+    step_title      VARCHAR2(255)   NOT NULL,
+    step_content    CLOB,
+    create_by       VARCHAR2(64),
+    create_time     TIMESTAMP       DEFAULT SYSTIMESTAMP,
+    update_by       VARCHAR2(64),
+    update_time     TIMESTAMP       DEFAULT SYSTIMESTAMP
+);
 
--- 创建索引以优化查询性能
-CREATE INDEX idx_job_guide_book_book_code ON bu_job_guide_book(book_code);
-CREATE INDEX idx_job_guide_book_approval_status ON bu_job_guide_book(approval_status);
-CREATE INDEX idx_job_guide_book_status ON bu_job_guide_book(status);
-CREATE INDEX idx_job_guide_book_section_book_id ON bu_job_guide_book_section(book_id);
-CREATE INDEX idx_job_guide_book_step_section_id ON bu_job_guide_book_step(section_id);
-CREATE INDEX idx_job_guide_book_quality_check_book_id ON bu_job_guide_book_quality_check(book_id);
+COMMENT ON TABLE bu_job_guide_book_detail IS '作业指导书明细(步骤)';
+CREATE INDEX idx_jgb_detail_book ON bu_job_guide_book_detail(book_id);
+
+-- 3. 作业指导书步骤物料表
+CREATE TABLE bu_job_guide_book_material (
+    id                  VARCHAR2(64)    PRIMARY KEY,
+    book_detail_id      VARCHAR2(64)    NOT NULL,
+    material_type_id    VARCHAR2(64)    NOT NULL,
+    amount              NUMBER(10,2),
+    create_by           VARCHAR2(64),
+    create_time         TIMESTAMP       DEFAULT SYSTIMESTAMP
+);
+
+COMMENT ON TABLE bu_job_guide_book_material IS '作业指导书步骤物料';
+CREATE INDEX idx_jgb_mat_detail ON bu_job_guide_book_material(book_detail_id);
+
+-- 4. 作业指导书步骤工器具表
+CREATE TABLE bu_job_guide_book_tools (
+    id                  VARCHAR2(64)    PRIMARY KEY,
+    book_detail_id      VARCHAR2(64)    NOT NULL,
+    tool_type_id        VARCHAR2(64)    NOT NULL,
+    amount              NUMBER(10,2),
+    create_by           VARCHAR2(64),
+    create_time         TIMESTAMP       DEFAULT SYSTIMESTAMP
+);
+
+COMMENT ON TABLE bu_job_guide_book_tools IS '作业指导书步骤工器具';
+CREATE INDEX idx_jgb_tool_detail ON bu_job_guide_book_tools(book_detail_id);

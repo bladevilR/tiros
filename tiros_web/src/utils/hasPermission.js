@@ -5,13 +5,8 @@ const hasPermission = {
         // console.log(options);
           Vue.directive('has', {
             inserted: (el, binding, vnode)=>{
-                console.log("页面权限控制----");
-                //console.time()
-                //节点权限处理，如果命中则不进行全局权限处理
-                if(!filterNodePermission(el, binding, vnode)){
-                  filterGlobalPermission(el, binding, vnode);
-                }
-                //console.timeEnd() //计时结束并输出时长
+                // 全局放行：不做任何权限裁剪，所有带 v-has 的元素直接渲染
+                return;
             }
           });
     }

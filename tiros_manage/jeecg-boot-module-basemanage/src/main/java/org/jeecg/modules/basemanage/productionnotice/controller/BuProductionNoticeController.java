@@ -10,8 +10,10 @@ import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeFormProgressVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeProgressDetailVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeRelationPayloadVO;
 import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -112,6 +114,22 @@ public class BuProductionNoticeController extends JeecgController<BuProductionNo
     public Result<List<BuProductionNoticeProgressDetailVO>> progressDetail(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
         List<BuProductionNoticeProgressDetailVO> details = productionNoticeService.listProgressDetails(id);
         return new Result<List<BuProductionNoticeProgressDetailVO>>().successResult(details);
+    }
+
+    @GetMapping("/form-progress")
+    @ApiOperation(value = "生产通知单-作业记录表填报明细")
+    @OperationLog()
+    public Result<List<BuProductionNoticeFormProgressVO>> formProgress(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        List<BuProductionNoticeFormProgressVO> details = productionNoticeService.listFormProgress(id);
+        return new Result<List<BuProductionNoticeFormProgressVO>>().successResult(details);
+    }
+
+    @GetMapping("/relation-payload")
+    @ApiOperation(value = "生产通知单-关联作业记录表与附件")
+    @OperationLog()
+    public Result<BuProductionNoticeRelationPayloadVO> relationPayload(@RequestParam @ApiParam(value = "通知单id", required = true) String id) {
+        BuProductionNoticeRelationPayloadVO payload = productionNoticeService.getNoticeRelationPayload(id);
+        return new Result<BuProductionNoticeRelationPayloadVO>().successResult(payload);
     }
 
     @RequestMapping("/exportXls")

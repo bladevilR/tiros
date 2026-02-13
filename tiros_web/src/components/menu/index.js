@@ -41,7 +41,7 @@ export default {
     computed: {
         rootSubmenuKeys: vm => {
             const keys = []
-            vm.menu.forEach(item => keys.push(item.path))
+            vm.menu.forEach(item => keys.push(vm.getMenuKey(item)))
             return keys
         }
     },
@@ -62,6 +62,33 @@ export default {
         }
     },
     methods: {
+        normalizeKey(value) {
+            if (value === undefined || value === null) {
+                return ''
+            }
+            return String(value)
+        },
+        getMenuKey(menu) {
+            if (!menu) {
+                return ''
+            }
+            if (menu.id !== undefined && menu.id !== null && menu.id !== '') {
+                return this.normalizeKey(menu.id)
+            }
+            if (menu.meta && menu.meta.id !== undefined && menu.meta.id !== null && menu.meta.id !== '') {
+                return this.normalizeKey(menu.meta.id)
+            }
+            return this.normalizeKey(menu.path)
+        },
+        getRouteKey(route) {
+            if (!route) {
+                return ''
+            }
+            if (route.meta && route.meta.id !== undefined && route.meta.id !== null && route.meta.id !== '') {
+                return this.normalizeKey(route.meta.id)
+            }
+            return this.normalizeKey(route.path)
+        },
         // select menu item
         onOpenChange(openKeys) {
             // 在水平模式下时执行，并且不再执行后续
@@ -80,16 +107,18 @@ export default {
         updateMenu() {
             const routes = this.$route.matched.concat()
             const { hidden } = this.$route.meta
+            let selectedRoute = null
             if (routes.length >= 3 && hidden) {
                 routes.pop()
-                this.selectedKeys = [routes[routes.length - 1].path]
+                selectedRoute = routes[routes.length - 1]
             } else {
-                this.selectedKeys = [routes.pop().path]
+                selectedRoute = routes.pop()
             }
+            this.selectedKeys = [this.getRouteKey(selectedRoute)]
             const openKeys = []
             if (this.mode === 'inline') {
                 routes.forEach(item => {
-                    openKeys.push(item.path)
+                    openKeys.push(this.getRouteKey(item))
                 })
             }
             //update-begin-author:taoyan date:20190510 for:online表单菜单点击展开的一级目录不对
@@ -125,7 +154,7 @@ export default {
             }
 
             return (
-                <Item {...{ key: menu.path }}>
+                <Item {...{ key: this.getMenuKey(menu) }}>
                     <tag {...{ props, attrs }}>
                         {this.renderIcon(menu.meta.icon)}
                         <span>{menu.meta.title}</span>
@@ -139,7 +168,7 @@ export default {
                 menu.children.forEach(item => itemArr.push(this.renderItem(item)))
             }
             return (
-                <SubMenu {...{ key: menu.path }}>
+                <SubMenu {...{ key: this.getMenuKey(menu) }}>
                     <span slot="title">
                         {this.renderIcon(menu.meta.icon)}
                         <span>{menu.meta.title}</span>

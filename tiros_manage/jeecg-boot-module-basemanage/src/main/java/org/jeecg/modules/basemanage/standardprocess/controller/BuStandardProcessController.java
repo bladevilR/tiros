@@ -17,6 +17,10 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Api(tags = "标准工序管理")
 @Slf4j
@@ -79,5 +83,37 @@ public class BuStandardProcessController extends JeecgController<BuStandardProce
     @ApiOperation(value = "标准工序-导入")
     public Result<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
         return super.importExcel(request, response, BuStandardProcess.class);
+    }
+
+    @GetMapping("/exportPdf")
+    @ApiOperation(value = "标准工序-导出PDF")
+    @OperationLog()
+    public void exportPdf(@RequestParam @ApiParam(value = "ids，多个逗号分隔", required = true) String ids,
+                          HttpServletResponse response) {
+        try {
+            List<String> idList = Arrays.stream(ids.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+
+            if (idList.isEmpty()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+
+            byte[] pdfBytes = service.exportPdf(idList);
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=standard_process.pdf");
+            response.setContentLength(pdfBytes.length);
+
+            try (OutputStream out = response.getOutputStream()) {
+                out.write(pdfBytes);
+                out.flush();
+            }
+        } catch (Exception e) {
+            log.error("导出PDF失败", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
     }
 }

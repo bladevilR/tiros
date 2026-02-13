@@ -112,6 +112,14 @@ public class BuRepairTechBook extends Model<BuRepairTechBook> {
     @TableField(exist = false)
     private String lineName;
 
+    @ApiModelProperty(value = "编制人")
+    @TableField(exist = false)
+    private String creatorName;
+
+    @ApiModelProperty(value = "车型名称")
+    @TableField(exist = false)
+    private String trainTypeName;
+
     @ApiModelProperty(value = "所属修程名称")
     @TableField(exist = false)
     private String repairProgramName;

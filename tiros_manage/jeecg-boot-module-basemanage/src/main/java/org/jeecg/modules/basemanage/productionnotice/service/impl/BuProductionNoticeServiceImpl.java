@@ -9,13 +9,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNoticeOrderRel;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeFormProgressVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeProgressDetailVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeRelationPayloadVO;
 import org.jeecg.modules.basemanage.productionnotice.mapper.BuProductionNoticeMapper;
 import org.jeecg.modules.basemanage.productionnotice.mapper.BuProductionNoticeOrderRelMapper;
 import org.jeecg.modules.basemanage.productionnotice.service.IBuProductionNoticeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,9 +32,12 @@ import java.util.stream.Collectors;
 public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNoticeMapper, BuProductionNotice> implements IBuProductionNoticeService {
 
     private final BuProductionNoticeOrderRelMapper noticeOrderRelMapper;
+    private final JdbcTemplate jdbcTemplate;
 
-    public BuProductionNoticeServiceImpl(BuProductionNoticeOrderRelMapper noticeOrderRelMapper) {
+    public BuProductionNoticeServiceImpl(BuProductionNoticeOrderRelMapper noticeOrderRelMapper,
+                                         JdbcTemplate jdbcTemplate) {
         this.noticeOrderRelMapper = noticeOrderRelMapper;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
@@ -210,6 +217,55 @@ public class BuProductionNoticeServiceImpl extends ServiceImpl<BuProductionNotic
     public List<BuProductionNoticeProgressDetailVO> listProgressDetails(String id) {
         getAndCheckExists(id);
         return baseMapper.listProgressDetails(id);
+    }
+
+    @Override
+    public List<BuProductionNoticeFormProgressVO> listFormProgress(String id) {
+        getAndCheckExists(id);
+        return baseMapper.listFormProgress(id);
+    }
+
+    @Override
+    public BuProductionNoticeRelationPayloadVO getNoticeRelationPayload(String id) {
+        BuProductionNotice notice = getAndCheckExists(id);
+        BuProductionNoticeRelationPayloadVO payload = new BuProductionNoticeRelationPayloadVO();
+
+        List<String> formIdList = parseIdList(notice.getRelatedFormIds());
+        if (!formIdList.isEmpty()) {
+            String formPlaceholders = String.join(",", Collections.nCopies(formIdList.size(), "?"));
+            String sql = "select id, code, title, 1 as work_record_type from bu_work_record where id in (" + formPlaceholders + ")";
+            List<BuProductionNoticeRelationPayloadVO.RelatedForm> forms = jdbcTemplate.query(sql,
+                    formIdList.toArray(),
+                    (rs, rowNum) -> {
+                        BuProductionNoticeRelationPayloadVO.RelatedForm form = new BuProductionNoticeRelationPayloadVO.RelatedForm();
+                        form.setId(rs.getString("id"));
+                        form.setCode(rs.getString("code"));
+                        form.setTitle(rs.getString("title"));
+                        form.setWorkRecordType(rs.getInt("work_record_type"));
+                        return form;
+                    });
+            payload.setRelatedForms(forms);
+        }
+
+        List<String> docIdList = parseIdList(notice.getRelatedDocIds());
+        if (!docIdList.isEmpty()) {
+            String docPlaceholders = String.join(",", Collections.nCopies(docIdList.size(), "?"));
+            String docSql = "select id, name, type, savepath, file_size from bu_doc_file where status = 1 and id in (" + docPlaceholders + ")";
+            List<BuProductionNoticeRelationPayloadVO.RelatedFile> files = jdbcTemplate.query(docSql,
+                    docIdList.toArray(),
+                    (rs, rowNum) -> {
+                        BuProductionNoticeRelationPayloadVO.RelatedFile file = new BuProductionNoticeRelationPayloadVO.RelatedFile();
+                        file.setId(rs.getString("id"));
+                        file.setName(rs.getString("name"));
+                        file.setType(rs.getString("type"));
+                        file.setSavepath(rs.getString("savepath"));
+                        file.setFileSize(rs.getLong("file_size"));
+                        return file;
+                    });
+            payload.setRelatedFiles(files);
+        }
+
+        return payload;
     }
 
     @Transactional(rollbackFor = Exception.class)

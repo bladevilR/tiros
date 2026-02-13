@@ -31,12 +31,16 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item label="线别">
-                <a-input placeholder="请输入线别" v-model="queryParam.line" allowClear></a-input>
+                <a-select mode="multiple" v-model="lineFilterValues" placeholder="请选择线别(可多选)" allowClear>
+                  <a-select-option v-for="item in lineOptions" :key="item" :value="item">{{ item }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item label="位置">
-                <a-input placeholder="请输入位置" v-model="queryParam.position" allowClear></a-input>
+                <a-select mode="multiple" v-model="positionFilterValues" placeholder="请选择位置(可多选)" allowClear>
+                  <a-select-option v-for="item in positionOptions" :key="item" :value="item">{{ item }}</a-select-option>
+                </a-select>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
@@ -51,6 +55,7 @@
               <a-space>
                 <a-button type="primary" @click="handleAdd">新增</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="showDetail(selectRows[0])">查看</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
                 <a-button @click="handleExport">导出</a-button>
                 <a-upload
@@ -108,6 +113,8 @@
         <vxe-table-column field="line" title="线别" width="10%" header-align="center" align="center"></vxe-table-column>
         <vxe-table-column field="position" title="位置" width="10%" header-align="center" align="center"></vxe-table-column>
         <vxe-table-column field="system" title="系统" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="moduleLevel2" title="二级模块" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="moduleLevel3" title="三级模块" width="12%" header-align="center" align="center"></vxe-table-column>
         <vxe-table-column field="createTime" title="创建日期" width="18%" :formatter="formatDate"></vxe-table-column>
         <vxe-table-column field="remark" title="备注" width="15%" header-align="center" align="left"></vxe-table-column>
       </vxe-table>
@@ -123,7 +130,58 @@
       </a-col>
     </a-row>
 
-    <quota-bom-modal ref="quotaModal" @ok="loadData()"></quota-bom-modal>
+    <quota-bom-modal ref="quotaModal" @ok="handleModalOk"></quota-bom-modal>
+
+    <a-drawer
+      title="BOM查看"
+      placement="right"
+      :width="980"
+      :visible="detailVisible"
+      @close="detailVisible = false"
+      :destroyOnClose="false"
+    >
+      <a-row :gutter="12">
+        <a-col :span="10">
+          <a-card title="结构树" :bordered="false" style="height: calc(100vh - 180px); overflow: auto;">
+            <a-tree
+              :treeData="detailTreeData"
+              :defaultExpandAll="true"
+              :replaceFields="{ children: 'children', title: 'title', key: 'key' }"
+            />
+          </a-card>
+        </a-col>
+        <a-col :span="14">
+          <a-card title="爆炸图" :bordered="false" style="margin-bottom: 12px;">
+            <a-empty v-if="!detailRecord.explosionDiagram" description="暂无爆炸图" />
+            <img
+              v-else
+              :src="detailRecord.explosionDiagram"
+              style="width: 100%; max-height: 260px; object-fit: contain; border: 1px solid #f0f0f0;"
+            />
+          </a-card>
+          <a-card title="部件明细" :bordered="false" style="height: calc(100vh - 460px); overflow: auto;">
+            <vxe-table border size="mini" :data="detailPartRows" max-height="320">
+              <vxe-table-column type="seq" width="50" title="#"></vxe-table-column>
+              <vxe-table-column field="partNo" title="件号" min-width="110"></vxe-table-column>
+              <vxe-table-column field="name" title="名称" min-width="120"></vxe-table-column>
+              <vxe-table-column field="spec" title="规格型号" min-width="120"></vxe-table-column>
+              <vxe-table-column field="drawingQty" title="图上数量" width="90"></vxe-table-column>
+              <vxe-table-column field="trainQty" title="1列车数量" width="95"></vxe-table-column>
+              <vxe-table-column field="materialCode" title="物资编码" min-width="100"></vxe-table-column>
+              <vxe-table-column field="maintReqText" title="维修要求" min-width="180"></vxe-table-column>
+            </vxe-table>
+            <a-divider style="margin: 12px 0" />
+            <div style="font-weight: 500; margin-bottom: 8px">关联物资</div>
+            <vxe-table border size="mini" :data="detailMaterials" max-height="180">
+              <vxe-table-column type="seq" width="50" title="#"></vxe-table-column>
+              <vxe-table-column field="code" title="物资编码" min-width="120"></vxe-table-column>
+              <vxe-table-column field="name" title="物资名称" min-width="160"></vxe-table-column>
+              <vxe-table-column field="category" title="分类" min-width="100"></vxe-table-column>
+            </vxe-table>
+          </a-card>
+        </a-col>
+      </a-row>
+    </a-drawer>
   </div>
 </template>
 
@@ -164,7 +222,16 @@ export default {
       tableData: [],
       loading: false
       ,
-      treeData: []
+      treeData: [],
+      lineFilterValues: [],
+      positionFilterValues: [],
+      lineOptions: ['1号线', '1号线增购', '2号线', '2号线增购', '2号线延线', '3号线', '4号线', '4号线增购', '5号线', '6号线', '7号线', '11号线'],
+      positionOptions: ['TC1', 'MP1', 'M1', 'M2', 'MP2', 'TC2', 'ALL'],
+      detailVisible: false,
+      detailRecord: {},
+      detailPartRows: [],
+      detailMaterials: [],
+      detailTreeData: []
     }
   },
   created () {
@@ -200,10 +267,13 @@ export default {
         this.selectRows = target ? [target] : []
         if (target) {
           this.$message.info(`已定位到BOM：${target.bomCode}`)
+          this.showDetail(target)
         }
       }
     },
     handleSearch () {
+      this.queryParam.line = this.joinCsv(this.lineFilterValues)
+      this.queryParam.position = this.joinCsv(this.positionFilterValues)
       this.queryParam.pageNo = 1
       this.loadData()
       this.loadTree()
@@ -218,6 +288,10 @@ export default {
     },
     handleEdit (record) {
       this.$refs.quotaModal.edit(record)
+    },
+    handleModalOk () {
+      this.loadData()
+      this.loadTree()
     },
     handleDelete () {
       if (this.selectRows.length === 0) {
@@ -276,6 +350,98 @@ export default {
         return moment(row.createTime).format('YYYY-MM-DD HH:mm:ss')
       }
       return ''
+    },
+    showDetail (record) {
+      this.detailRecord = record || {}
+      this.detailPartRows = this.parsePartRows(record ? record.partDetails : '')
+      this.detailMaterials = this.parseMaterials(record ? record.materialLinks : '')
+      this.detailTreeData = this.buildDetailTree(record)
+      this.detailVisible = true
+    },
+    buildDetailTree (record) {
+      if (!record) {
+        return []
+      }
+      const trainType = record.trainType || '未定义车型'
+      const line = record.line || '未定义线别'
+      const position = record.position || '未定义位置'
+      const system = record.system || '未定义系统'
+      const moduleLevel2 = record.moduleLevel2 || '未定义二级模块'
+      const moduleLevel3 = record.moduleLevel3 || '未定义三级模块'
+      const bomTitle = `${record.bomCode || '-'} - ${record.bomName || '未命名BOM'}`
+      return [{
+        key: 'root',
+        title: trainType,
+        children: [{
+          key: 'line',
+          title: line,
+          children: [{
+            key: 'position',
+            title: position,
+            children: [{
+              key: 'system',
+              title: system,
+              children: [{
+                key: 'module2',
+                title: moduleLevel2,
+                children: [{
+                  key: 'module3',
+                  title: moduleLevel3,
+                  children: [{ key: 'bom', title: bomTitle }]
+                }]
+              }]
+            }]
+          }]
+        }]
+      }]
+    },
+    parsePartRows (value) {
+      if (!value) {
+        return []
+      }
+      try {
+        const list = JSON.parse(value)
+        if (!Array.isArray(list)) {
+          return []
+        }
+        return list.map(item => ({
+          ...item,
+          maintReqText: this.renderMaintReq(item)
+        }))
+      } catch (e) {
+        return []
+      }
+    },
+    parseMaterials (value) {
+      if (!value) {
+        return []
+      }
+      try {
+        const list = JSON.parse(value)
+        if (!Array.isArray(list)) {
+          return []
+        }
+        return list.map(item => ({
+          id: item.id || item.materialTypeId || item.materialCode || item.code,
+          code: item.code || item.materialCode || '',
+          name: item.name || item.materialName || '',
+          category: item.category1_dictText || item.category1 || ''
+        }))
+      } catch (e) {
+        return []
+      }
+    },
+    renderMaintReq (item) {
+      const labels = []
+      if (item.reqFirstFrame) labels.push('一架')
+      if (item.reqFirstMajor) labels.push('一大')
+      if (item.reqSecondFrame) labels.push('二架')
+      if (item.reqSecondMajor) labels.push('二大')
+      if (item.reqThirdFrame) labels.push('三架')
+      return labels.join('、')
+    },
+    joinCsv (values) {
+      return (values || []).map(item => String(item).trim()).filter(Boolean).join(',')
     }
   }
 }

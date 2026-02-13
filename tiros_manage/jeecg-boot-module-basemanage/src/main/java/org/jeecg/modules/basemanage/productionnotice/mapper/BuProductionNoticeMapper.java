@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Mapper;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeFormProgressVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeProgressDetailVO;
 
 import java.util.List;
@@ -35,4 +36,17 @@ public interface BuProductionNoticeMapper extends BaseMapper<BuProductionNotice>
             "GROUP BY r.train_no " +
             "ORDER BY r.train_no")
     List<BuProductionNoticeProgressDetailVO> listProgressDetails(@Param("noticeId") String noticeId);
+
+    @Select("SELECT r.train_no AS trainNo, r.order_id AS orderId, r.order_code AS orderCode, " +
+            "f.form_inst_id AS formInstId, COALESCE(wr.code, wr_inst.code) AS formCode, COALESCE(wr.title, wr_inst.title) AS formTitle, " +
+            "COALESCE(pl.status, 0) AS fillStatus, pl.check_result AS checkResult, pl.check_date AS checkDate " +
+            "FROM bu_production_notice_order_rel r " +
+            "LEFT JOIN bu_work_order o ON o.id = r.order_id " +
+            "LEFT JOIN bu_work_order_task_form_inst f ON f.work_order_id = r.order_id AND f.inst_type = 3 " +
+            "LEFT JOIN bu_pl_work_record pl ON pl.id = f.form_inst_id " +
+            "LEFT JOIN bu_work_record wr ON wr.id = pl.form_obj_id " +
+            "LEFT JOIN bu_work_record wr_inst ON wr_inst.id = f.form_inst_id " +
+            "WHERE r.notice_id = #{noticeId} AND r.del_flag = 0 AND o.id IS NOT NULL AND o.order_status <> 9 " +
+            "ORDER BY r.train_no, r.order_code, f.form_inst_id")
+    List<BuProductionNoticeFormProgressVO> listFormProgress(@Param("noticeId") String noticeId);
 }

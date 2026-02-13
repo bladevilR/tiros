@@ -3,8 +3,10 @@ package org.jeecg.modules.basemanage.productionnotice.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.basemanage.productionnotice.entity.BuProductionNotice;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeFormProgressVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeProgressDetailVO;
 import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeQueryVO;
+import org.jeecg.modules.basemanage.productionnotice.entity.vo.BuProductionNoticeRelationPayloadVO;
 
 import java.util.List;
 
@@ -27,6 +29,10 @@ public interface IBuProductionNoticeService extends IService<BuProductionNotice>
     List<BuProductionNotice> listPendingTechnicalNotices(String lineId, String trainNo);
 
     List<BuProductionNoticeProgressDetailVO> listProgressDetails(String id);
+
+    List<BuProductionNoticeFormProgressVO> listFormProgress(String id);
+
+    BuProductionNoticeRelationPayloadVO getNoticeRelationPayload(String id);
 
     void bindOrder(String noticeId, String orderId, String orderCode, String trainNo);
 

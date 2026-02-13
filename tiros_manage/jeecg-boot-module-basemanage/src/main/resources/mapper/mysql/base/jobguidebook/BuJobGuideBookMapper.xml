@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.basemanage.jobguidebook.mapper.BuJobGuideBookMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.basemanage.jobguidebook.bean.BuJobGuideBook">
+        <id column="id" property="id"/>
+        <result column="file_no" property="fileNo"/>
+        <result column="file_name" property="fileName"/>
+        <result column="file_ver" property="fileVer"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_type_id" property="trainTypeId"/>
+        <result column="repair_program_id" property="repairProgramId"/>
+        <result column="project" property="project"/>
+        <result column="exe_time" property="exeTime"/>
+        <result column="status" property="status"/>
+        <result column="template_flag" property="templateFlag"/>
+        <result column="content_html" property="contentHtml"/>
+        <result column="review_status" property="reviewStatus"/>
+        <result column="reviewer_id" property="reviewerId"/>
+        <result column="reviewer_name" property="reviewerName"/>
+        <result column="review_comment" property="reviewComment"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="approver_id" property="approverId"/>
+        <result column="approver_name" property="approverName"/>
+        <result column="approve_comment" property="approveComment"/>
+        <result column="approve_time" property="approveTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+    </resultMap>
+
+    <select id="selectPageBySearchText" resultType="org.jeecg.modules.basemanage.jobguidebook.bean.BuJobGuideBook">
+        select t.*,
+        t1.line_name,
+        t.create_by as creatorName,
+        t3.name as trainTypeName,
+        t2.name as repairProgramName
+        from bu_job_guide_book t
+        left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_train_type t3 on t3.id = t.train_type_id
+        left join bu_repair_program t2 on t2.id = t.repair_program_id
+        <where>
+            <if test="queryVO.formName != null and queryVO.formName != ''">
+                (
+                t.file_no like concat('%',#{queryVO.formName},'%')
+                or
+                t.file_name like concat('%',#{queryVO.formName},'%')
+                )
+            </if>
+            <if test="queryVO.creatorName != null and queryVO.creatorName != ''">
+                and t.create_by like concat('%',#{queryVO.creatorName},'%')
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                and t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainTypeId != null and queryVO.trainTypeId != ''">
+                and t.train_type_id = #{queryVO.trainTypeId}
+            </if>
+            <if test="queryVO.repairProId != null and queryVO.repairProId != ''">
+                and t.repair_program_id = #{queryVO.repairProId}
+            </if>
+            <if test="queryVO.project != null and queryVO.project != ''">
+                and t.project like concat('%',#{queryVO.project},'%')
+            </if>
+            <if test="queryVO.templateFlag != null">
+                and t.template_flag = #{queryVO.templateFlag}
+            </if>
+            <if test="queryVO.bizStatus != null and queryVO.bizStatus != ''">
+                <choose>
+                    <when test="queryVO.bizStatus == 'DRAFT'">
+                        and t.status = 0 and t.review_status = 0
+                    </when>
+                    <when test="queryVO.bizStatus == 'REVIEWING'">
+                        and t.status = 0 and t.review_status = 1
+                    </when>
+                    <when test="queryVO.bizStatus == 'REVIEW_PASS'">
+                        and t.status = 0 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'APPROVING'">
+                        and t.status = 2 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'APPROVED'">
+                        and t.status = 3 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'PUBLISHED'">
+                        and t.status = 1
+                    </when>
+                    <when test="queryVO.bizStatus == 'OBSOLETE'">
+                        and t.status = 9
+                    </when>
+                </choose>
+            </if>
+        </where>
+        order by t.update_time desc, t.create_time desc
+    </select>
+
+    <select id="selectJobGuideBookById" resultType="org.jeecg.modules.basemanage.jobguidebook.bean.BuJobGuideBook">
+        select t.*,
+               t1.line_name,
+               t.create_by as creatorName,
+               t3.name as trainTypeName,
+               t2.name as repairProgramName
+        from bu_job_guide_book t
+                 left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_train_type t3 on t3.id = t.train_type_id
+                 left join bu_repair_program t2 on t2.id = t.repair_program_id
+        where t.id = #{id}
+    </select>
+
+</mapper>

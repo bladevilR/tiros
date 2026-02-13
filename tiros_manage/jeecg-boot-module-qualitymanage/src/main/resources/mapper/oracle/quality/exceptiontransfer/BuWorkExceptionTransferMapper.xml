@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.quality.exceptiontransfer.mapper.BuWorkExceptionTransferMapper">
+
+    <resultMap id="BaseResultMap" type="org.jeecg.modules.quality.exceptiontransfer.bean.BuWorkExceptionTransfer">
+        <id column="id" property="id"/>
+        <result column="transfer_code" property="transferCode"/>
+        <result column="fault_id" property="faultId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_task_id" property="orderTaskId"/>
+        <result column="plan_id" property="planId"/>
+        <result column="line_id" property="lineId"/>
+        <result column="train_no" property="trainNo"/>
+        <result column="sys_id" property="sysId"/>
+        <result column="fault_asset_id" property="faultAssetId"/>
+        <result column="report_user_id" property="reportUserId"/>
+        <result column="happen_time" property="happenTime"/>
+        <result column="fault_desc" property="faultDesc"/>
+        <result column="process_name" property="processName"/>
+        <result column="step_name" property="stepName"/>
+        <result column="next_process" property="nextProcess"/>
+        <result column="transfer_desc" property="transferDesc"/>
+        <result column="status" property="status"/>
+        <result column="decision_type" property="decisionType"/>
+        <result column="decision_user_id" property="decisionUserId"/>
+        <result column="decision_time" property="decisionTime"/>
+        <result column="decision_remark" property="decisionRemark"/>
+        <result column="submit_time" property="submitTime"/>
+        <result column="submit_user_id" property="submitUserId"/>
+        <result column="company_id" property="companyId"/>
+        <result column="workshop_id" property="workshopId"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="update_by" property="updateBy"/>
+
+        <result column="order_code" property="orderCode"/>
+        <result column="order_name" property="orderName"/>
+        <result column="task_name" property="taskName"/>
+        <result column="line_name" property="lineName"/>
+        <result column="sys_name" property="sysName"/>
+        <result column="fault_asset_name" property="faultAssetName"/>
+    </resultMap>
+
+    <select id="selectPageByCondition" resultMap="BaseResultMap">
+        SELECT
+            t.*,
+            o.order_code,
+            o.order_name,
+            ot.task_name,
+            l.line_name,
+            s.name AS sys_name,
+            a.asset_name AS fault_asset_name
+        FROM bu_work_exception_transfer t
+        LEFT JOIN bu_work_order o ON o.id = t.order_id
+        LEFT JOIN bu_work_order_task ot ON ot.id = t.order_task_id
+        LEFT JOIN bu_mtr_line l ON l.line_id = t.line_id
+        LEFT JOIN bu_train_asset_type s ON s.id = t.sys_id
+        LEFT JOIN bu_train_asset a ON a.id = t.fault_asset_id
+        <where>
+            t.del_flag = 0
+            <if test="queryVO.planId != null and queryVO.planId != ''">
+                AND t.plan_id = #{queryVO.planId}
+            </if>
+            <if test="queryVO.trainNo != null and queryVO.trainNo != ''">
+                AND t.train_no = #{queryVO.trainNo}
+            </if>
+            <if test="queryVO.lineId != null and queryVO.lineId != ''">
+                AND t.line_id = #{queryVO.lineId}
+            </if>
+            <if test="queryVO.faultId != null and queryVO.faultId != ''">
+                AND t.fault_id = #{queryVO.faultId}
+            </if>
+            <if test="queryVO.orderId != null and queryVO.orderId != ''">
+                AND t.order_id = #{queryVO.orderId}
+            </if>
+            <if test="queryVO.orderTaskId != null and queryVO.orderTaskId != ''">
+                AND t.order_task_id = #{queryVO.orderTaskId}
+            </if>
+            <if test="queryVO.status != null">
+                AND t.status = #{queryVO.status}
+            </if>
+            <if test="queryVO.searchText != null and queryVO.searchText != ''">
+                AND (t.transfer_code LIKE '%'||#{queryVO.searchText}||'%' OR t.transfer_desc LIKE '%'||#{queryVO.searchText}||'%')
+            </if>
+        </where>
+        ORDER BY t.submit_time DESC, t.create_time DESC
+    </select>
+
+</mapper>
+

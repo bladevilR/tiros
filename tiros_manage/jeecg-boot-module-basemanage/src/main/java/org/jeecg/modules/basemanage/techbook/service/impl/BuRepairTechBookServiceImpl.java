@@ -1,6 +1,7 @@
 package org.jeecg.modules.basemanage.techbook.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -125,6 +126,21 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
             throw new JeecgBootException("指导书ID不能为空");
         }
 
+        List<BuRepairTechBook> techBooks = buRepairTechBookMapper.selectBatchIds(idList);
+        if (CollectionUtils.isNotEmpty(techBooks)) {
+            for (BuRepairTechBook book : techBooks) {
+                if (book == null) {
+                    continue;
+                }
+                if (Integer.valueOf(1).equals(book.getStatus())) {
+                    throw new JeecgBootException("已发布状态不允许删除");
+                }
+                if (Integer.valueOf(9).equals(book.getStatus())) {
+                    throw new JeecgBootException("已作废状态不允许删除");
+                }
+            }
+        }
+
         // 检查是否关联规程
         checkReguRelation(idList);
 
@@ -141,8 +157,12 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
             buRepairTechBookDetailMapper.delete(detailWrapper);
         }
 
-        // 删除指导书
-        buRepairTechBookMapper.deleteBatchIds(idList);
+        // 删除指导书（逻辑删除标记为作废）
+        buRepairTechBookMapper.update(null,
+                new UpdateWrapper<BuRepairTechBook>()
+                        .set("status", 9)
+                        .set("update_time", new java.util.Date())
+                        .in("id", idList));
 
         return true;
     }
@@ -166,22 +186,44 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
         if (StringUtils.isBlank(id)) {
             throw new JeecgBootException("指导书ID不能为空");
         }
-        if (status == null || (status != 0 && status != 1)) {
+        if (status == null || (status != 0 && status != 1 && status != 2 && status != 3 && status != 9)) {
             throw new JeecgBootException("状态参数不合法");
         }
         BuRepairTechBook techBook = getByIdOrThrow(id);
         if (status == 1) {
-            if (!Integer.valueOf(2).equals(techBook.getReviewStatus())) {
-                throw new JeecgBootException("指导书需先审阅通过后才能发布");
+            if (!Integer.valueOf(3).equals(techBook.getStatus())) {
+                throw new JeecgBootException("指导书需先审批通过后才能发布");
             }
             if (StringUtils.isBlank(techBook.getContentHtml())) {
                 throw new JeecgBootException("指导书正文不能为空，无法发布");
             }
         }
-        return buRepairTechBookMapper.update(null,
+        if (status == 2 && !Integer.valueOf(2).equals(techBook.getReviewStatus())) {
+            throw new JeecgBootException("审阅通过后才能提交审批");
+        }
+        if (status == 3 && !Integer.valueOf(2).equals(techBook.getStatus())) {
+            throw new JeecgBootException("仅审批中状态可更新为审批通过");
+        }
+        boolean updated = buRepairTechBookMapper.update(null,
                 new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<BuRepairTechBook>()
                         .set("status", status)
+                        .set("update_time", new java.util.Date())
                         .eq("id", id)) > 0;
+
+        if (updated && status == 1) {
+            // 新版发布后，将同线路、同修程、同文件编号的其他已发布版本自动作废
+            buRepairTechBookMapper.update(null,
+                    new UpdateWrapper<BuRepairTechBook>()
+                            .set("status", 9)
+                            .set("update_time", new java.util.Date())
+                            .eq("template_flag", 0)
+                            .eq("line_id", techBook.getLineId())
+                            .eq("repair_program_id", techBook.getRepairProgramId())
+                            .eq("file_no", techBook.getFileNo())
+                            .eq("status", 1)
+                            .ne("id", id));
+        }
+        return updated;
     }
 
     @Override
@@ -268,6 +310,9 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
             throw new JeecgBootException("审阅人不能为空");
         }
         BuRepairTechBook techBook = getByIdOrThrow(id);
+        if (!Integer.valueOf(0).equals(techBook.getStatus())) {
+            throw new JeecgBootException("仅草稿状态可提交审阅");
+        }
         if (Integer.valueOf(1).equals(techBook.getStatus())) {
             throw new JeecgBootException("已发布的指导书无需提交审阅");
         }
@@ -276,6 +321,7 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
         }
         return buRepairTechBookMapper.update(null,
                 new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<BuRepairTechBook>()
+                        .set("status", 0)
                         .set("review_status", 1)
                         .set("reviewer_id", reviewerId)
                         .set("reviewer_name", reviewerName)
@@ -302,10 +348,110 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
         }
         return buRepairTechBookMapper.update(null,
                 new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<BuRepairTechBook>()
+                        .set("status", 0)
                         .set("review_status", reviewStatus)
                         .set("review_comment", reviewComment)
                         .set("review_time", new java.util.Date())
+                        .set("update_time", new java.util.Date())
                         .eq("id", id)) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean submitApprove(String id, String approverId, String approverName) throws Exception {
+        if (StringUtils.isBlank(id)) {
+            throw new JeecgBootException("指导书ID不能为空");
+        }
+        if (StringUtils.isBlank(approverId)) {
+            throw new JeecgBootException("审批人不能为空");
+        }
+        BuRepairTechBook techBook = getByIdOrThrow(id);
+        if (!Integer.valueOf(0).equals(techBook.getStatus())) {
+            throw new JeecgBootException("仅草稿状态可提交审批");
+        }
+        if (!Integer.valueOf(2).equals(techBook.getReviewStatus())) {
+            throw new JeecgBootException("仅审阅通过状态可提交审批");
+        }
+        if (Integer.valueOf(1).equals(techBook.getStatus())) {
+            throw new JeecgBootException("已发布指导书不可再次提交审批");
+        }
+        return buRepairTechBookMapper.update(null,
+                new UpdateWrapper<BuRepairTechBook>()
+                        .set("status", 2)
+                        .set("reviewer_id", approverId)
+                        .set("reviewer_name", approverName)
+                        .set("review_comment", null)
+                        .set("update_time", new java.util.Date())
+                        .eq("id", id)) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean approveDecision(String id, Integer approveStatus, String approveComment) throws Exception {
+        if (StringUtils.isBlank(id)) {
+            throw new JeecgBootException("指导书ID不能为空");
+        }
+        if (approveStatus == null || (approveStatus != 1 && approveStatus != 2)) {
+            throw new JeecgBootException("审批状态不合法");
+        }
+        if (approveStatus == 2 && StringUtils.isBlank(approveComment)) {
+            throw new JeecgBootException("审批退回时需填写原因");
+        }
+        BuRepairTechBook techBook = getByIdOrThrow(id);
+        if (!Integer.valueOf(2).equals(techBook.getStatus())) {
+            throw new JeecgBootException("仅审批中状态可执行审批结论");
+        }
+        UpdateWrapper<BuRepairTechBook> wrapper = new UpdateWrapper<>();
+        wrapper.eq("id", id)
+                .set("update_time", new java.util.Date());
+        if (approveStatus == 1) {
+            wrapper.set("status", 3);
+        } else {
+            wrapper.set("status", 0)
+                    .set("review_status", 0);
+        }
+        if (StringUtils.isNotBlank(approveComment)) {
+            wrapper.set("review_comment", approveComment)
+                    .set("review_time", new java.util.Date());
+        }
+        return buRepairTechBookMapper.update(null, wrapper) > 0;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public String cloneAsDraft(String sourceId, BuRepairTechBook draft) throws Exception {
+        if (draft == null) {
+            throw new JeecgBootException("复用参数不能为空");
+        }
+        String newId = cloneAsTemplate(sourceId);
+        BuRepairTechBook cloned = getByIdOrThrow(newId);
+        if (StringUtils.isNotBlank(draft.getFileNo())) {
+            cloned.setFileNo(draft.getFileNo().trim());
+        }
+        if (StringUtils.isNotBlank(draft.getFileName())) {
+            cloned.setFileName(draft.getFileName().trim());
+        }
+        if (StringUtils.isNotBlank(draft.getFileVer())) {
+            cloned.setFileVer(draft.getFileVer().trim());
+        }
+        if (StringUtils.isNotBlank(draft.getLineId())) {
+            cloned.setLineId(draft.getLineId());
+        }
+        if (StringUtils.isNotBlank(draft.getRepairProgramId())) {
+            cloned.setRepairProgramId(draft.getRepairProgramId());
+        }
+        if (draft.getExeTime() != null) {
+            cloned.setExeTime(draft.getExeTime());
+        }
+        cloned.setTemplateFlag(0);
+        cloned.setStatus(0);
+        cloned.setReviewStatus(0);
+        cloned.setReviewerId(null);
+        cloned.setReviewerName(null);
+        cloned.setReviewComment(null);
+        cloned.setReviewTime(null);
+        buRepairTechBookMapper.updateById(cloned);
+        return newId;
     }
 
     @Override
@@ -329,13 +475,6 @@ public class BuRepairTechBookServiceImpl extends ServiceImpl<BuRepairTechBookMap
         revised.setReviewComment(null);
         revised.setReviewTime(null);
         buRepairTechBookMapper.updateById(revised);
-
-        if (!Integer.valueOf(0).equals(source.getStatus())) {
-            buRepairTechBookMapper.update(null,
-                    new com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper<BuRepairTechBook>()
-                            .set("status", 0)
-                            .eq("id", source.getId()));
-        }
         return newId;
     }
 

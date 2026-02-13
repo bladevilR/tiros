@@ -38,9 +38,12 @@
     <select id="selectPageBySearchText" resultType="org.jeecg.modules.basemanage.techbook.bean.BuRepairTechBook">
         select t.*,
         t1.line_name,
+        t.create_by as creatorName,
+        t3.name as trainTypeName,
         t2.name as repairProgramName
         from bu_repair_tech_book t
         left join bu_mtr_line t1 on t1.line_id = t.line_id
+        left join bu_train_type t3 on t3.id = t1.train_type_id
         left join bu_repair_program t2 on t2.id = t.repair_program_id
         <where>
             <if test="queryVO.formName != null and queryVO.formName!= ''">
@@ -50,8 +53,14 @@
                 t.file_name like concat('%',#{queryVO.formName},'%')
                 )
             </if>
+            <if test="queryVO.creatorName != null and queryVO.creatorName != ''">
+                and t.create_by like concat('%',#{queryVO.creatorName},'%')
+            </if>
             <if test="queryVO.lineId!=null and queryVO.lineId!=''">
                 and t.line_id=#{queryVO.lineId}
+            </if>
+            <if test="queryVO.trainTypeId!=null and queryVO.trainTypeId!=''">
+                and t1.train_type_id=#{queryVO.trainTypeId}
             </if>
             <if test="queryVO.repairProId!=null and queryVO.repairProId!=''">
                 and t.repair_program_id=#{queryVO.repairProId}
@@ -59,15 +68,44 @@
             <if test="queryVO.templateFlag!=null">
                 and t.template_flag = #{queryVO.templateFlag}
             </if>
+            <if test="queryVO.bizStatus!=null and queryVO.bizStatus!=''">
+                <choose>
+                    <when test="queryVO.bizStatus == 'DRAFT'">
+                        and t.status = 0 and t.review_status = 0
+                    </when>
+                    <when test="queryVO.bizStatus == 'REVIEWING'">
+                        and t.status = 0 and t.review_status = 1
+                    </when>
+                    <when test="queryVO.bizStatus == 'REVIEW_PASS'">
+                        and t.status = 0 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'APPROVING'">
+                        and t.status = 2 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'APPROVED'">
+                        and t.status = 3 and t.review_status = 2
+                    </when>
+                    <when test="queryVO.bizStatus == 'PUBLISHED'">
+                        and t.status = 1
+                    </when>
+                    <when test="queryVO.bizStatus == 'OBSOLETE'">
+                        and t.status = 9
+                    </when>
+                </choose>
+            </if>
         </where>
+        order by t.update_time desc, t.create_time desc
     </select>
 
     <select id="selectTechBookById" resultType="org.jeecg.modules.basemanage.techbook.bean.BuRepairTechBook">
         select t.*,
                t1.line_name,
+               t.create_by as creatorName,
+               t3.name as trainTypeName,
                t2.name as repairProgramName
         from bu_repair_tech_book t
                  left join bu_mtr_line t1 on t1.line_id = t.line_id
+                 left join bu_train_type t3 on t3.id = t1.train_type_id
                  left join bu_repair_program t2 on t2.id = t.repair_program_id
         where t.id = #{id}
     </select>

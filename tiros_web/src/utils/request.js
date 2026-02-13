@@ -4,7 +4,7 @@ import store from '@/store'
 import { VueAxios } from './axios'
 import {notification} from 'ant-design-vue'
 import { ACCESS_TOKEN } from "@/store/mutation-types"
-import {checkRefreshToken} from '@views/tiros/util/TokenUtil'
+import {checkRefreshToken, isNoNeedCheckUrl, isTokenExpired} from '@views/tiros/util/TokenUtil'
 
 /**
  * 【指定 axios的 baseURL】
@@ -116,6 +116,10 @@ const err = (error) => {
 service.interceptors.request.use(config => {
   const token = Vue.ls.get(ACCESS_TOKEN)
   if (token) {
+    if (!isNoNeedCheckUrl(config.url) && isTokenExpired(token)) {
+      store.dispatch('openLogoutMessage')
+      return Promise.reject(new Error('Token expired in client'))
+    }
     config.headers[ 'X-Access-Token' ] = token // 让每个请求携带自定义 token 请根据实际情况自行修改
   }
   if (config.url.indexOf('http')<0) {

@@ -78,6 +78,21 @@ public interface BuRepairTechBookService extends IService<BuRepairTechBook> {
      */
     boolean reviewDecision(String id, Integer reviewStatus, String reviewComment) throws Exception;
 
+    /**
+     * 提交审批（审阅通过后）
+     */
+    boolean submitApprove(String id, String approverId, String approverName) throws Exception;
+
+    /**
+     * 审批结论 approveStatus: 1-通过 2-退回
+     */
+    boolean approveDecision(String id, Integer approveStatus, String approveComment) throws Exception;
+
+    /**
+     * 基于既有指导书复用创建草稿
+     */
+    String cloneAsDraft(String sourceId, BuRepairTechBook draft) throws Exception;
+
     String reviseWithNewVersion(String id, String newVersion) throws Exception;
 
 

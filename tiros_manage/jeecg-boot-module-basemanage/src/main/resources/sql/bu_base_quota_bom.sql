@@ -18,7 +18,7 @@ CREATE TABLE bu_quota_bom (
     update_by VARCHAR2(50),
     update_time DATE DEFAULT SYSDATE,
     del_flag NUMBER(1) DEFAULT 0,
-    CONSTRAINT pk_quota_bom PRIMARY KEY (id)
+    CONSTRAINT pk_bu_quota_bom PRIMARY KEY (id)
 );
 
 -- 添加注释
@@ -43,6 +43,6 @@ COMMENT ON COLUMN bu_quota_bom.update_time IS '更新时间';
 COMMENT ON COLUMN bu_quota_bom.del_flag IS '删除标志：0-未删除 1-已删除';
 
 -- 创建索引
-CREATE INDEX idx_bom_code ON bu_quota_bom(bom_code);
-CREATE INDEX idx_train_type ON bu_quota_bom(train_type);
-CREATE INDEX idx_line ON bu_quota_bom(line);
+CREATE INDEX idx_bu_quota_bom_code ON bu_quota_bom(bom_code);
+CREATE INDEX idx_bu_quota_train_type ON bu_quota_bom(train_type);
+CREATE INDEX idx_bu_quota_line ON bu_quota_bom(line);

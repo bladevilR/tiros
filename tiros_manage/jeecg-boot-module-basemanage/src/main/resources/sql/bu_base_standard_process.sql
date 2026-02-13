@@ -16,7 +16,7 @@ CREATE TABLE bu_standard_process (
     update_by VARCHAR2(50),
     update_time DATE DEFAULT SYSDATE,
     del_flag NUMBER(1) DEFAULT 0,
-    CONSTRAINT pk_standard_process PRIMARY KEY (id)
+    CONSTRAINT pk_bu_standard_process PRIMARY KEY (id)
 );
 
 -- 添加注释
@@ -39,6 +39,6 @@ COMMENT ON COLUMN bu_standard_process.update_time IS '更新时间';
 COMMENT ON COLUMN bu_standard_process.del_flag IS '删除标志：0-未删除 1-已删除';
 
 -- 创建索引
-CREATE INDEX idx_process_no ON bu_standard_process(process_no);
-CREATE INDEX idx_process_name ON bu_standard_process(process_name);
-CREATE INDEX idx_process_type ON bu_standard_process(process_type);
+CREATE INDEX idx_bu_std_process_no ON bu_standard_process(process_no);
+CREATE INDEX idx_bu_std_process_name ON bu_standard_process(process_name);
+CREATE INDEX idx_bu_std_process_type ON bu_standard_process(process_type);

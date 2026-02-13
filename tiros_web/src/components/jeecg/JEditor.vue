@@ -13,6 +13,8 @@ import 'tinymce/plugins/link'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/table'
 import 'tinymce/plugins/lists'
+import 'tinymce/plugins/paste'
+import 'tinymce/plugins/searchreplace'
 import 'tinymce/plugins/contextmenu'
 import 'tinymce/plugins/wordcount'
 import 'tinymce/plugins/colorpicker'
@@ -38,14 +40,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    height: {
+      type: Number,
+      default: 300,
+    },
     plugins: {
       type: [String, Array],
-      default: 'lists image link media table textcolor wordcount contextmenu fullscreen',
+      default: 'lists image link media table textcolor wordcount contextmenu fullscreen paste searchreplace',
     },
     toolbar: {
       type: [String, Array],
       default:
-        'undo redo |  formatselect | bold italic | alignleft aligncenter alignright alignjusty | bullist numlist outdent indent | lists link unlink image media table | removeformat | fullscreen',
+        'undo redo | searchreplace | formatselect | bold italic | alignleft aligncenter alignright alignjusty | bullist numlist outdent indent | lists link unlink image media table | removeformat | fullscreen',
       branding: false,
     },
   },
@@ -57,7 +63,7 @@ export default {
         language_url: '/tinymce/langs/zh_CN.js',
         language: 'zh_CN',
         skin_url: '/tinymce/skins/lightgray',
-        height: 300,
+        height: this.height,
         plugins: this.plugins,
         toolbar: this.toolbar,
         branding: false,

@@ -94,6 +94,11 @@ export default {
   },
   methods: {
     loadTodo() {
+      if (!this.$workflowApi || typeof this.$workflowApi.listTodo !== 'function') {
+        this.todoList = []
+        this.filterList = []
+        return
+      }
       this.$workflowApi
         .listTodo({ taskName: '' })
         .then((res) => {

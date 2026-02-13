@@ -93,9 +93,10 @@
                 <a-select
                   :allowClear="true"
                   :disabled="generate === 1"
-                  v-decorator="['productionNoticeId']"
+                  v-decorator="['productionNoticeId', { rules: [{ required: true, message: '请选择生产通知单' }] }]"
                   placeholder="请选择技术类生产通知单"
                   @dropdownVisibleChange="onNoticeDropdownVisibleChange"
+                  @change="onProductionNoticeChange"
                 >
                   <a-select-option v-for="item in productionNoticeOptions" :key="item.id" :value="item.id">
                     {{ item.noticeNo }} - {{ item.title }}
@@ -407,6 +408,7 @@ import TargetDeviceListOrder from '@/views/tiros/dispatch/workOrder/TargetDevice
 import moment from 'moment'
 import { addWorkOrder, editWorkOrder, getWorkOrderDetail, getTrainPlanDetail, listPendingProductionNotice } from '@api/tirosDispatchApi'
 import { submitOrderToDispatcher, getOutTaskInfo, getTaskRelevanceInfo } from '@api/tirosGroupApi'
+import { getProductionNoticeRelationPayload } from '@api/tirosApi'
 import LineSelectList from '@views/tiros/common/selectModules/LineSelectList'
 import { randomUUID } from '@/utils/util'
 import { getStockSum, getGroupStockSum } from '@api/tirosMaterialApi'
@@ -501,6 +503,8 @@ export default {
       tableDataForms: [],
       tableDataFiles: [],
       tableAttachedFiles: [],
+      noticeRelatedFormMark: {},
+      noticeRelatedFileMark: {},
       tableStaffArranges: [],
       productionNoticeOptions: [],
       workOrderInfo: {},
@@ -743,7 +747,13 @@ export default {
               this.tableDataForms = detail.forms
               this.tableDataFiles = detail.techFiles
               this.tableAttachedFiles = detail.annexList
+              this.noticeRelatedFormMark = {}
+              this.noticeRelatedFileMark = {}
               this.updateStaffArranges()
+
+              if (detail.orderType === 3 && detail.productionNoticeId) {
+                this.applyNoticeRelationPayload(detail.productionNoticeId)
+              }
 
               // 工单核实状态中使用的工单信息对象
               this.workOrderInfo.planName = detail.planName
@@ -857,6 +867,9 @@ export default {
       this.tableDataTools = []
       this.tableDataForms = []
       this.tableDataFiles = []
+      this.tableAttachedFiles = []
+      this.noticeRelatedFormMark = {}
+      this.noticeRelatedFileMark = {}
       this.productionNoticeOptions = []
 
       this.$emit('loaded')
@@ -1629,17 +1642,126 @@ export default {
       this.orderType = parseInt(value)
       if (this.orderType === 3) {
         this.loadPendingProductionNotice(this.lineId, this.trainNo)
+        this.basicInfoForm.setFieldsValue({
+          productionNoticeId: this.basicInfoForm.getFieldValue('productionNoticeId'),
+        })
+        const selectedNoticeId = this.basicInfoForm.getFieldValue('productionNoticeId')
+        if (selectedNoticeId) {
+          this.applyNoticeRelationPayload(selectedNoticeId)
+        }
       } else {
         this.productionNoticeOptions = []
         this.basicInfoForm.setFieldsValue({
           productionNoticeId: undefined,
         })
+        this.clearNoticeLinkedData()
       }
     },
     onNoticeDropdownVisibleChange(visible) {
       if (visible && this.orderType === 3) {
         this.loadPendingProductionNotice(this.lineId, this.trainNo)
       }
+    },
+    onProductionNoticeChange(value) {
+      if (!value) {
+        this.clearNoticeLinkedData()
+        return
+      }
+      this.applyNoticeRelationPayload(value)
+    },
+    applyNoticeRelationPayload(noticeId) {
+      if (!noticeId) {
+        return
+      }
+      getProductionNoticeRelationPayload({ id: noticeId }).then((res) => {
+        if (!(res && res.success)) {
+          this.$message.warning((res && res.message) || '加载生产通知单关联数据失败')
+          return
+        }
+        const payload = res.result || {}
+        this.injectNoticeForms(payload.relatedForms || [])
+        this.injectNoticeFiles(payload.relatedFiles || [])
+      }).catch(() => {
+        this.$message.warning('加载生产通知单关联数据失败')
+      })
+    },
+    injectNoticeForms(forms) {
+      this.tableDataForms = (this.tableDataForms || []).filter(item => !item._fromProductionNotice)
+      this.noticeRelatedFormMark = {}
+      if (!forms || forms.length === 0) {
+        return
+      }
+      const taskId = (this.tableDataTask && this.tableDataTask.length > 0) ? this.tableDataTask[0].id : ''
+      const taskName = (this.tableDataTask && this.tableDataTask.length > 0) ? this.tableDataTask[0].taskName : ''
+      forms.forEach(form => {
+        if (!form || !form.id) {
+          return
+        }
+        const key = `${form.id}`
+        this.noticeRelatedFormMark[key] = true
+        const existsItem = (this.tableDataForms || []).find(item => item && item.formInstId === form.id)
+        if (existsItem) {
+          existsItem._fromProductionNotice = true
+          return
+        }
+        this.tableDataForms.push({
+          id: randomUUID(),
+          isNew: true,
+          _fromProductionNotice: true,
+          instType: 3,
+          instType_dictText: '作业记录表',
+          formInstId: form.id,
+          formObjId: form.id,
+          formName: form.title,
+          title: form.title,
+          formCode: form.code,
+          workRecordType: form.workRecordType || 1,
+          workOrderTaskId: taskId,
+          taskName,
+          fromBy: 2,
+          status_dictText: '未填写',
+          recordIds: '',
+          remark: ''
+        })
+      })
+    },
+    injectNoticeFiles(files) {
+      this.tableAttachedFiles = (this.tableAttachedFiles || []).filter(item => !item._fromProductionNotice)
+      this.noticeRelatedFileMark = {}
+      if (!files || files.length === 0) {
+        return
+      }
+      const taskId = (this.tableDataTask && this.tableDataTask.length > 0) ? this.tableDataTask[0].id : ''
+      const taskName = (this.tableDataTask && this.tableDataTask.length > 0) ? this.tableDataTask[0].taskName : ''
+      files.forEach(file => {
+        if (!file || !file.id) {
+          return
+        }
+        const key = `${file.id}`
+        this.noticeRelatedFileMark[key] = true
+        const existsItem = (this.tableAttachedFiles || []).find(item => item && item.fileId === file.id)
+        if (existsItem) {
+          existsItem._fromProductionNotice = true
+          return
+        }
+        this.tableAttachedFiles.push({
+          id: randomUUID(),
+          _fromProductionNotice: true,
+          taskId,
+          taskName,
+          fileId: file.id,
+          name: file.name,
+          type: file.type,
+          savepath: file.savepath,
+          fileSize: file.fileSize
+        })
+      })
+    },
+    clearNoticeLinkedData() {
+      this.noticeRelatedFormMark = {}
+      this.noticeRelatedFileMark = {}
+      this.tableDataForms = (this.tableDataForms || []).filter(item => !item._fromProductionNotice)
+      this.tableAttachedFiles = (this.tableAttachedFiles || []).filter(item => !item._fromProductionNotice)
     },
     loadPendingProductionNotice(lineId, trainNo, currentNoticeId, currentNoticeNo, currentNoticeTitle) {
       listPendingProductionNotice({ lineId, trainNo }).then((res) => {
@@ -1657,7 +1779,7 @@ export default {
         } else {
           this.productionNoticeOptions = []
         }
-      }).catch(() => {
+        }).catch(() => {
         this.productionNoticeOptions = []
       })
     },

@@ -107,8 +107,15 @@ export function formatDate (value, fmt) {
 }
 
 // 生成首页路由
+function createRouteCache () {
+  return {
+    names: new Set(),
+    paths: new Set()
+  }
+}
+
 export function generateIndexRouter (data) {
-  const rts = generateChildRouters(data)
+  const rts = generateChildRouters(data, createRouteCache())
   // 判断/dashboard/index 是否存在，不存在，则添加一个空白的
   let exist=false;
   rts.forEach(item => {
@@ -159,7 +166,7 @@ export function generateIndexRouter (data) {
 }
 
 // 生成嵌套路由（子路由）
-function generateChildRouters (data) {
+function generateChildRouters (data, routeCache = createRouteCache()) {
   const routers = []
   for (let item of data) {
     let component = ''
@@ -222,7 +229,7 @@ function generateChildRouters (data) {
       menu.redirect = menu.path
     }
     if (item.children && item.children.length > 0) {
-      menu.children = [...generateChildRouters(item.children)]
+      menu.children = [...generateChildRouters(item.children, routeCache)]
     }
     //--update-begin----author:scott---date:20190320------for:根据后台菜单配置，判断是否路由菜单字段，动态选择是否生成路由（为了支持参数URL菜单）------
     //判断是否生成路由
@@ -230,7 +237,34 @@ function generateChildRouters (data) {
       //console.log(' 不生成路由 item.route：  '+item.route);
       //console.log(' 不生成路由 item.path：  '+item.path);
     } else {
-      routers.push(menu)
+      const routeName = menu.name || ''
+      const routePath = menu.path || ''
+      const duplicatedByName = routeName && routeCache.names.has(routeName)
+      const duplicatedByPath = routePath && routeCache.paths.has(routePath)
+      if (!duplicatedByName && !duplicatedByPath) {
+        if (routeName) {
+          routeCache.names.add(routeName)
+        }
+        if (routePath) {
+          routeCache.paths.add(routePath)
+        }
+        routers.push(menu)
+      } else {
+        console.warn('[router] skip duplicate dynamic route', { name: routeName, path: routePath })
+        // 当父路由重复时，将其子路由合并到已存在的同名/同路径路由中，避免子路由丢失
+        if (menu.children && menu.children.length > 0) {
+          const existing = routers.find(r =>
+            (routeName && r.name === routeName) || (routePath && r.path === routePath)
+          )
+          if (existing) {
+            if (!existing.children) existing.children = []
+            existing.children.push(...menu.children)
+          } else {
+            // 已存在的路由不在当前层级（可能在父级），将子路由直接提升到当前层级
+            routers.push(...menu.children)
+          }
+        }
+      }
     }
     //--update-end----author:scott---date:20190320------for:根据后台菜单配置，判断是否路由菜单字段，动态选择是否生成路由（为了支持参数URL菜单）------
   }
@@ -239,11 +273,12 @@ function generateChildRouters (data) {
 // add by Jakgong 生成平铺路由表（所以菜单直接挂在根路由下，不根据菜单结构生成嵌套路由表）
 function generateFlatRouters (data) {
   const routers = []
+  const routeCache = createRouteCache()
   // 第一层不生成路由
 
   for (let item of data) {
     if (item.children && item.children.length > 0) {
-      routers.push(...generateChildRouters(item.children))
+      routers.push(...generateChildRouters(item.children, routeCache))
     }
   }
   return routers

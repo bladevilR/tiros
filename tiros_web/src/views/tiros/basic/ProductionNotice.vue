@@ -67,6 +67,8 @@
                 <a-button :disabled="!canPublish" @click="handlePublish">发布</a-button>
                 <a-button :disabled="!canClose" @click="handleClose">关闭</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="loadProgressDetail">进度明细</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="loadFormProgressDetail">表单填报明细</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="loadRelatedFiles">关联文件</a-button>
                 <a-button @click="handleExport">导出</a-button>
                 <a-upload
                   name="file"
@@ -115,7 +117,11 @@
             <span v-else-if="scope.row.status === '3'">已关闭</span>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="progress" title="进度" width="12%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="progress" title="进度" width="16%" header-align="center" align="center">
+          <template slot-scope="scope">
+            {{ formatProgress(scope.row) }}
+          </template>
+        </vxe-table-column>
         <vxe-table-column field="createTime" title="创建时间" width="18%" :formatter="formatDate"></vxe-table-column>
         <vxe-table-column field="remark" title="备注" width="15%" header-align="center" align="left"></vxe-table-column>
       </vxe-table>
@@ -147,12 +153,62 @@
         :data="progressDetails"
       >
         <vxe-table-column field="trainNo" title="车号" width="180"></vxe-table-column>
-        <vxe-table-column field="totalOrders" title="关联工单数" width="140"></vxe-table-column>
-        <vxe-table-column field="completedOrders" title="已完成工单数" width="140"></vxe-table-column>
-        <vxe-table-column field="progressText" title="列车进度" width="120"></vxe-table-column>
+        <vxe-table-column field="totalOrders" title="关联工单数" width="120"></vxe-table-column>
+        <vxe-table-column field="completedOrders" title="已完成工单数" width="120"></vxe-table-column>
+        <vxe-table-column field="progressRatio" title="完成比" width="120"></vxe-table-column>
+        <vxe-table-column field="progressText" title="进度百分比" width="120"></vxe-table-column>
         <vxe-table-column field="lastFinishTime" title="最近完成时间" min-width="220" :formatter="formatDate"></vxe-table-column>
       </vxe-table>
     </a-modal>
+
+    <a-modal
+      title="生产通知作业记录表填报明细"
+      :visible="formProgressVisible"
+      :footer="null"
+      :width="1100"
+      @cancel="formProgressVisible = false"
+      :maskClosable="false"
+    >
+      <vxe-table
+        border
+        auto-resize
+        max-height="420"
+        :align="allAlign"
+        :data="formProgressDetails"
+      >
+        <vxe-table-column field="trainNo" title="车号" width="120"></vxe-table-column>
+        <vxe-table-column field="orderCode" title="工单号" width="150"></vxe-table-column>
+        <vxe-table-column field="formCode" title="记录表编码" width="150"></vxe-table-column>
+        <vxe-table-column field="formTitle" title="记录表名称" min-width="220"></vxe-table-column>
+        <vxe-table-column field="fillStatusText" title="填报状态" width="100"></vxe-table-column>
+        <vxe-table-column field="checkResultText" title="检查结果" width="100"></vxe-table-column>
+        <vxe-table-column field="checkDate" title="检查日期" width="130"></vxe-table-column>
+      </vxe-table>
+    </a-modal>
+
+    <a-modal
+      title="生产通知关联文件"
+      :visible="relatedFilesVisible"
+      :footer="null"
+      :width="900"
+      @cancel="relatedFilesVisible = false"
+      :maskClosable="false"
+    >
+      <vxe-table border auto-resize max-height="420" :align="allAlign" :data="relatedFiles">
+        <vxe-table-column field="name" title="文件名称" min-width="280"></vxe-table-column>
+        <vxe-table-column field="type" title="类型" width="120"></vxe-table-column>
+        <vxe-table-column field="fileSize" title="大小(KB)" width="100"></vxe-table-column>
+        <vxe-table-column title="操作" width="180">
+          <template slot-scope="scope">
+            <a @click="previewFile(scope.row)">预览</a>
+            <a-divider type="vertical" />
+            <a @click="downloadRelatedFile(scope.row)">下载</a>
+          </template>
+        </vxe-table-column>
+      </vxe-table>
+    </a-modal>
+
+    <doc-preview-modal ref="docPreview"></doc-preview-modal>
   </div>
 </template>
 
@@ -166,15 +222,19 @@ import {
   submitProductionNotice,
   publishProductionNotice,
   closeProductionNotice,
-  listProductionNoticeProgressDetail
+  listProductionNoticeProgressDetail,
+  listProductionNoticeFormProgress,
+  getProductionNoticeRelationPayload
 } from '@/api/tirosApi'
 import { downFile } from '@/api/manage'
 import Vue from 'vue'
 import { ACCESS_TOKEN } from '@/store/mutation-types'
+import DocPreviewModal from '@views/tiros/common/doc/DocPreviewModal'
+import { download } from '@/api/tirosFileApi'
 
 export default {
   name: 'ProductionNotice',
-  components: { ProductionNoticeModal },
+  components: { ProductionNoticeModal, DocPreviewModal },
   computed: {
     canSubmit() {
       return this.selectRows.length === 1 && this.selectRows[0].status === '0'
@@ -209,7 +269,11 @@ export default {
       tableData: [],
       loading: false,
       progressVisible: false,
-      progressDetails: []
+      progressDetails: [],
+      formProgressVisible: false,
+      formProgressDetails: [],
+      relatedFilesVisible: false,
+      relatedFiles: []
     }
   },
   created() {
@@ -223,7 +287,10 @@ export default {
       this.loading = true
       pageProductionNotice(this.queryParam).then(res => {
         if (res.success) {
-          this.tableData = res.result.records || []
+          this.tableData = (res.result.records || []).map(item => ({
+            ...item,
+            progressRatio: this.buildProgressRatio(item)
+          }))
           this.totalResult = res.result.total || 0
         }
       }).finally(() => {
@@ -360,8 +427,10 @@ export default {
             const totalOrders = Number(item.totalOrders || 0)
             const completedOrders = Number(item.completedOrders || 0)
             const progressText = totalOrders > 0 ? `${Math.round((completedOrders * 100) / totalOrders)}%` : '0%'
+            const progressRatio = totalOrders > 0 ? `${completedOrders}/${totalOrders}` : '0/0'
             return {
               ...item,
+              progressRatio,
               progressText
             }
           })
@@ -370,6 +439,53 @@ export default {
           this.$message.error(res.message || '加载进度明细失败')
         }
       })
+    },
+    loadFormProgressDetail() {
+      if (this.selectRows.length !== 1) {
+        return
+      }
+      const row = this.selectRows[0]
+      listProductionNoticeFormProgress({ id: row.id }).then(res => {
+        if (res.success) {
+          this.formProgressDetails = (res.result || []).map(item => ({
+            ...item,
+            fillStatusText: Number(item.fillStatus) === 1 ? '已填写' : '未填写',
+            checkResultText: Number(item.checkResult) === 1 ? '通过' : (Number(item.checkResult) === 0 ? '未通过' : '-')
+          }))
+          this.formProgressVisible = true
+        } else {
+          this.$message.error(res.message || '加载填报明细失败')
+        }
+      })
+    },
+    loadRelatedFiles() {
+      if (this.selectRows.length !== 1) {
+        return
+      }
+      const row = this.selectRows[0]
+      getProductionNoticeRelationPayload({ id: row.id }).then(res => {
+        if (res && res.success) {
+          const payload = res.result || {}
+          this.relatedFiles = payload.relatedFiles || []
+          this.relatedFilesVisible = true
+        } else {
+          this.$message.error((res && res.message) || '加载关联文件失败')
+        }
+      })
+    },
+    previewFile(file) {
+      if (!file || !file.savepath) {
+        this.$message.warning('文件路径为空')
+        return
+      }
+      this.$refs.docPreview.handleFilePath(file.savepath)
+    },
+    downloadRelatedFile(file) {
+      if (!file || !file.savepath) {
+        this.$message.warning('文件路径为空')
+        return
+      }
+      download(file.savepath)
     },
     handleImportExcel(info) {
       if (info.file.status === 'done') {
@@ -384,10 +500,30 @@ export default {
       }
     },
     formatDate(row) {
-      if (row.createTime) {
-        return moment(row.createTime).format('YYYY-MM-DD HH:mm:ss')
+      const time = row.lastFinishTime || row.createTime
+      if (time) {
+        return moment(time).format('YYYY-MM-DD HH:mm:ss')
       }
       return ''
+    },
+    buildProgressRatio(row) {
+      const total = Number((row && row.totalTrains) || 0)
+      const completed = Number((row && row.completedTrains) || 0)
+      if (total > 0) {
+        return `${Math.min(completed, total)}/${total}`
+      }
+      if (completed > 0) {
+        return `${completed}/${completed}`
+      }
+      return ''
+    },
+    formatProgress(row) {
+      const ratio = this.buildProgressRatio(row)
+      const percent = (row && row.progress) ? row.progress : '0%'
+      if (!ratio) {
+        return percent
+      }
+      return `${ratio} (${percent})`
     }
   }
 }

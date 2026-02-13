@@ -76,6 +76,7 @@
                 <a-button v-has="'train:plan:progress'" type='primary'
                           v-show='selectedRow && selectedRow.progress < 100 && selectedRow.progressStatus !== 0'
                           @click='$refs.verifyProgress.show(selectedRow)'>进度核实</a-button>
+                <a-button type='dashed' :disabled='!selectedRow' @click='openQualityOverview(selectedRow)'>质量总览</a-button>
                 <a-upload
                   style='margin-left: 8px'
                   name='file'
@@ -365,6 +366,50 @@
     ></edit>
     <plan-forms ref='planForms'></plan-forms>
     <verifyProgress ref='verifyProgress' @close='closeVerify' />
+    <a-modal
+      :visible='qualityOverviewVisible'
+      title='质量总览'
+      :width="'86%'"
+      :footer='null'
+      @cancel='qualityOverviewVisible = false'
+    >
+      <a-spin :spinning='qualityOverviewLoading'>
+        <a-row :gutter='12' style='margin-bottom: 12px'>
+          <a-col :md='6' :sm='12'>
+            <a-card size='small'>
+              <div>总项点</div>
+              <div style='font-size:20px;font-weight:600;'>{{ qualityPlanningSummary.totalItems || 0 }}</div>
+            </a-card>
+          </a-col>
+          <a-col :md='6' :sm='12'>
+            <a-card size='small'>
+              <div>已填报</div>
+              <div style='font-size:20px;font-weight:600;color:#52c41a;'>{{ qualityPlanningSummary.filledItems || 0 }}</div>
+            </a-card>
+          </a-col>
+          <a-col :md='6' :sm='12'>
+            <a-card size='small'>
+              <div>待填报</div>
+              <div style='font-size:20px;font-weight:600;color:#faad14;'>{{ qualityPlanningSummary.pendingItems || 0 }}</div>
+            </a-card>
+          </a-col>
+          <a-col :md='6' :sm='12'>
+            <a-card size='small'>
+              <div>无需填报</div>
+              <div style='font-size:20px;font-weight:600;color:#8c8c8c;'>{{ qualityPlanningSummary.noNeedFillItems || 0 }}</div>
+            </a-card>
+          </a-col>
+        </a-row>
+        <a-table
+          rowKey='taskId'
+          :dataSource='qualityProcessSteps'
+          :columns='qualityOverviewColumns'
+          :pagination='false'
+          size='small'
+          bordered
+        ></a-table>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
@@ -389,6 +434,7 @@ import PlanForms from '@views/tiros/dispatch/trainplan/PlanForms'
 import TableBtnUtil from '@views/tiros/util/TableBtnUtil'
 import { ajaxGetDictItems } from '@api/api'
 import { download } from '@api/tirosFileApi'
+import { listQualityVisualProcessSteps, extractQualityPlanning } from '@/api/tirosApi'
 
 export default {
   name: 'list',
@@ -453,6 +499,20 @@ export default {
       selectedRow: null,
       variables: {},
       taskManageVisible: false,
+      qualityOverviewVisible: false,
+      qualityOverviewLoading: false,
+      qualityProcessSteps: [],
+      qualityPlanningSummary: {},
+      qualityOverviewColumns: [
+        { title: '工单号', dataIndex: 'orderCode', key: 'orderCode', width: 120, align: 'center' },
+        { title: '工序/工步', dataIndex: 'taskName', key: 'taskName', width: 180, align: 'left' },
+        { title: '已检查/总检查', key: 'checkRatio', width: 120, align: 'center', customRender: (text, row) => `${row.checkedPoints || 0}/${row.totalPoints || 0}` },
+        { title: '完成度', dataIndex: 'progressPercent', key: 'progressPercent', width: 90, align: 'center', customRender: (text) => `${text || 0}%` },
+        { title: '质量问题', dataIndex: 'qualityIssueCount', key: 'qualityIssueCount', width: 90, align: 'center' },
+        { title: '开口项', dataIndex: 'openItemCount', key: 'openItemCount', width: 90, align: 'center' },
+        { title: '质量等级', dataIndex: 'qualityLevel', key: 'qualityLevel', width: 90, align: 'center' },
+        { title: '状态色', dataIndex: 'statusColor', key: 'statusColor', width: 90, align: 'center' }
+      ],
       planViewVisible: false,
       editVisible: false,
       title: '列计划新增',
@@ -731,6 +791,35 @@ export default {
         this.$refs.planForms.show(selectRecords[0])
       } else {
         this.$message.error('请选择要关联表单的列计划!')
+      }
+    },
+    async openQualityOverview(row) {
+      const selected = row || this.selectedRow
+      if (!selected || !selected.id || !selected.trainNo) {
+        this.$message.warning('请选择带有车号的列计划')
+        return
+      }
+      this.qualityOverviewVisible = true
+      this.qualityOverviewLoading = true
+      try {
+        const [stepsRes, planningRes] = await Promise.all([
+          listQualityVisualProcessSteps({ planId: selected.id, trainNo: selected.trainNo }),
+          extractQualityPlanning({ planId: selected.id, trainNo: selected.trainNo, excludeNoNeed: true })
+        ])
+        if (stepsRes && stepsRes.success) {
+          this.qualityProcessSteps = stepsRes.result || []
+        } else {
+          this.qualityProcessSteps = []
+          this.$message.warning((stepsRes && stepsRes.message) || '工序质量总览加载失败')
+        }
+        if (planningRes && planningRes.success) {
+          this.qualityPlanningSummary = planningRes.result || {}
+        } else {
+          this.qualityPlanningSummary = {}
+          this.$message.warning((planningRes && planningRes.message) || '质量策划抽取失败')
+        }
+      } finally {
+        this.qualityOverviewLoading = false
       }
     },
     customRequestHistoryPlan(data) {

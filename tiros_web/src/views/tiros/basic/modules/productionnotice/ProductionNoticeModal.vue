@@ -87,6 +87,52 @@
           </a-col>
         </a-row>
 
+        <a-row v-if="model.noticeType === '1'">
+          <a-col :span="24">
+            <a-form-model-item label="关联作业记录表" :label-col="{ span: 3 }" :wrapper-col="{ span: 20 }">
+              <a-select
+                mode="multiple"
+                :value="relatedFormIdList"
+                placeholder="请选择需随工单下发的作业记录表"
+                allowClear
+                showSearch
+                optionFilterProp="children"
+                :maxTagCount="4"
+                :notFoundContent="formOptionLoading ? '加载中...' : undefined"
+                @change="onRelatedFormsChange"
+                @dropdownVisibleChange="onRelatedFormsDropdown"
+              >
+                <a-select-option v-for="item in relatedFormOptions" :key="item.id" :value="item.id">
+                  {{ item.code ? `${item.code} - ${item.title}` : item.title }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+
+        <a-row v-if="model.noticeType === '1' || model.noticeType === '2'">
+          <a-col :span="24">
+            <a-form-model-item label="关联附件" :label-col="{ span: 3 }" :wrapper-col="{ span: 20 }">
+              <a-select
+                mode="multiple"
+                :value="relatedDocIdList"
+                :placeholder="docSelectPlaceholder"
+                allowClear
+                showSearch
+                optionFilterProp="children"
+                :maxTagCount="4"
+                :notFoundContent="docOptionLoading ? '加载中...' : undefined"
+                @change="onRelatedDocsChange"
+                @dropdownVisibleChange="onRelatedDocsDropdown"
+              >
+                <a-select-option v-for="item in relatedDocOptions" :key="item.id" :value="item.id">
+                  {{ item.name }}
+                </a-select-option>
+              </a-select>
+            </a-form-model-item>
+          </a-col>
+        </a-row>
+
         <a-row>
           <a-col :span="12">
             <a-form-model-item label="编制人">
@@ -125,7 +171,7 @@
 </template>
 
 <script>
-import { saveProductionNotice, updateProductionNotice } from '@/api/tirosApi'
+import { saveProductionNotice, updateProductionNotice, pageOldWorkRecord, getDocumentPage } from '@/api/tirosApi'
 
 export default {
   name: 'ProductionNoticeModal',
@@ -141,6 +187,12 @@ export default {
     },
     showProgressHint() {
       return this.model.noticeType === '1'
+    },
+    docSelectPlaceholder() {
+      if (this.model.noticeType === '2') {
+        return '请选择需通知查看/下载的关联工艺文件'
+      }
+      return '请选择需随工单下发的附件'
     }
   },
   data() {
@@ -149,6 +201,12 @@ export default {
       visible: false,
       confirmLoading: false,
       model: {},
+      relatedFormIdList: [],
+      relatedDocIdList: [],
+      relatedFormOptions: [],
+      relatedDocOptions: [],
+      formOptionLoading: false,
+      docOptionLoading: false,
       validatorRules: {
         noticeNo: [{ required: true, message: '请输入通知单号', trigger: 'blur' }],
         title: [{ required: true, message: '请输入通知单标题', trigger: 'blur' }],
@@ -166,15 +224,31 @@ export default {
         completedTrains: 0,
         progress: '0%'
       }
+      this.relatedFormIdList = []
+      this.relatedDocIdList = []
+      this.relatedFormOptions = []
+      this.relatedDocOptions = []
+      this.loadRelatedFormOptions()
+      this.loadRelatedDocOptions()
     },
     edit(record) {
       this.title = '编辑生产通知单'
       this.visible = true
       this.model = Object.assign({}, record)
+      this.relatedFormIdList = this.parseIdCsv(record.relatedFormIds)
+      this.relatedDocIdList = this.parseIdCsv(record.relatedDocIds)
+      this.relatedFormOptions = []
+      this.relatedDocOptions = []
+      this.ensureSelectedFormOptions()
+      this.ensureSelectedDocOptions()
+      this.loadRelatedFormOptions()
+      this.loadRelatedDocOptions()
     },
     handleOk() {
       this.$refs.form.validate(valid => {
         if (valid) {
+          this.model.relatedFormIds = this.joinIds(this.relatedFormIdList)
+          this.model.relatedDocIds = this.joinIds(this.relatedDocIdList)
           this.confirmLoading = true
           const promise = this.model.id ? updateProductionNotice(this.model) : saveProductionNotice(this.model)
           promise.then(res => {
@@ -194,6 +268,98 @@ export default {
     handleCancel() {
       this.visible = false
       this.$refs.form.resetFields()
+      this.relatedFormIdList = []
+      this.relatedDocIdList = []
+    },
+    onRelatedFormsChange(values) {
+      this.relatedFormIdList = values || []
+    },
+    onRelatedDocsChange(values) {
+      this.relatedDocIdList = values || []
+    },
+    onRelatedFormsDropdown(open) {
+      if (open) {
+        this.loadRelatedFormOptions()
+      }
+    },
+    onRelatedDocsDropdown(open) {
+      if (open) {
+        this.loadRelatedDocOptions()
+      }
+    },
+    loadRelatedFormOptions() {
+      this.formOptionLoading = true
+      pageOldWorkRecord({ pageNo: 1, pageSize: 200 }).then(res => {
+        if (res && res.success) {
+          const records = (res.result && res.result.records) ? res.result.records : []
+          this.relatedFormOptions = records.map(item => ({
+            id: item.id,
+            code: item.code,
+            title: item.title || item.name || item.code || item.id
+          }))
+          this.ensureSelectedFormOptions()
+        }
+      }).finally(() => {
+        this.formOptionLoading = false
+      })
+    },
+    loadRelatedDocOptions() {
+      this.docOptionLoading = true
+      getDocumentPage({ pageNo: 1, pageSize: 200 }).then(res => {
+        if (res && res.success) {
+          const records = (res.result && res.result.records) ? res.result.records : []
+          this.relatedDocOptions = records
+            .filter(item => Number(item.isFile) === 1)
+            .map(item => ({
+              id: item.id,
+              name: item.name || item.id,
+              type: item.type,
+              savepath: item.savepath,
+              fileSize: item.fileSize
+            }))
+          this.ensureSelectedDocOptions()
+        }
+      }).finally(() => {
+        this.docOptionLoading = false
+      })
+    },
+    ensureSelectedFormOptions() {
+      const exists = {}
+      ;(this.relatedFormOptions || []).forEach(item => {
+        exists[item.id] = true
+      })
+      ;(this.relatedFormIdList || []).forEach(id => {
+        if (!exists[id]) {
+          this.relatedFormOptions.push({
+            id,
+            code: '',
+            title: `已关联记录表(${id})`
+          })
+        }
+      })
+    },
+    ensureSelectedDocOptions() {
+      const exists = {}
+      ;(this.relatedDocOptions || []).forEach(item => {
+        exists[item.id] = true
+      })
+      ;(this.relatedDocIdList || []).forEach(id => {
+        if (!exists[id]) {
+          this.relatedDocOptions.push({
+            id,
+            name: `已关联附件(${id})`
+          })
+        }
+      })
+    },
+    parseIdCsv(value) {
+      if (!value) {
+        return []
+      }
+      return String(value).split(',').map(item => item.trim()).filter(Boolean)
+    },
+    joinIds(list) {
+      return (list || []).map(item => String(item).trim()).filter(Boolean).join(',')
     }
   }
 }

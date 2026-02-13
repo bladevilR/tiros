@@ -1,8 +1,8 @@
 #NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
-#Thu Feb 05 14:05:36 CST 2026
-https\://maven.aliyun.com/repository/spring/.lastUpdated=1770271535940
-http\://maven.jeecg.org/nexus/content/repositories/jeecg/.lastUpdated=1770271536354
+#Thu Feb 12 14:10:16 CST 2026
+https\://maven.aliyun.com/repository/spring/.lastUpdated=1770876616522
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.lastUpdated=1770876616619
 https\://maven.aliyun.com/repository/public/.error=
-http\://maven.jeecg.org/nexus/content/repositories/jeecg/.error=
-https\://maven.aliyun.com/repository/public/.lastUpdated=1770271533610
 https\://maven.aliyun.com/repository/spring/.error=
+https\://maven.aliyun.com/repository/public/.lastUpdated=1770876616319
+http\://maven.jeecg.org/nexus/content/repositories/jeecg/.error=

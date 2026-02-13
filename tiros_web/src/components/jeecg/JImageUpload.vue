@@ -43,7 +43,7 @@ export default {
   name: 'JImageUpload',
   data () {
     return {
-      uploadAction: window._CONFIG['fileServiceUrl'] + '/minio/file/upload',
+      uploadAction: window._CONFIG['fileServiceUrl'] + '/oss/file/upload',
       uploadLoading: false,
       picUrl: false,
       headers: {},

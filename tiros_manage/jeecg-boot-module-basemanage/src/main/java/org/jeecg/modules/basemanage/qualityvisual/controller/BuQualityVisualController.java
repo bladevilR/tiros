@@ -10,6 +10,8 @@ import org.jeecg.common.aspect.annotation.OperationLog;
 import org.jeecg.common.constant.CommonConstant;
 import org.jeecg.common.system.base.controller.JeecgController;
 import org.jeecg.modules.basemanage.qualityvisual.entity.BuQualityVisual;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityPlanningSummaryVO;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityVisualProcessStepVO;
 import org.jeecg.modules.basemanage.qualityvisual.service.IBuQualityVisualService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Api(tags = "质量可视化管理")
@@ -87,6 +90,27 @@ public class BuQualityVisualController extends JeecgController<BuQualityVisual, 
     public Result<List<BuQualityVisual>> refreshByPlan(@RequestParam @ApiParam(value = "列计划ID", required = true) String planId) {
         List<BuQualityVisual> list = service.batchRefreshByPlan(planId);
         return new Result<List<BuQualityVisual>>().successResult(list);
+    }
+
+    @GetMapping("/process-steps")
+    @ApiOperation(value = "质量可视化-工序步骤明细")
+    @OperationLog()
+    public Result<List<BuQualityVisualProcessStepVO>> listProcessSteps(
+            @RequestParam @NotBlank @ApiParam(value = "列计划ID", required = true) String planId,
+            @RequestParam(required = false) @ApiParam(value = "车号") String trainNo) {
+        List<BuQualityVisualProcessStepVO> list = service.listProcessSteps(planId, trainNo);
+        return new Result<List<BuQualityVisualProcessStepVO>>().successResult(list);
+    }
+
+    @GetMapping("/quality-planning")
+    @ApiOperation(value = "质量可视化-质量策划抽取")
+    @OperationLog()
+    public Result<BuQualityPlanningSummaryVO> extractQualityPlanning(
+            @RequestParam @NotBlank @ApiParam(value = "列计划ID", required = true) String planId,
+            @RequestParam @NotBlank @ApiParam(value = "车号", required = true) String trainNo,
+            @RequestParam(required = false, defaultValue = "true") @ApiParam(value = "是否排除无需填报项") Boolean excludeNoNeed) {
+        BuQualityPlanningSummaryVO data = service.extractQualityPlanning(planId, trainNo, excludeNoNeed);
+        return new Result<BuQualityPlanningSummaryVO>().successResult(data);
     }
 
     @RequestMapping("/exportXls")

@@ -3,6 +3,8 @@ package org.jeecg.modules.basemanage.qualityvisual.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.jeecg.modules.basemanage.qualityvisual.entity.BuQualityVisual;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityPlanningSummaryVO;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityVisualProcessStepVO;
 
 import java.util.List;
 
@@ -13,4 +15,6 @@ public interface IBuQualityVisualService extends IService<BuQualityVisual> {
     boolean deleteRecord(String ids);
     BuQualityVisual refreshByPlanAndTrain(String planId, String trainNo, String trainType, String projectName);
     List<BuQualityVisual> batchRefreshByPlan(String planId);
+    List<BuQualityVisualProcessStepVO> listProcessSteps(String planId, String trainNo);
+    BuQualityPlanningSummaryVO extractQualityPlanning(String planId, String trainNo, Boolean excludeNoNeed);
 }

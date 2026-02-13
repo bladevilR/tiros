@@ -12,9 +12,27 @@
     <div class="editor-toolbar">
       <a-space>
         <a-button type="primary" @click="handleSave" :loading="loading">保存</a-button>
+        <a-dropdown>
+          <a-button>插入模板</a-button>
+          <a-menu slot="overlay" @click="handleInsertTemplate">
+            <a-menu-item key="cover">封面</a-menu-item>
+            <a-menu-item key="changeRecord">文件变更记录卡</a-menu-item>
+            <a-menu-item key="processFlow">工艺流程图</a-menu-item>
+            <a-menu-item key="preWork">作业前准备</a-menu-item>
+            <a-menu-item key="processStep">工序工步</a-menu-item>
+            <a-menu-item key="tools">工具工装</a-menu-item>
+            <a-menu-item key="consumables">消耗料</a-menu-item>
+            <a-menu-item key="materialDetail">物料明细</a-menu-item>
+            <a-menu-item key="torqueList">扭力值清单</a-menu-item>
+            <a-menu-item key="appendix">附录</a-menu-item>
+          </a-menu>
+        </a-dropdown>
         <a-button @click="handleRebuild">重新生成模板</a-button>
-        <a-button @click="handleExport">导出DOCX</a-button>
+        <a-button type="primary" @click="handleExport" :loading="loading">导出规范Word</a-button>
         <a-button @click="handleClose">关闭</a-button>
+      </a-space>
+      <a-space>
+        <a-button size="small" @click="insertPageBreak">插入分页符</a-button>
       </a-space>
       <div class="tips">
         当前模板：{{ record.fileName || '-' }}（版本：{{ record.fileVer || '-' }}）
@@ -29,6 +47,9 @@
 <script>
 import JEditor from '@/components/jeecg/JEditor'
 import { saveSopContent, getSopDetailPage, getSopDetailRecord } from '@/api/tirosApi'
+import * as tpl from './techManualTemplates'
+
+const placeholderTokens = ['{{FILE_NO}}', '{{FILE_NAME}}', '{{FILE_VER}}', '{{PROJECT_NO}}']
 
 export default {
   name: 'TechBookEditorModal',
@@ -51,8 +72,47 @@ export default {
     }
   },
   methods: {
+    handleInsertTemplate ({ key }) {
+      const templateMap = {
+        cover: tpl.coverTemplate,
+        changeRecord: tpl.changeRecordTemplate,
+        processFlow: tpl.processFlowTemplate,
+        preWork: tpl.preWorkTemplate,
+        processStep: tpl.processStepTemplate,
+        tools: tpl.toolsTemplate,
+        consumables: tpl.consumablesTemplate,
+        materialDetail: tpl.materialDetailTemplate,
+        torqueList: tpl.torqueListTemplate,
+        appendix: tpl.appendixTemplate
+      }
+      const fn = templateMap[key]
+      if (fn) {
+        const html = this.resolveTemplatePlaceholders(fn(this.record || {}))
+        this.contentHtml = (this.contentHtml || '') + html
+      }
+    },
+    resolveTemplatePlaceholders (html) {
+      let output = html || ''
+      const valueMap = {
+        '{{FILE_NO}}': (this.record && this.record.fileNo) ? this.record.fileNo : '',
+        '{{FILE_NAME}}': (this.record && this.record.fileName) ? this.record.fileName : '',
+        '{{FILE_VER}}': (this.record && this.record.fileVer) ? this.record.fileVer : '',
+        '{{PROJECT_NO}}': (this.record && (this.record.projectNo || this.record.project || this.record.fileNo))
+          ? (this.record.projectNo || this.record.project || this.record.fileNo)
+          : ''
+      }
+      placeholderTokens.forEach(token => {
+        output = output.split(token).join(valueMap[token])
+      })
+      return output
+    },
+    insertPageBreak () {
+      const pageBreakHtml = '<div style="page-break-after:always;"><span style="color:#999;">—— 分页 ——</span></div>'
+      this.contentHtml = (this.contentHtml || '') + pageBreakHtml
+    },
     async open (record) {
       this.record = record || {}
+      const canEdit = this.record.status === 0 || this.record.status === 2
       this.contentHtml = record.contentHtml || ''
       this.visible = true
       this.setEditorHeight()
@@ -69,7 +129,9 @@ export default {
             .map(r => r.result)
             .sort((a, b) => (a.stepNum || 0) - (b.stepNum || 0))
           this.contentHtml = this.renderTemplate(this.record, fullDetails)
-          await saveSopContent(this.record.id, this.contentHtml)
+          if (canEdit) {
+            await saveSopContent(this.record.id, this.contentHtml)
+          }
         } finally {
           this.loading = false
         }
@@ -78,6 +140,11 @@ export default {
     handleSave () {
       if (!this.record.id) {
         this.$message.warning('未选择指导书')
+        return
+      }
+      const editableByStatus = this.record.status === 2 || (this.record.status === 0 && this.record.reviewStatus !== 2)
+      if (!editableByStatus) {
+        this.$message.warning('仅草稿、审核中、审批中状态可编辑保存')
         return
       }
       this.loading = true
@@ -91,17 +158,45 @@ export default {
         }
       }).finally(() => { this.loading = false })
     },
-    handleExport () {
-      const html = `<html><head><meta charset="utf-8"></head><body>${this.contentHtml || '<p>暂无正文</p>'}</body></html>`
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${this.record.fileName || '作业指导书'}.docx`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+    async handleExport () {
+      if (!this.contentHtml) {
+        this.$message.warning('暂无正文内容，无法导出')
+        return
+      }
+
+      this.loading = true
+      try {
+        const response = await this.$axios({
+          method: 'post',
+          url: '/api/techmanual/export-word',
+          data: {
+            htmlContent: this.contentHtml,
+            manualName: this.record.fileName || '作业指导书',
+            fileNo: this.record.fileNo || '',
+            fileVer: this.record.fileVer || '1.0',
+            projectNo: this.record.projectNo || this.record.project || ''
+          },
+          responseType: 'blob'
+        })
+
+        // 下载文件
+        const fileName = `${this.record.fileName || '作业指导书'}.docx`
+        const blob = response.data
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = fileName
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        this.$message.success('导出成功！')
+      } catch (error) {
+        this.$message.error('导出失败：' + (error.message || '未知错误'))
+        console.error('导出失败', error)
+      } finally {
+        this.loading = false
+      }
     },
     handleRebuild () {
       if (!this.record.id) {
@@ -143,7 +238,10 @@ export default {
       this.editorHeight = Math.max(420, h - 220)
     },
     renderTemplate (record, details) {
-      const header = `
+      if (!details || details.length === 0) {
+        return ''
+      }
+      const autoHeader = `
         <h1 style="text-align:center;">${record.fileName || '作业指导书'}</h1>
         <table border="1" cellspacing="0" cellpadding="6" style="width:100%;border-collapse:collapse;">
           <tr>
@@ -158,7 +256,7 @@ export default {
             <td>实施日期</td><td colspan="3">${record.exeTime || ''}</td>
           </tr>
         </table>
-        <h2>作业步骤</h2>
+        <h2>工序工步</h2>
       `
       const body = (details || []).map((d, idx) => {
         const stepContent = d.stepContent ? `<div>${d.stepContent}</div>` : '<div>（无内容）</div>'
@@ -195,7 +293,7 @@ export default {
           ${toolTable}
         `
       }).join('')
-      return header + body
+      return autoHeader + body
     }
   }
 }

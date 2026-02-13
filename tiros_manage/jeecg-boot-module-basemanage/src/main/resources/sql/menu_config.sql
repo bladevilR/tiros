@@ -6,7 +6,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_basic_manage_parent',           -- ID
   NULL,                                   -- PARENT_ID (一级菜单，父ID为空)
   'TIROS基础管理',                       -- NAME
-  '/tiros/basic',                        -- URL
+  '/tiros/craft',                        -- URL
   'layouts/RouteView',                   -- COMPONENT (一级菜单使用RouteView)
   NULL,                                  -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -36,7 +36,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_production_notice',             -- ID
   'tiros_basic_manage_parent',           -- PARENT_ID
   '生产通知单',                          -- NAME
-  '/tiros/basic/production-notice',      -- URL
+  '/tiros/craft/production-notice',      -- URL
   'tiros/basic/ProductionNotice',        -- COMPONENT
   'ProductionNotice',                    -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -66,7 +66,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_quality_process',               -- ID
   'tiros_basic_manage_parent',           -- PARENT_ID
   '质量可视化',                          -- NAME
-  '/tiros/basic/quality-process',        -- URL
+  '/tiros/craft/quality-process',        -- URL
   'tiros/basic/QualityProcess',          -- COMPONENT
   'QualityProcess',                      -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -96,7 +96,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_quota_bom',                     -- ID
   'tiros_basic_manage_parent',           -- PARENT_ID
   '定额BOM',                             -- NAME
-  '/tiros/basic/quota-bom',              -- URL
+  '/tiros/craft/quota-bom',              -- URL
   'tiros/basic/QuotaBom',                -- COMPONENT
   'QuotaBom',                            -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -126,7 +126,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_standard_process',              -- ID
   'tiros_basic_manage_parent',           -- PARENT_ID
   '标准工序',                            -- NAME
-  '/tiros/basic/standard-process',       -- URL
+  '/tiros/craft/standard-process',       -- URL
   'tiros/basic/StandardProcess',         -- COMPONENT
   'StandardProcess',                     -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -156,7 +156,7 @@ INSERT INTO SYS_PERMISSION VALUES (
   'tiros_tech_manual',                   -- ID
   'tiros_basic_manage_parent',           -- PARENT_ID
   '工艺电子手册',                        -- NAME
-  '/tiros/basic/tech-manual',            -- URL
+  '/tiros/craft/tech-manual',            -- URL
   'tiros/basic/TechManual',              -- COMPONENT
   'TechManual',                          -- COMPONENT_NAME
   NULL,                                  -- REDIRECT
@@ -171,6 +171,36 @@ INSERT INTO SYS_PERMISSION VALUES (
   1,                                     -- KEEP_ALIVE (缓存页面)
   0,                                     -- HIDDEN
   '工艺电子手册管理',                    -- DESCRIPTION
+  'admin',                               -- CREATE_BY
+  SYSDATE,                               -- CREATE_TIME
+  'admin',                               -- UPDATE_BY
+  SYSDATE,                               -- UPDATE_TIME
+  0,                                     -- DEL_FLAG
+  0,                                     -- RULE_FLAG
+  '1',                                   -- STATUS
+  0                                      -- INTERNAL_OR_EXTERNAL
+);
+
+-- 7. 作业指导书
+INSERT INTO SYS_PERMISSION VALUES (
+  'tiros_job_guide_book',                -- ID
+  'tiros_basic_manage_parent',           -- PARENT_ID
+  '作业指导书',                          -- NAME
+  '/tiros/craft/job-guide-book',         -- URL
+  'tiros/basic/JobGuideBook',            -- COMPONENT
+  'JobGuideBook',                        -- COMPONENT_NAME
+  NULL,                                  -- REDIRECT
+  1,                                     -- MENU_TYPE (1-子菜单)
+  NULL,                                  -- PERMS
+  '1',                                   -- PERMS_TYPE
+  6,                                     -- SORT_NO
+  0,                                     -- ALWAYS_SHOW
+  'file-done',                           -- ICON
+  1,                                     -- IS_ROUTE
+  1,                                     -- IS_LEAF (叶子节点)
+  1,                                     -- KEEP_ALIVE (缓存页面)
+  0,                                     -- HIDDEN
+  '作业指导书管理',                      -- DESCRIPTION
   'admin',                               -- CREATE_BY
   SYSDATE,                               -- CREATE_TIME
   'admin',                               -- UPDATE_BY

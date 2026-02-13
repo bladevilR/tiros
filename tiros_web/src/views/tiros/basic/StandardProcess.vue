@@ -47,9 +47,11 @@
             <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
               <a-space>
                 <a-button type="primary" @click="handleAdd">新增</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handleView(selectRows[0])">查看</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
-                <a-button @click="handleExport">导出</a-button>
+                <a-button :disabled="selectRows.length < 1" @click="handleExportPDF">导出PDF</a-button>
+                <a-button @click="handleExport">导出Excel</a-button>
                 <a-upload
                   name="file"
                   :showUploadList="false"
@@ -113,6 +115,7 @@
     </div>
 
     <standard-process-modal ref="processModal" @ok="loadData()"></standard-process-modal>
+    <standard-process-view-modal ref="viewModal"></standard-process-view-modal>
   </div>
 </template>
 
@@ -120,6 +123,7 @@
 import moment from 'moment'
 import 'moment/locale/zh-cn'
 import StandardProcessModal from './modules/standardprocess/StandardProcessModal'
+import StandardProcessViewModal from './modules/standardprocess/StandardProcessViewModal'
 import { pageStandardProcess, deleteStandardProcess } from '@/api/tirosApi'
 import { downFile } from '@/api/manage'
 import Vue from 'vue'
@@ -127,7 +131,7 @@ import { ACCESS_TOKEN } from '@/store/mutation-types'
 
 export default {
   name: 'StandardProcess',
-  components: { StandardProcessModal },
+  components: { StandardProcessModal, StandardProcessViewModal },
   computed: {
     importExcelUrl() {
       return `${window._CONFIG['domianURL']}/base/standard-process/importExcel`
@@ -183,6 +187,9 @@ export default {
     handleAdd () {
       this.$refs.processModal.add()
     },
+    handleView (record) {
+      this.$refs.viewModal.view(record)
+    },
     handleEdit (record) {
       this.$refs.processModal.edit(record)
     },
@@ -225,6 +232,35 @@ export default {
         link.click()
         document.body.removeChild(link)
         window.URL.revokeObjectURL(url)
+      })
+    },
+    handleExportPDF() {
+      if (this.selectRows.length === 0) {
+        this.$message.warning('请先选择要导出的记录')
+        return
+      }
+      this.$message.loading('正在生成PDF，请稍候...', 0)
+      const ids = this.selectRows.map(row => row.id).join(',')
+      downFile('/base/standard-process/exportPdf', { ids }).then((data) => {
+        this.$message.destroy()
+        if (!data) {
+          this.$message.warning('PDF生成失败')
+          return
+        }
+        const blob = new Blob([data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '标准工序.pdf')
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        this.$message.success('PDF导出成功')
+      }).catch(() => {
+        this.$message.destroy()
+        this.$message.error('PDF导出失败')
       })
     },
     handleImportExcel(info) {

@@ -219,7 +219,7 @@
       myMenuSelect(value){
         //此处触发动态路由被点击事件
         this.findMenuBykey(this.menus,value.key)
-        this.$emit("dynamicRouterShow",value.key,this.activeMenu.meta.title)
+        this.$emit("dynamicRouterShow",this.activeMenu.path,this.activeMenu.meta.title)
         // update-begin-author:sunjianlei date:20191223 for: 修复刷新后菜单Tab名字显示异常
         let storeKey = 'route:title:' + this.activeMenu.path
         this.$ls.set(storeKey, this.activeMenu.meta.title)
@@ -227,7 +227,7 @@
       },
       findMenuBykey(menus,key){
         for(let i of menus){
-          if(i.path===key){
+          if(String(i.path)===String(key) || String(i.id)===String(key)){
             this.activeMenu = {...i}
           }else if(i.children && i.children.length>0){
             this.findMenuBykey(i.children,key)

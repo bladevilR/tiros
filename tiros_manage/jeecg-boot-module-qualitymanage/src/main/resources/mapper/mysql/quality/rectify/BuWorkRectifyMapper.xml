@@ -87,7 +87,7 @@
         LEFT JOIN bu_mtr_line t5 ON t5.line_id = t1.line_id
         LEFT JOIN bu_work_order t6 ON t6.id=t1.order_id
         LEFT JOIN bu_mtr_workstation t7 ON t7.id=t1.workstation_id
-        LEFT JOIN bu_work_order_task t8 on t8.order_id=t1.order_task_id
+        LEFT JOIN bu_work_order_task t8 on t8.id=t1.order_task_id
         <where>
             <if test="queryVO.searchText != null and queryVO.searchText != ''">
                 AND

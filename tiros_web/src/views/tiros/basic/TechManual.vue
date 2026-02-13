@@ -11,7 +11,51 @@
 
           <a-col :md="6" :sm="24">
             <a-form-item label="线路">
-              <a-input placeholder="请输入线路" v-model="queryParam.lineId" allowClear></a-input>
+              <a-select
+                v-model="queryParam.lineId"
+                allowClear
+                showSearch
+                optionFilterProp="children"
+                placeholder="全部"
+              >
+                <a-select-option v-for="item in lineOptions" :key="item.value" :value="item.value">
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :md="6" :sm="24">
+            <a-form-item label="状态">
+              <a-select v-model="queryParam.bizStatus" allowClear placeholder="全部">
+                <a-select-option value="DRAFT">草稿</a-select-option>
+                <a-select-option value="REVIEWING">审核中</a-select-option>
+                <a-select-option value="REVIEW_PASS">审核通过</a-select-option>
+                <a-select-option value="APPROVING">审批中</a-select-option>
+                <a-select-option value="APPROVED">审批通过</a-select-option>
+                <a-select-option value="PUBLISHED">发布</a-select-option>
+                <a-select-option value="OBSOLETE">作废</a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :md="6" :sm="24">
+            <a-form-item label="车型">
+              <a-select v-model="queryParam.trainTypeId" allowClear showSearch optionFilterProp="children" placeholder="全部">
+                <a-select-option v-for="item in trainTypeOptions" :key="item.value" :value="item.value">
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
+            </a-form-item>
+          </a-col>
+
+          <a-col :md="6" :sm="24">
+            <a-form-item label="修程">
+              <a-select v-model="queryParam.repairProId" allowClear showSearch optionFilterProp="children" placeholder="全部">
+                <a-select-option v-for="item in repairProgramOptions" :key="item.value" :value="item.value">
+                  {{ item.label }}
+                </a-select-option>
+              </a-select>
             </a-form-item>
           </a-col>
 
@@ -24,15 +68,27 @@
             </a-form-item>
           </a-col>
 
-          <a-col :md="6" :sm="8">
+          <a-col :md="6" :sm="24">
+            <a-form-item label="编制人">
+              <a-input placeholder="请输入编制人" v-model="queryParam.creatorName" allowClear></a-input>
+            </a-form-item>
+          </a-col>
+
+          <a-col :md="12" :sm="24">
             <span style="float: left;overflow: hidden;" class="table-page-search-submitButtons">
               <a-space>
                 <a-button type="primary" @click="handleAdd">新建指导书</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEdit(selectRows[0])">编辑基础信息</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleEditContent(selectRows[0])">编辑正文</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleSaveAsTemplate">保存为模板</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handleSubmitReview(selectRows[0])">提交审核</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handleSubmitApprove(selectRows[0])">提交审批</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handleApproveDecision(selectRows[0])">审批</a-button>
+                <a-button :disabled="selectRows.length != 1" @click="handlePublish(selectRows[0])">发布</a-button>
                 <a-button :disabled="selectRows.length != 1" @click="handleReviseVersion(selectRows[0])">修订升版</a-button>
                 <a-button :disabled="selectRows.length < 1" @click="handleDelete">删除</a-button>
+                <a-button :disabled="selectRows.length < 1" @click="handleBatchExport">导出PDF</a-button>
+                <a-button @click="handleExportCatalog">导出目录</a-button>
                 <a-button @click="handleSearch">查询</a-button>
               </a-space>
             </span>
@@ -56,43 +112,38 @@
         :checkbox-config="{trigger: 'row', highlight: true, range: true}"
       >
         <vxe-table-column type="checkbox" width="40"></vxe-table-column>
-        <vxe-table-column field="fileNo" title="文件编号" width="12%" header-align="center" align="left"></vxe-table-column>
-        <vxe-table-column field="fileName" title="文件名称" width="18%" header-align="center" align="left"></vxe-table-column>
-        <vxe-table-column field="fileVer" title="版本" width="8%" header-align="center" align="center"></vxe-table-column>
-        <vxe-table-column field="lineName" title="线路" width="10%" header-align="center" align="left"></vxe-table-column>
-        <vxe-table-column field="repairProgramName" title="修程" width="10%" header-align="center" align="left"></vxe-table-column>
-        <vxe-table-column field="status" title="发布" width="7%" header-align="center" align="center">
+        <vxe-table-column field="fileNo" title="文件编号" width="11%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="fileName" title="文件名称" width="16%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="fileVer" title="版本" width="6%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="lineName" title="线路" width="8%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="trainTypeName" title="车型" width="10%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="repairProgramName" title="修程" width="8%" header-align="center" align="left"></vxe-table-column>
+        <vxe-table-column field="creatorName" title="编制人" width="8%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="statusText" title="状态" width="8%" header-align="center" align="center">
           <template slot-scope="scope">
-            <span v-if="scope.row.status === 1">发布</span>
-            <span v-else>草稿</span>
+            <a-tag :color="statusColor(scope.row)">{{ formatBizStatus(scope.row) }}</a-tag>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="reviewStatus" title="审阅" width="8%" header-align="center" align="center">
-          <template slot-scope="scope">
-            <span v-if="scope.row.reviewStatus === 1">待审</span>
-            <span v-else-if="scope.row.reviewStatus === 2">通过</span>
-            <span v-else-if="scope.row.reviewStatus === 3">驳回</span>
-            <span v-else>草稿</span>
-          </template>
-        </vxe-table-column>
-        <vxe-table-column field="reviewerName" title="审阅人" width="8%" header-align="center" align="center"></vxe-table-column>
-        <vxe-table-column field="templateFlag" title="类型" width="8%" header-align="center" align="center">
+        <vxe-table-column field="reviewerName" title="当前处理人" width="8%" header-align="center" align="center"></vxe-table-column>
+        <vxe-table-column field="templateFlag" title="类型" width="6%" header-align="center" align="center">
           <template slot-scope="scope">
             <a-tag :color="scope.row.templateFlag === 1 ? 'blue' : 'green'">
               {{ scope.row.templateFlag === 1 ? '模板' : '正式' }}
             </a-tag>
           </template>
         </vxe-table-column>
-        <vxe-table-column field="updateTime" title="修改日期" width="10%" :formatter="formatDate"></vxe-table-column>
-        <vxe-table-column title="操作" width="29%" header-align="center" align="center">
+        <vxe-table-column field="updateTime" title="修改日期" width="11%" :formatter="formatDate"></vxe-table-column>
+        <vxe-table-column title="操作" width="27%" header-align="center" align="center">
           <template slot-scope="{ row }">
             <a-space>
-              <a @click="handleEditContent(row)">编辑正文</a>
-              <a @click="handleExport(row)">导出</a>
-              <a @click="handleSubmitReview(row)">提交审阅</a>
-              <a @click="handleReviewDecision(row)">审阅</a>
-              <a @click="handlePublish(row)">更新指导书</a>
-              <a @click="handleReviseVersion(row)">修订升版</a>
+              <a @click="handleEditContent(row)">查看/正文</a>
+              <a @click="handleExport(row)">导出PDF</a>
+              <a @click="handleSubmitReview(row)">提交审核</a>
+              <a @click="handleReviewDecision(row)">审核</a>
+              <a @click="handleSubmitApprove(row)">提交审批</a>
+              <a @click="handleApproveDecision(row)">审批</a>
+              <a @click="handlePublish(row)">发布</a>
+              <a @click="handleReviseVersion(row)">修订</a>
             </a-space>
           </template>
         </vxe-table-column>
@@ -121,7 +172,20 @@ import TechmanualDetailModal from './modules/techmanual/TechmanualDetailModal'
 import TechBookEditorModal from './modules/techmanual/TechBookEditorModal'
 import TechBookReviewModal from './modules/techmanual/TechBookReviewModal'
 import UserList from '@views/tiros/common/selectModules/UserList'
-import { getSopPage, delSopRecord, saveSopAsTemplate, reviseSopVersion, updateSopStatus, submitSopReview, getSopDetailPage, getSopDetailRecord, saveSopContent } from '@/api/tirosApi'
+import { ajaxGetDictItems } from '@/api/api'
+import {
+  getSopPage,
+  delSopRecord,
+  saveSopAsTemplate,
+  reviseSopVersion,
+  updateSopStatus,
+  submitSopReview,
+  submitSopApprove,
+  decisionSopApprove,
+  getSopDetailPage,
+  getSopDetailRecord,
+  saveSopContent
+} from '@/api/tirosApi'
 
 export default {
   components: { TechmanualDetailModal, TechBookEditorModal, TechBookReviewModal, UserList },
@@ -129,9 +193,19 @@ export default {
     return {
       selectRows: [],
       pendingReviewRecord: null,
+      pendingApproveRecord: null,
+      reviewerAction: 'review',
+      lineOptions: [],
+      repairProgramOptions: [],
+      trainTypeOptions: [],
+      printFrameWindow: null,
       queryParam: {
         formName: '',
-        lineId: '',
+        creatorName: '',
+        lineId: undefined,
+        bizStatus: undefined,
+        trainTypeId: undefined,
+        repairProId: undefined,
         templateFlag: undefined,
         pageNo: 1,
         pageSize: 10
@@ -143,9 +217,52 @@ export default {
     }
   },
   created () {
+    this.loadDictOptions()
     this.loadData()
   },
   methods: {
+    downloadExcel (rows, filename) {
+      const headers = ['序号', '线路', '状态', '车型', '修程', '文件编号', '文件名称', '版本号', '编制人']
+      const body = (rows || []).map((row, idx) => {
+        const values = [
+          idx + 1,
+          row.lineName || '',
+          this.formatBizStatus(row),
+          row.trainTypeName || '',
+          row.repairProgramName || '',
+          row.fileNo || '',
+          row.fileName || '',
+          row.fileVer || '',
+          row.creatorName || ''
+        ]
+        return values.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+      })
+      const csv = [headers.join(','), ...body].join('\n')
+      const blob = new Blob(['\ufeff', csv], { type: 'text/csv;charset=utf-8;' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.style.display = 'none'
+      link.href = url
+      link.setAttribute('download', filename)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    },
+    loadDictOptions () {
+      ajaxGetDictItems('bu_mtr_line,line_name,line_id', null).then(res => {
+        const list = (res && res.success) ? (res.result || []) : []
+        this.lineOptions = list.map(item => ({ label: item.text, value: item.value }))
+      })
+      ajaxGetDictItems('bu_train_type,name,id', null).then(res => {
+        const list = (res && res.success) ? (res.result || []) : []
+        this.trainTypeOptions = list.map(item => ({ label: item.text, value: item.value }))
+      })
+      ajaxGetDictItems('bu_repair_program,name,id', null).then(res => {
+        const list = (res && res.success) ? (res.result || []) : []
+        this.repairProgramOptions = list.map(item => ({ label: item.text, value: item.value }))
+      })
+    },
     checkboxChange (e) {
       this.selectRows = e.records
     },
@@ -164,9 +281,6 @@ export default {
       this.queryParam.pageNo = 1
       this.loadData()
     },
-    handleQueryChange () {
-      this.handleSearch()
-    },
     handlePageChange ({ currentPage, pageSize }) {
       this.queryParam.pageNo = currentPage
       this.queryParam.pageSize = pageSize
@@ -176,9 +290,16 @@ export default {
       this.$refs.techmanualModal.add()
     },
     handleEdit (record) {
+      if (!this.canEdit(record)) {
+        this.$message.warning('仅草稿、审核中、审批中状态可编辑')
+        return
+      }
       this.$refs.techmanualModal.edit(record)
     },
     handleEditContent (record) {
+      if (!record || !record.id) {
+        return
+      }
       this.$refs.editorModal.open(record)
     },
     handleDelete () {
@@ -186,9 +307,14 @@ export default {
         this.$message.warning('请先选择要删除的记录')
         return
       }
+      const blocked = this.selectRows.filter(row => row.status === 1 || row.status === 9)
+      if (blocked.length > 0) {
+        this.$message.warning('发布/作废状态不允许删除')
+        return
+      }
       this.$confirm({
         title: '删除确认',
-        content: '确认删除选中的工艺电子手册吗？',
+        content: '确认删除选中的作业指导书吗？',
         onOk: () => {
           const ids = this.selectRows.map(row => row.id).join(',')
           delSopRecord({ ids }).then((res) => {
@@ -221,6 +347,10 @@ export default {
     handleReviseVersion (record) {
       if (!record || !record.id) {
         this.$message.warning('请选择指导书')
+        return
+      }
+      if (record.status !== 1) {
+        this.$message.warning('仅发布状态可修订升版')
         return
       }
       const currentVer = String(record.fileVer || '').trim()
@@ -262,73 +392,208 @@ export default {
       }
       return ''
     },
+    canEdit (record) {
+      if (!record) {
+        return false
+      }
+      if (record.status === 2) {
+        return true
+      }
+      return record.status === 0 && (record.reviewStatus === 0 || record.reviewStatus === 1)
+    },
     handleSubmitReview (record) {
-      if (record.reviewStatus === 1) {
-        this.$message.warning('该指导书已提交审阅，请勿重复提交')
+      if (!record || !record.id) {
         return
       }
-      if (record.status === 1) {
-        this.$message.warning('已发布指导书无需再提交审阅')
+      if (record.status !== 0 || record.reviewStatus !== 0) {
+        this.$message.warning('仅草稿状态可提交审核')
         return
       }
+      this.reviewerAction = 'review'
       this.pendingReviewRecord = record
       this.$refs.reviewerSelect.showModal()
     },
-    onReviewerSelected (users) {
-      if (!this.pendingReviewRecord) {
-        return
-      }
-      if (!users || users.length === 0) {
-        this.$message.warning('请选择审阅人')
-        return
-      }
-      const reviewer = users[0]
-      submitSopReview({
-        id: this.pendingReviewRecord.id,
-        reviewerId: reviewer.id,
-        reviewerName: reviewer.realname || reviewer.username
-      }).then(res => {
-        if (res.success) {
-          this.$message.success('已提交审阅')
-          this.loadData()
-        } else {
-          this.$message.error(res.message || '提交失败')
-        }
-      }).finally(() => {
-        this.pendingReviewRecord = null
-      })
-    },
     handleReviewDecision (record) {
-      if (record.reviewStatus !== 1) {
-        this.$message.warning('仅待审状态可进行审阅')
+      if (record.reviewStatus !== 1 || record.status !== 0) {
+        this.$message.warning('仅审核中状态可进行审核')
         return
       }
       this.$refs.reviewModal.open(record)
     },
-    handlePublish (record) {
-      if (record.reviewStatus !== 2) {
-        this.$message.warning('请先通过审阅再更新指导书')
+    handleSubmitApprove (record) {
+      if (!record || !record.id) {
         return
       }
-      updateSopStatus({ id: record.id, status: 1 }).then(res => {
-        if (res.success) {
-          this.$message.success('已更新并发布')
-          this.loadData()
+      if (record.status !== 0 || record.reviewStatus !== 2) {
+        this.$message.warning('仅审核通过状态可提交审批')
+        return
+      }
+      this.reviewerAction = 'approve'
+      this.pendingApproveRecord = record
+      this.$refs.reviewerSelect.showModal()
+    },
+    handleApproveDecision (record) {
+      if (!record || !record.id) {
+        return
+      }
+      if (record.status !== 2) {
+        this.$message.warning('仅审批中状态可审批')
+        return
+      }
+      this.$confirm({
+        title: '审批处理',
+        content: '是否审批通过？若需退回请点“否”并填写原因。',
+        okText: '是',
+        cancelText: '否',
+        onOk: () => {
+          decisionSopApprove({ id: record.id, approveStatus: 1 }).then(res => {
+            if (res.success) {
+              this.$message.success('审批通过')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '审批失败')
+            }
+          })
+        },
+        onCancel: async () => {
+          const reason = window.prompt('请输入审批退回原因')
+          if (reason === null) {
+            return
+          }
+          const text = String(reason || '').trim()
+          if (!text) {
+            this.$message.warning('请输入退回原因')
+            return
+          }
+          decisionSopApprove({ id: record.id, approveStatus: 2, approveComment: text }).then(res => {
+            if (res.success) {
+              this.$message.success('已退回')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '退回失败')
+            }
+          })
+        }
+      })
+    },
+    onReviewerSelected (users) {
+      if (!users || users.length === 0) {
+        this.$message.warning('请选择处理人')
+        return
+      }
+      const handler = users[0]
+      if (this.reviewerAction === 'approve' && this.pendingApproveRecord) {
+        submitSopApprove({
+          id: this.pendingApproveRecord.id,
+          approverId: handler.id,
+          approverName: handler.realname || handler.username
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('已提交审批')
+            this.loadData()
+          } else {
+            this.$message.error(res.message || '提交失败')
+          }
+        }).finally(() => {
+          this.pendingApproveRecord = null
+          this.reviewerAction = 'review'
+        })
+        return
+      }
+      if (this.pendingReviewRecord) {
+        submitSopReview({
+          id: this.pendingReviewRecord.id,
+          reviewerId: handler.id,
+          reviewerName: handler.realname || handler.username
+        }).then(res => {
+          if (res.success) {
+            this.$message.success('已提交审核')
+            this.loadData()
+          } else {
+            this.$message.error(res.message || '提交失败')
+          }
+        }).finally(() => {
+          this.pendingReviewRecord = null
+          this.reviewerAction = 'review'
+        })
+      }
+    },
+    handlePublish (record) {
+      if (!record || !record.id) {
+        return
+      }
+      if (record.status !== 3) {
+        this.$message.warning('请先审批通过后再发布')
+        return
+      }
+      this.$confirm({
+        title: '发布确认',
+        content: '发布后将自动作废同文件编号的旧发布版本，是否继续？',
+        onOk: () => {
+          updateSopStatus({ id: record.id, status: 1 }).then(res => {
+            if (res.success) {
+              this.$message.success('已发布')
+              this.loadData()
+            } else {
+              this.$message.error(res.message || '发布失败')
+            }
+          })
         }
       })
     },
     async handleExport (record) {
       const content = await this.ensureContentHtml(record)
-      const html = `<html><head><meta charset="utf-8"></head><body>${content}</body></html>`
-      const blob = new Blob(['\ufeff', html], { type: 'application/msword' })
-      const url = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `${record.fileName || '作业指导书'}.docx`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      this.openPrintWindow(content)
+    },
+    async handleBatchExport () {
+      const rows = this.selectRows || []
+      if (rows.length === 0) {
+        this.$message.warning('请先选择要导出的指导书')
+        return
+      }
+      const htmlList = []
+      for (const row of rows) {
+        const content = await this.ensureContentHtml(row)
+        const title = row.fileName || row.fileNo || '作业指导书'
+        htmlList.push(`<section style="page-break-after:always;"><h2 style="text-align:center;">${title}</h2>${content}</section>`)
+      }
+      this.openPrintWindow(htmlList.join(''))
+    },
+    handleExportCatalog () {
+      const params = {
+        ...this.queryParam,
+        pageNo: 1,
+        pageSize: 2000
+      }
+      getSopPage(params).then(res => {
+        if (!res || !res.success) {
+          this.$message.warning('目录导出失败')
+          return
+        }
+        const rows = (res.result && res.result.records) ? res.result.records : []
+        this.downloadExcel(rows, '作业指导书目录.csv')
+      })
+    },
+    openPrintWindow (html) {
+      const iframeWindow = this.printFrameWindow || this.ensurePrintFrame()
+      const iframeDocument = iframeWindow.document
+      iframeDocument.open()
+      iframeDocument.write(`<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${html}</body></html>`)
+      iframeDocument.close()
+      iframeWindow.focus()
+      iframeWindow.print()
+    },
+    ensurePrintFrame () {
+      const frame = document.createElement('iframe')
+      frame.style.position = 'fixed'
+      frame.style.right = '-9999px'
+      frame.style.bottom = '-9999px'
+      frame.style.width = '0'
+      frame.style.height = '0'
+      frame.setAttribute('tabindex', '-1')
+      document.body.appendChild(frame)
+      this.printFrameWindow = frame.contentWindow
+      return this.printFrameWindow
     },
     async ensureContentHtml (record) {
       if (record.contentHtml) {
@@ -348,13 +613,54 @@ export default {
         record.contentHtml = html
         return html
       } catch (e) {
-        this.$message.warning('生成模板正文失败，请先编辑正文')
+        this.$message.warning('生成正文失败，请先编辑正文')
         return '<p>暂无正文</p>'
       }
     },
+    formatBizStatus (row) {
+      if (!row) {
+        return '-'
+      }
+      if (row.status === 9) {
+        return '作废'
+      }
+      if (row.status === 1) {
+        return '发布'
+      }
+      if (row.status === 3) {
+        return '审批通过'
+      }
+      if (row.status === 2) {
+        return '审批中'
+      }
+      if (row.reviewStatus === 1) {
+        return '审核中'
+      }
+      if (row.reviewStatus === 2) {
+        return '审核通过'
+      }
+      return '草稿'
+    },
+    statusColor (row) {
+      const status = this.formatBizStatus(row)
+      if (status === '发布') {
+        return 'green'
+      }
+      if (status === '审批通过') {
+        return 'cyan'
+      }
+      if (status === '审批中' || status === '审核中') {
+        return 'blue'
+      }
+      if (status === '作废') {
+        return 'red'
+      }
+      return 'default'
+    },
     formatDate (row) {
-      if (row.createTime) {
-        return moment(row.createTime).format('YYYY-MM-DD HH:mm:ss')
+      const time = row.updateTime || row.createTime
+      if (time) {
+        return moment(time).format('YYYY-MM-DD HH:mm:ss')
       }
       return ''
     }

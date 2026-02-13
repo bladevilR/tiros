@@ -209,14 +209,32 @@ const delSopRecord = (params) => postAction('/base/tech-book/delete', params)
 const saveSopContent = (id, contentHtml) => postAction(`/base/tech-book/content/save?id=${id}`, { contentHtml })
 const updateSopStatus = (params) => postAction(`/base/tech-book/status?${qs.stringify(params)}`)
 const saveSopAsTemplate = (params) => postAction(`/base/tech-book/saveTemplate?${qs.stringify(params)}`)
+const saveSopByReuse = (sourceId, params) => postAction(`/base/tech-book/saveByReuse?sourceId=${sourceId}`, params)
 const submitSopReview = (params) => postAction(`/base/tech-book/review/submit?${qs.stringify(params)}`)
 const decisionSopReview = (params) => postAction(`/base/tech-book/review/decision?${qs.stringify(params)}`)
+const submitSopApprove = (params) => postAction(`/base/tech-book/approve/submit?${qs.stringify(params)}`)
+const decisionSopApprove = (params) => postAction(`/base/tech-book/approve/decision?${qs.stringify(params)}`)
 const reviseSopVersion = (params) => postAction(`/base/tech-book/revise?${qs.stringify(params)}`)
 
 const getSopDetailPage = (params) => getAction('/base/tech-book/detail/page', params)
 const getSopDetailRecord = (params) => getAction('/base/tech-book/detail/get', params)
 const saveSopDetailRecord = (params) => postAction('/base/tech-book/detail/save', params)
 const delSopDetailRecord = (params) => postAction('/base/tech-book/detail/delete', params)
+
+// 作业指导书（Job Guide Book）
+const getJgbPage = (params) => getAction('/base/job-guide-book/page', params)
+const saveJgbRecord = (params) => postAction('/base/job-guide-book/save', params)
+const delJgbRecord = (params) => postAction('/base/job-guide-book/delete', params)
+const saveJgbContent = (id, contentHtml) => postAction(`/base/job-guide-book/content/save?id=${id}`, { contentHtml })
+const updateJgbStatus = (params) => postAction(`/base/job-guide-book/status?${qs.stringify(params)}`)
+const saveJgbAsTemplate = (params) => postAction(`/base/job-guide-book/saveTemplate?${qs.stringify(params)}`)
+const saveJgbByReuse = (sourceId, params) => postAction(`/base/job-guide-book/saveByReuse?sourceId=${sourceId}`, params)
+const submitJgbReview = (params) => postAction(`/base/job-guide-book/review/submit?${qs.stringify(params)}`)
+const decisionJgbReview = (params) => postAction(`/base/job-guide-book/review/decision?${qs.stringify(params)}`)
+const submitJgbApprove = (params) => postAction(`/base/job-guide-book/approve/submit?${qs.stringify(params)}`)
+const decisionJgbApprove = (params) => postAction(`/base/job-guide-book/approve/decision?${qs.stringify(params)}`)
+const reviseJgbVersion = (params) => postAction(`/base/job-guide-book/revise?${qs.stringify(params)}`)
+const exportJgbPdf = (fileName, params) => downloadFile('/base/job-guide-book/export/pdf', fileName, params)
 
 // 作业检查表管理
 const getWorkCheckList = (params) => getAction('/workcheck/list', params)
@@ -243,6 +261,8 @@ const submitProductionNotice = (params) => postAction('/base/production-notice/s
 const publishProductionNotice = (params) => postAction('/base/production-notice/publish?' + qs.stringify(params))
 const closeProductionNotice = (params) => postAction('/base/production-notice/close?' + qs.stringify(params))
 const listProductionNoticeProgressDetail = (params) => getAction('/base/production-notice/progress-detail', params)
+const listProductionNoticeFormProgress = (params) => getAction('/base/production-notice/form-progress', params)
+const getProductionNoticeRelationPayload = (params) => getAction('/base/production-notice/relation-payload', params)
 
 // 标准工序管理
 const pageStandardProcess = (params) => getAction('/base/standard-process/page', params)
@@ -267,6 +287,8 @@ const updateQualityVisual = (params) => putAction('/base/quality-visual/update',
 const deleteQualityVisual = (params) => deleteAction('/base/quality-visual/delete', params)
 const refreshQualityVisual = (params) => postAction('/base/quality-visual/refresh?' + qs.stringify(params))
 const refreshQualityVisualByPlan = (params) => postAction('/base/quality-visual/refresh-by-plan?' + qs.stringify(params))
+const listQualityVisualProcessSteps = (params) => getAction('/base/quality-visual/process-steps', params)
+const extractQualityPlanning = (params) => getAction('/base/quality-visual/quality-planning', params)
 
 export {
   getOrgTree,
@@ -417,8 +439,11 @@ export {
   saveSopContent,
   updateSopStatus,
   saveSopAsTemplate,
+  saveSopByReuse,
   submitSopReview,
   decisionSopReview,
+  submitSopApprove,
+  decisionSopApprove,
   reviseSopVersion,
   getSopDetailPage,
   saveSopDetailRecord,
@@ -449,6 +474,8 @@ export {
   publishProductionNotice,
   closeProductionNotice,
   listProductionNoticeProgressDetail,
+  listProductionNoticeFormProgress,
+  getProductionNoticeRelationPayload,
   pageStandardProcess,
   getStandardProcess,
   saveStandardProcess,
@@ -466,5 +493,20 @@ export {
   updateQualityVisual,
   deleteQualityVisual,
   refreshQualityVisual,
-  refreshQualityVisualByPlan
+  refreshQualityVisualByPlan,
+  listQualityVisualProcessSteps,
+  extractQualityPlanning,
+  getJgbPage,
+  saveJgbRecord,
+  delJgbRecord,
+  saveJgbContent,
+  updateJgbStatus,
+  saveJgbAsTemplate,
+  saveJgbByReuse,
+  submitJgbReview,
+  decisionJgbReview,
+  submitJgbApprove,
+  decisionJgbApprove,
+  reviseJgbVersion,
+  exportJgbPdf
 }

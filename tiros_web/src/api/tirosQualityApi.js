@@ -36,6 +36,14 @@ const leaveRecordExport = (fileName, params) => downloadFile(`/quality/leavereco
 //故障管理
 const getBreakDownList = (params) => getAction("/quality/fault/info/page", params);
 
+// 例外转序
+const pageExceptionTransfer = (params) => getAction('/quality/exception-transfer/page', params)
+const getExceptionTransfer = (params) => getAction('/quality/exception-transfer/get', params)
+const saveExceptionTransfer = (params) => postAction('/quality/exception-transfer/add', params)
+const updateExceptionTransfer = (params) => postAction('/quality/exception-transfer/edit', params)
+const decideExceptionTransfer = (params) => postAction('/quality/exception-transfer/decide', params)
+const deleteExceptionTransfer = (params) => postAction('/quality/exception-transfer/delete', params)
+
 // 作业记录表确认
 const getRecordTable = (params) => getAction('/quality/record-confirm/list', params)
 const confirmCheck = (params) => postAction('/quality/record-confirm/confirm', params)
@@ -74,6 +82,12 @@ export {
   getOpenItemList,
   leaveRecordExport,
   getBreakDownList,
+  pageExceptionTransfer,
+  getExceptionTransfer,
+  saveExceptionTransfer,
+  updateExceptionTransfer,
+  decideExceptionTransfer,
+  deleteExceptionTransfer,
   getRecordTable,
   confirmCheck,
   getRecordTableDetail,
