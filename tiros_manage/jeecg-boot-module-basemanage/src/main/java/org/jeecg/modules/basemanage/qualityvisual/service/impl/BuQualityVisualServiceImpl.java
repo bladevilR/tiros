@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.jeecg.common.exception.JeecgBootException;
 import org.jeecg.modules.basemanage.qualityvisual.entity.BuQualityVisual;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityPlanningItemVO;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityPlanningSummaryVO;
+import org.jeecg.modules.basemanage.qualityvisual.entity.vo.BuQualityVisualProcessStepVO;
 import org.jeecg.modules.basemanage.qualityvisual.mapper.BuQualityVisualMapper;
 import org.jeecg.modules.basemanage.qualityvisual.service.IBuQualityVisualService;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,10 +18,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -217,6 +224,158 @@ public class BuQualityVisualServiceImpl extends ServiceImpl<BuQualityVisualMappe
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<BuQualityVisualProcessStepVO> listProcessSteps(String planId, String trainNo) {
+        if (StringUtils.isBlank(planId)) {
+            throw new JeecgBootException("计划ID不能为空");
+        }
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT o.id AS order_id, o.order_code, o.order_name, o.order_status, ")
+                .append("o.start_time, o.finish_time, ")
+                .append("t.id AS task_id, t.task_no, t.task_name, ")
+                .append("COUNT(DISTINCT d.id) AS total_points, ")
+                .append("COUNT(DISTINCT CASE WHEN r.id IS NOT NULL THEN d.id END) AS checked_points, ")
+                .append("COUNT(DISTINCT CASE WHEN f.submit_status = 1 THEN f.id END) AS quality_issue_count, ")
+                .append("COUNT(DISTINCT CASE WHEN l.status = 0 THEN l.id END) AS open_item_count ")
+                .append("FROM bu_work_order o ")
+                .append("LEFT JOIN bu_work_order_task t ON t.order_id = o.id ")
+                .append("LEFT JOIN bu_work_order_task_form_inst fi ON fi.work_order_task_id = t.id AND fi.inst_type = 3 ")
+                .append("LEFT JOIN bu_pl_work_record_detail d ON d.work_record_id = fi.form_inst_id ")
+                .append("LEFT JOIN bu_pl_work_record_result r ON r.record_detail_id = d.id ")
+                .append("LEFT JOIN bu_fault_info f ON f.work_order_id = o.id AND f.order_task_id = t.id ")
+                .append("LEFT JOIN bu_work_leave_record l ON l.order_id = o.id AND l.order_task_id = t.id ")
+                .append("WHERE o.plan_id = ? AND o.order_status <> 9 ");
+
+        Object[] args;
+        int[] argTypes;
+        if (StringUtils.isNotBlank(trainNo)) {
+            sqlBuilder.append("AND o.train_no = ? ");
+            args = new Object[]{planId, trainNo};
+            argTypes = new int[]{Types.VARCHAR, Types.VARCHAR};
+        } else {
+            args = new Object[]{planId};
+            argTypes = new int[]{Types.VARCHAR};
+        }
+
+        sqlBuilder.append("GROUP BY o.id, o.order_code, o.order_name, o.order_status, o.start_time, o.finish_time, t.id, t.task_no, t.task_name ")
+                .append("ORDER BY o.order_code, t.task_no");
+
+        return jdbcTemplate.query(sqlBuilder.toString(), args, argTypes, (rs, rowNum) -> {
+            BuQualityVisualProcessStepVO item = new BuQualityVisualProcessStepVO();
+            item.setOrderId(rs.getString("order_id"));
+            item.setOrderCode(rs.getString("order_code"));
+            item.setOrderName(rs.getString("order_name"));
+            item.setOrderStatus(rs.getObject("order_status") == null ? null : rs.getInt("order_status"));
+            item.setTaskId(rs.getString("task_id"));
+            item.setTaskNo(rs.getObject("task_no") == null ? null : rs.getInt("task_no"));
+            item.setTaskName(rs.getString("task_name"));
+            item.setStartTime(rs.getDate("start_time"));
+            item.setFinishTime(rs.getDate("finish_time"));
+
+            int totalPoints = rs.getInt("total_points");
+            int checkedPoints = rs.getInt("checked_points");
+            int qualityIssueCount = rs.getInt("quality_issue_count");
+            int openItemCount = rs.getInt("open_item_count");
+
+            item.setTotalPoints(totalPoints);
+            item.setCheckedPoints(checkedPoints);
+            item.setQualityIssueCount(qualityIssueCount);
+            item.setOpenItemCount(openItemCount);
+
+            int progressPercent = 0;
+            if (totalPoints > 0) {
+                progressPercent = (int) Math.round((checkedPoints * 100.0D) / totalPoints);
+            } else if (Objects.equals(item.getOrderStatus(), 4)) {
+                progressPercent = 100;
+            }
+            item.setProgressPercent(progressPercent);
+
+            String color = "yellow";
+            if (openItemCount > 0) {
+                color = "red";
+            } else if (progressPercent >= 100 && qualityIssueCount == 0) {
+                color = "green";
+            }
+            item.setStatusColor(color);
+
+            String level;
+            if (openItemCount > 0) {
+                level = "D";
+            } else if (qualityIssueCount > 3) {
+                level = "C";
+            } else if (qualityIssueCount > 0) {
+                level = "B";
+            } else {
+                level = "A";
+            }
+            item.setQualityLevel(level);
+            return item;
+        });
+    }
+
+    @Override
+    public BuQualityPlanningSummaryVO extractQualityPlanning(String planId, String trainNo, Boolean excludeNoNeed) {
+        if (StringUtils.isBlank(planId) || StringUtils.isBlank(trainNo)) {
+            throw new JeecgBootException("计划ID和车号不能为空");
+        }
+        StringBuilder sqlBuilder = new StringBuilder();
+        sqlBuilder.append("SELECT o.id AS order_id, o.order_code, o.order_name, ")
+                .append("t.id AS task_id, t.task_name, fi.form_inst_id, d.id AS record_detail_id, ")
+                .append("d.work_content, d.tech_require, d.check_level, d.is_ignore, ")
+                .append("CASE WHEN MAX(r.id) IS NULL THEN 0 ELSE 1 END AS filled ")
+                .append("FROM bu_work_order o ")
+                .append("LEFT JOIN bu_work_order_task t ON t.order_id = o.id ")
+                .append("LEFT JOIN bu_work_order_task_form_inst fi ON fi.work_order_task_id = t.id AND fi.inst_type = 3 ")
+                .append("LEFT JOIN bu_pl_work_record_detail d ON d.work_record_id = fi.form_inst_id ")
+                .append("LEFT JOIN bu_pl_work_record_result r ON r.record_detail_id = d.id ")
+                .append("WHERE o.plan_id = ? AND o.train_no = ? AND o.order_status <> 9 AND d.id IS NOT NULL ");
+
+        if (Boolean.TRUE.equals(excludeNoNeed)) {
+            sqlBuilder.append("AND COALESCE(d.is_ignore, 0) = 0 ");
+        }
+
+        sqlBuilder.append("GROUP BY o.id, o.order_code, o.order_name, t.id, t.task_no, t.task_name, fi.form_inst_id, d.id, d.work_content, d.tech_require, d.check_level, d.is_ignore ")
+                .append("ORDER BY o.order_code, t.task_no, d.id");
+
+        List<BuQualityPlanningItemVO> items = jdbcTemplate.query(
+                sqlBuilder.toString(),
+                new Object[]{planId, trainNo},
+                new int[]{Types.VARCHAR, Types.VARCHAR},
+                (rs, rowNum) -> {
+                    BuQualityPlanningItemVO item = new BuQualityPlanningItemVO();
+                    item.setOrderId(rs.getString("order_id"));
+                    item.setOrderCode(rs.getString("order_code"));
+                    item.setOrderName(rs.getString("order_name"));
+                    item.setTaskId(rs.getString("task_id"));
+                    item.setTaskName(rs.getString("task_name"));
+                    item.setFormInstId(rs.getString("form_inst_id"));
+                    item.setRecordDetailId(rs.getString("record_detail_id"));
+                    item.setWorkContent(rs.getString("work_content"));
+                    item.setTechRequire(rs.getString("tech_require"));
+                    Integer checkLevel = rs.getObject("check_level") == null ? null : rs.getInt("check_level");
+                    item.setCheckLevel(checkLevel);
+                    item.setCheckLevelText(parseCheckLevelText(checkLevel));
+                    item.setNoNeedFill(rs.getObject("is_ignore") == null ? 0 : rs.getInt("is_ignore"));
+                    item.setFilled(rs.getInt("filled"));
+                    return item;
+                });
+
+        BuQualityPlanningSummaryVO summary = new BuQualityPlanningSummaryVO();
+        summary.setPlanId(planId);
+        summary.setTrainNo(trainNo);
+        summary.setItems(items);
+
+        int total = items.size();
+        int noNeed = (int) items.stream().filter(e -> Objects.equals(e.getNoNeedFill(), 1)).count();
+        int filled = (int) items.stream().filter(e -> Objects.equals(e.getFilled(), 1)).count();
+        int pending = (int) items.stream().filter(e -> !Objects.equals(e.getNoNeedFill(), 1) && !Objects.equals(e.getFilled(), 1)).count();
+        summary.setTotalItems(total);
+        summary.setNoNeedFillItems(noNeed);
+        summary.setFilledItems(filled);
+        summary.setPendingItems(pending);
+        return summary;
+    }
+
     private List<String> parseIdList(String ids) {
         if (StringUtils.isBlank(ids)) {
             return Collections.emptyList();
@@ -257,5 +416,16 @@ public class BuQualityVisualServiceImpl extends ServiceImpl<BuQualityVisualMappe
                         "WHERE o.plan_id = ? AND o.train_no = ? AND lr.status = 0",
                 planId, trainNo));
         return "{\"fault\":" + faultTotal + ",\"open\":" + openTotal + "}";
+    }
+
+    private String parseCheckLevelText(Integer checkLevel) {
+        if (checkLevel == null) {
+            return "";
+        }
+        Map<Integer, String> map = new HashMap<>();
+        map.put(1, "W点");
+        map.put(2, "H点");
+        map.put(3, "R点");
+        return map.getOrDefault(checkLevel, "");
     }
 }

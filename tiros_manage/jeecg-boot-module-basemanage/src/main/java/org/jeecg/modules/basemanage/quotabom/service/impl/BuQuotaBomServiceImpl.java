@@ -39,10 +39,40 @@ public class BuQuotaBomServiceImpl extends ServiceImpl<BuQuotaBomMapper, BuQuota
                 queryWrapper.like("train_type", query.getTrainType());
             }
             if (StringUtils.isNotBlank(query.getLine())) {
-                queryWrapper.like("line", query.getLine());
+                List<String> lineList = Arrays.stream(query.getLine().split(","))
+                        .map(StringUtils::trimToNull)
+                        .filter(StringUtils::isNotBlank)
+                        .collect(Collectors.toList());
+                if (!lineList.isEmpty()) {
+                    queryWrapper.and(w -> {
+                        for (int i = 0; i < lineList.size(); i++) {
+                            if (i == 0) {
+                                w.eq("line", lineList.get(i));
+                            } else {
+                                w.or().eq("line", lineList.get(i));
+                            }
+                        }
+                        return w;
+                    });
+                }
             }
             if (StringUtils.isNotBlank(query.getPosition())) {
-                queryWrapper.like("position", query.getPosition());
+                List<String> positionList = Arrays.stream(query.getPosition().split(","))
+                        .map(StringUtils::trimToNull)
+                        .filter(StringUtils::isNotBlank)
+                        .collect(Collectors.toList());
+                if (!positionList.isEmpty()) {
+                    queryWrapper.and(w -> {
+                        for (int i = 0; i < positionList.size(); i++) {
+                            if (i == 0) {
+                                w.eq("position", positionList.get(i));
+                            } else {
+                                w.or().eq("position", positionList.get(i));
+                            }
+                        }
+                        return w;
+                    });
+                }
             }
             if (StringUtils.isNotBlank(query.getSystem())) {
                 queryWrapper.like("system", query.getSystem());

@@ -10,6 +10,31 @@
   >
     <a-form :form="form" layout="vertical">
       <a-row :gutter="16">
+        <a-col :md="24">
+          <a-form-item>
+            <a-checkbox v-model="reuseEnabled">从既有作业指导书复用</a-checkbox>
+          </a-form-item>
+        </a-col>
+      </a-row>
+
+      <a-row :gutter="16" v-if="reuseEnabled && !isEdit">
+        <a-col :md="24">
+          <a-form-item label="复用来源" :required="true">
+            <a-select
+              showSearch
+              optionFilterProp="children"
+              placeholder="请选择要复用的作业指导书"
+              v-model="reuseSourceId"
+            >
+              <a-select-option v-for="item in reuseOptions" :key="item.id" :value="item.id">
+                {{ item.fileNo }} - {{ item.fileName }}（{{ item.fileVer }}）
+              </a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-col>
+      </a-row>
+
+      <a-row :gutter="16">
         <a-col :md="12">
           <a-form-item label="文件编号" :required="true">
             <a-input
@@ -96,7 +121,7 @@
 </template>
 
 <script>
-import { saveSopRecord } from '@/api/tirosApi'
+import { saveSopRecord, saveSopByReuse, getSopPage } from '@/api/tirosApi'
 import { ajaxGetDictItems } from '@/api/api'
 
 export default {
@@ -107,6 +132,9 @@ export default {
       form: this.$form.createForm(this),
       record: null,
       isEdit: false,
+      reuseEnabled: false,
+      reuseSourceId: '',
+      reuseOptions: [],
       lineOptions: [],
       repairProgramOptions: []
     }
@@ -130,16 +158,26 @@ export default {
           value: item.value
         }))
       })
+      getSopPage({ pageNo: 1, pageSize: 1000, templateFlag: 0 }).then(res => {
+        if (res && res.success) {
+          const records = (res.result && res.result.records) ? res.result.records : []
+          this.reuseOptions = records.filter(item => item && item.status !== 9)
+        }
+      })
     },
     add () {
       this.isEdit = false
       this.record = null
+      this.reuseEnabled = false
+      this.reuseSourceId = ''
       this.form.resetFields()
       this.visible = true
     },
     edit (record) {
       this.isEdit = true
       this.record = record
+      this.reuseEnabled = false
+      this.reuseSourceId = ''
       this.visible = true
       this.$nextTick(() => {
         this.form.setFieldsValue({
@@ -160,12 +198,19 @@ export default {
             this.$message.warning('已发布指导书不允许修改基础信息')
             return
           }
+          if (!this.isEdit && this.reuseEnabled && !this.reuseSourceId) {
+            this.$message.warning('请选择复用来源')
+            return
+          }
           this.loading = true
           const params = {
             ...values,
             id: this.isEdit ? this.record.id : undefined
           }
-          saveSopRecord(params).then((res) => {
+          const req = (!this.isEdit && this.reuseEnabled)
+            ? saveSopByReuse(this.reuseSourceId, params)
+            : saveSopRecord(params)
+          req.then((res) => {
             if (res.success) {
               this.$message.success(this.isEdit ? '修改成功' : '新增成功')
               this.handleCancel()
@@ -183,6 +228,8 @@ export default {
       this.visible = false
       this.form.resetFields()
       this.record = null
+      this.reuseEnabled = false
+      this.reuseSourceId = ''
     }
   }
 }
